@@ -348,6 +348,37 @@ export const supabaseStore: Store = {
     return (data as Family | null) ?? null;
   },
 
+  async getFamilyByGoogleSub(sub) {
+    const { data, error } = await db()
+      .from("families")
+      .select("*")
+      .eq("google_sub", sub)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return (data as Family | null) ?? null;
+  },
+
+  async linkGoogleToFamily(id, input) {
+    const conflict = await this.getFamilyByGoogleSub(input.googleSub);
+    if (conflict && conflict.id !== id) {
+      throw new Error("Akun Google ini sudah terhubung dengan keluarga lain.");
+    }
+    const data = must(
+      await db()
+        .from("families")
+        .update({
+          google_sub: input.googleSub,
+          email: input.email,
+          phone_verified_at: input.verifiedAt,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", id)
+        .select("*")
+        .single(),
+    );
+    return data as Family;
+  },
+
   async createFamily(input) {
     const existing = await this.getFamilyByPhone(input.phone);
     if (existing) return existing;

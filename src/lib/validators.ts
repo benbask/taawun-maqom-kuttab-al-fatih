@@ -49,6 +49,16 @@ export const additionSchema = z.object({
   note: z.string().trim().max(300).optional(),
 });
 
+export const googleTokenSchema = z.object({
+  credential: z.string().min(16, "Token Google tidak valid.").max(16_384),
+});
+
+export const googleBindSchema = z.object({
+  confirm: z.boolean().refine((value) => value, {
+    message: "Konfirmasi pengikatan akun diperlukan.",
+  }),
+});
+
 export const adminLoginSchema = z.object({
   username: z.string().trim().min(3).max(50),
   password: z.string().min(8).max(200),

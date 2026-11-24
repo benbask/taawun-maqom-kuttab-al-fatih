@@ -13,6 +13,7 @@ Situs pendaftaran dan pembayaran Ta'awun untuk Maqom Kuttab Al Fatih Lampung. Gr
 - Tambah Ta'awun untuk santri, kelas, atau Umum dengan alur OTP dan QRIS yang sama.
 - Halaman invoice dengan QRIS dinamis, hitung mundur, salin nominal, unggah bukti (JPG/PNG/WEBP/PDF, maksimal 3 MB), dan pengecekan status otomatis.
 - Akun pengguna dengan riwayat invoice dan status pembayaran.
+- Login dengan Google (opsional): pengguna baru mengikat akun Google lewat OTP WhatsApp sekali, login berikutnya langsung masuk. Tombol otomatis tersembunyi jika client ID belum diisi.
 
 ### Admin
 - Login username/password (bcrypt + JWT cookie), penyiapan akun pertama sekali jalan, ganti password.
@@ -71,7 +72,9 @@ npm run build
 6. Jalankan `worker/` di Oracle Cloud Always Free (Docker/VM), isi `worker/.env` dengan kunci Supabase dan `OTP_ENCRYPTION_KEY` yang **sama persis** dengan web.
 7. Buka `/admin/whatsapp`, pindai QR dengan WhatsApp admin.
 
-Panduan lengkap ada di [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+Panduan lengkap ada di [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md), termasuk [aktivasi Login Google](docs/GOOGLE_LOGIN.md).
+
+Jika memakai Supabase, jalankan juga `supabase/migrations/0002_google_auth.sql` setelah migrasi pertama.
 
 ## Lisensi
 

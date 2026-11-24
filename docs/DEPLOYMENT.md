@@ -16,14 +16,15 @@ Tanpa worker, sistem tetap berfungsi dengan mode manual: admin melihat kode OTP 
 
 1. Buat project di https://supabase.com.
 2. Buka **SQL Editor → New query**, tempel seluruh isi `supabase/migrations/0001_init.sql`, lalu jalankan.
-3. Migration membuat:
+3. Jalankan pula `supabase/migrations/0002_google_auth.sql` (kolom `email`, `google_sub`, `phone_verified_at` pada `families`).
+4. Migration membuat:
    - tabel `settings`, `admins`, `classes`, `form_fields`, `families`, `students`, `invoices`, `invoice_items`, `otp_requests`, `wa_session`, `audit_logs`;
    - sequence nomor invoice;
    - RPC `create_invoice` untuk alokasi kode unik yang aman terhadap konkurensi;
    - RLS (akses lewat service role);
    - bucket Storage `proofs` (private) dan `site-assets` (public);
    - seed `settings`, `wa_session`, dan kelas contoh.
-4. Salin **Project URL**, **anon key**, dan **service_role key** dari *Project Settings → API*.
+5. Salin **Project URL**, **anon key**, dan **service_role key** dari *Project Settings → API*.
 
 > Service role key hanya boleh disimpan di server (Vercel environment variable dan worker). Jangan pernah memakainya di kode client.
 
@@ -47,6 +48,9 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 SESSION_SECRET=<32+ karakter acak>
 OTP_ENCRYPTION_KEY=<32+ karakter acak, berbeda dari SESSION_SECRET>
 UPLOAD_MAX_BYTES=3145728
+
+# Opsional — aktifkan tombol "Masuk dengan Google"
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
 ```
 
 Buat nilai acak dengan:
@@ -60,6 +64,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 ### Domain kustom
 
 Tambahkan domain di *Vercel → Project Settings → Domains*, lalu perbarui `NEXT_PUBLIC_APP_URL` dan redeploy.
+
+Untuk mengaktifkan Login Google, ikuti [`docs/GOOGLE_LOGIN.md`](GOOGLE_LOGIN.md).
 
 ---
 

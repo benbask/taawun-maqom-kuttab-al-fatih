@@ -309,6 +309,26 @@ export const demoStore: Store = {
     return withDb((db) => db.families.find((item) => item.id === id) ?? null);
   },
 
+  async getFamilyByGoogleSub(sub) {
+    return withDb((db) => db.families.find((item) => item.google_sub === sub) ?? null);
+  },
+
+  async linkGoogleToFamily(id, input) {
+    return withDb((db) => {
+      const conflict = db.families.find(
+        (item) => item.google_sub === input.googleSub && item.id !== id,
+      );
+      if (conflict) throw new Error("Akun Google ini sudah terhubung dengan keluarga lain.");
+      const family = db.families.find((item) => item.id === id);
+      if (!family) throw new Error("Keluarga tidak ditemukan.");
+      family.google_sub = input.googleSub;
+      family.email = input.email;
+      family.phone_verified_at = input.verifiedAt;
+      family.updated_at = now();
+      return { ...family };
+    });
+  },
+
   async createFamily(input) {
     return withDb((db) => {
       const existing = db.families.find((item) => item.phone === input.phone);
@@ -317,6 +337,9 @@ export const demoStore: Store = {
         id: crypto.randomUUID(),
         phone: input.phone,
         parent_name: input.parentName,
+        email: null,
+        google_sub: null,
+        phone_verified_at: null,
         custom_data: input.customData ?? {},
         consent_at: input.consentAt ?? now(),
         created_at: now(),

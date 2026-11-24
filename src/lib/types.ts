@@ -91,10 +91,20 @@ export interface Family {
   id: string;
   phone: string;
   parent_name: string;
+  email: string | null;
+  google_sub: string | null;
+  phone_verified_at: string | null;
   custom_data: Record<string, unknown>;
   consent_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface GoogleIdentity {
+  sub: string;
+  email: string | null;
+  name: string | null;
+  emailVerified: boolean;
 }
 
 export interface Student {
@@ -269,6 +279,11 @@ export interface Store {
 
   getFamilyByPhone(phone: string): Promise<Family | null>;
   getFamilyById(id: string): Promise<Family | null>;
+  getFamilyByGoogleSub(sub: string): Promise<Family | null>;
+  linkGoogleToFamily(
+    id: string,
+    input: { googleSub: string; email: string | null; verifiedAt: string },
+  ): Promise<Family>;
   createFamily(input: {
     phone: string;
     parentName: string;
