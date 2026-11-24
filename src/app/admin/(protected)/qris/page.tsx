@@ -4,7 +4,6 @@ import { FileSpreadsheet, Info, QrCode } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { buttonClasses } from "@/components/ui/button";
 import { PageHeader } from "@/components/admin/page-header";
-import { QrisPayloadField } from "@/components/admin/qris-payload-field";
 import { SettingsForm } from "@/components/admin/settings-form";
 import { formatPhone } from "@/lib/format";
 import { qrDataUrl } from "@/lib/qr-image";
@@ -147,15 +146,7 @@ export default async function AdminQrisPage() {
             ],
           },
         ]}
-        renderControl={(field, value, setValue, controlId) =>
-          field.key === "qris_payload" ? (
-            <QrisPayloadField
-              id={controlId}
-              value={value}
-              onChange={setValue}
-            />
-          ) : undefined
-        }
+        imageDecodeField="qris_payload"
       />
     </div>
   );

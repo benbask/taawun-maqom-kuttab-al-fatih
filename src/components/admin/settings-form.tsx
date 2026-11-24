@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
+import { QrisPayloadField } from "@/components/admin/qris-payload-field";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -13,7 +14,6 @@ import {
   Label,
   Textarea,
 } from "@/components/ui/field";
-import type { ReactNode } from "react";
 import type { Settings } from "@/lib/types";
 
 type FieldKey = keyof Settings;
@@ -30,16 +30,11 @@ export interface SettingsField {
 export function SettingsForm({
   settings,
   sections,
-  renderControl,
+  imageDecodeField,
 }: {
   settings: Settings;
   sections: Array<{ title: string; description?: string; fields: SettingsField[] }>;
-  renderControl?: (
-    field: SettingsField,
-    value: string,
-    setValue: (value: string) => void,
-    id: string,
-  ) => ReactNode;
+  imageDecodeField?: FieldKey;
 }) {
   const router = useRouter();
   const [values, setValues] = useState<Record<string, string>>(() =>
@@ -112,13 +107,12 @@ export function SettingsForm({
                 className={field.textarea || field.type === "url" ? "sm:col-span-2" : undefined}
               >
                 <Label htmlFor={`setting-${field.key as string}`}>{field.label}</Label>
-                {renderControl ? (
-                  renderControl(
-                    field,
-                    values[field.key as string] ?? "",
-                    (value) => set(field.key, value),
-                    `setting-${field.key as string}`,
-                  )
+                {imageDecodeField && field.key === imageDecodeField ? (
+                  <QrisPayloadField
+                    id={`setting-${field.key as string}`}
+                    value={values[field.key as string] ?? ""}
+                    onChange={(value) => set(field.key, value)}
+                  />
                 ) : field.textarea ? (
                   <Textarea
                     id={`setting-${field.key as string}`}
