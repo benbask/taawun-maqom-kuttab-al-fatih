@@ -2,6 +2,8 @@
 
 Situs pendaftaran dan pembayaran Ta'awun untuk Maqom Kuttab Al Fatih Lampung. Gratis, open-source, dan dapat di-deploy dengan biaya rendah (Vercel + Supabase + Oracle Cloud Always Free).
 
+**Situs produksi:** https://maqom2026.vercel.app
+
 **Dibuat oleh: Beny Abu Ibrahim**
 
 ## Fitur
