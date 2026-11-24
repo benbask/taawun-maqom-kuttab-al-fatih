@@ -38,7 +38,10 @@ export async function POST(request: NextRequest) {
         "Gunakan payload QRIS statis (tanpa nominal). QRIS dinamis dibuat otomatis oleh sistem.",
       );
     }
-    patch.qris_payload = patch.qris_payload.replace(/\s+/g, "");
+    // Spasi di dalam nilai TLV (mis. nama/kota merchant) adalah bagian dari
+    // payload sah. Menghapusnya setelah validasi akan merusak panjang tag dan
+    // CRC, sehingga QRIS dinamis gagal dibuat. Simpan persis apa yang lolos
+    // validasi.
     patch.qris_merchant_name = validation.merchantName;
     patch.qris_merchant_city = validation.merchantCity;
   }

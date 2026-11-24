@@ -182,9 +182,10 @@ export default async function InvoicePage({
                     QRIS belum tersedia
                   </h2>
                   <p className="mt-1 text-xs leading-relaxed text-stone-500">
-                    Admin belum mengunggah QRIS statis. Silakan hubungi admin untuk
-                    menyelesaikan pembayaran dengan menyebutkan nomor invoice{" "}
-                    <span className="font-mono font-bold">{invoice.invoice_no}</span>.
+                    QRIS dinamis belum bisa dibuat. Hubungi admin dengan
+                    menyebutkan nomor invoice{" "}
+                    <span className="font-mono font-bold">{invoice.invoice_no}</span>
+                    , atau gunakan QRIS statis di halaman utama jika tersedia.
                   </p>
                 </div>
               </div>

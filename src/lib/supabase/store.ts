@@ -116,7 +116,12 @@ async function ensureQris(invoice: InvoiceWithDetails) {
       .update({ qris_payload: payload, updated_at: new Date().toISOString() })
       .eq("id", invoice.id);
     return { ...invoice, qris_payload: payload };
-  } catch {
+  } catch (error) {
+    console.error(
+      "[qris] gagal membuat QRIS dinamis untuk invoice",
+      invoice.id,
+      error instanceof Error ? error.message : error,
+    );
     return invoice;
   }
 }
