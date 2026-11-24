@@ -11,8 +11,6 @@ export async function POST(request: NextRequest) {
   if (!sameOrigin(request)) return apiError("Permintaan tidak valid.", 403);
 
   const ip = getClientIp(request);
-  const ipLimit = rateLimit(`otp-request:${ip}`, 10, 10 * 60 * 1000);
-  if (!ipLimit.allowed) return rateLimitResponse(ipLimit);
 
   const body = await readJson(request);
   const parsed = otpRequestSchema.safeParse(body);
@@ -27,8 +25,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const phoneLimit = rateLimit(`otp-phone:${phone}`, 3, 10 * 60 * 1000);
-  if (!phoneLimit.allowed) return rateLimitResponse(phoneLimit);
+  // Nomor demo memakai kode tetap dan boleh dicoba berkali-kali.
+  if (!isDemoPhone(phone)) {
+    const ipLimit = rateLimit(`otp-request:${ip}`, 10, 10 * 60 * 1000);
+    if (!ipLimit.allowed) return rateLimitResponse(ipLimit);
+
+    const phoneLimit = rateLimit(`otp-phone:${phone}`, 3, 10 * 60 * 1000);
+    if (!phoneLimit.allowed) return rateLimitResponse(phoneLimit);
+  }
 
   try {
     const result = await requestOtp(phone, ip);

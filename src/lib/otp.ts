@@ -76,12 +76,18 @@ export async function verifyOtp(phone: string, code: string): Promise<VerifyOtpR
   if (new Date(otp.expires_at).getTime() < Date.now()) {
     return { ok: false, error: "Kode sudah kedaluwarsa. Silakan minta kode baru." };
   }
-  if (otp.attempts >= 5) {
+  if (otp.attempts >= 5 && !isDemoPhone(phone)) {
     return { ok: false, error: "Terlalu banyak percobaan. Silakan minta kode baru." };
   }
 
   const expected = hashOtp(phone, code);
   if (!timingSafeEqualText(expected, otp.code_hash)) {
+    if (isDemoPhone(phone)) {
+      return {
+        ok: false,
+        error: "Kode salah. Untuk mode demo gunakan kode 8888.",
+      };
+    }
     const attempts = await store.incrementOtpAttempts(otp.id);
     return {
       ok: false,

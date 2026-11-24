@@ -10,10 +10,6 @@ import { otpVerifySchema } from "@/lib/validators";
 export async function POST(request: NextRequest) {
   if (!sameOrigin(request)) return apiError("Permintaan tidak valid.", 403);
 
-  const ip = getClientIp(request);
-  const limit = rateLimit(`otp-verify:${ip}`, 25, 10 * 60 * 1000);
-  if (!limit.allowed) return rateLimitResponse(limit);
-
   const body = await readJson(request);
   const parsed = otpVerifySchema.safeParse(body);
   if (!parsed.success) {
@@ -22,6 +18,12 @@ export async function POST(request: NextRequest) {
 
   const phone = resolvePhone(parsed.data.phone);
   if (!phone) return apiError("Nomor WhatsApp tidak valid.");
+
+  // Demo tidak dibatasi supaya bisa dicoba berkali-kali.
+  if (!isDemoPhone(phone)) {
+    const limit = rateLimit(`otp-verify:${getClientIp(request)}`, 25, 10 * 60 * 1000);
+    if (!limit.allowed) return rateLimitResponse(limit);
+  }
 
   try {
     const demo = isDemoPhone(phone);
