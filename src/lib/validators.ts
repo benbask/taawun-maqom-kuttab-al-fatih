@@ -68,16 +68,16 @@ export const adminSetupSchema = z.object({
 
 export const settingsSchema = z
   .object({
-    site_name: z.string().trim().min(3).max(120),
-    tagline: z.string().trim().max(200),
-    hero_title: z.string().trim().min(3).max(160),
-    hero_subtitle: z.string().trim().max(300),
-    info_markdown: z.string().max(20000),
+    site_name: z.string().trim().min(3).max(120).nullable(),
+    tagline: z.string().trim().max(200).nullable(),
+    hero_title: z.string().trim().min(3).max(160).nullable(),
+    hero_subtitle: z.string().trim().max(300).nullable(),
+    info_markdown: z.string().max(20000).nullable(),
     target_amount: z.coerce.number().int().min(0).max(100_000_000_000),
     deadline: z.string().nullable(),
-    contact_whatsapp: z.string().trim().max(30),
-    contact_name: z.string().trim().max(100),
-    address: z.string().trim().max(300),
+    contact_whatsapp: z.string().trim().max(30).nullable(),
+    contact_name: z.string().trim().max(100).nullable(),
+    address: z.string().trim().max(300).nullable(),
     logo_url: z.string().nullable(),
     hero_image_url: z.string().nullable(),
     qris_payload: z.string().nullable(),
@@ -86,11 +86,11 @@ export const settingsSchema = z
     unique_code_base: z.coerce.number().int().min(1).max(999),
     invoice_expiry_hours: z.coerce.number().int().min(1).max(168),
     otp_expiry_minutes: z.coerce.number().int().min(2).max(30),
-    admin_whatsapp: z.string().trim().max(30),
-    otp_template: z.string().max(1000),
+    admin_whatsapp: z.string().trim().max(30).nullable(),
+    otp_template: z.string().max(1000).nullable(),
     sheets_webhook_url: z.string().nullable(),
     sheets_webhook_secret: z.string().nullable(),
-    footer_credit: z.string().max(200),
+    footer_credit: z.string().max(200).nullable(),
   })
   .partial();
 

@@ -5,14 +5,33 @@ import { validateQris } from "@/lib/qris";
 import { getStore } from "@/lib/store";
 import { settingsSchema } from "@/lib/validators";
 
-function nullifyEmpty<T extends Record<string, unknown>>(input: T): T {
+const NULLABLE_SETTING_KEYS = new Set([
+  "deadline",
+  "logo_url",
+  "hero_image_url",
+  "qris_payload",
+  "qris_merchant_name",
+  "qris_merchant_city",
+  "sheets_webhook_url",
+  "sheets_webhook_secret",
+]);
+
+/**
+ * Form mengirim null untuk input teks yang kosong. Kolom teks tertentu di DB
+ * bersifat NOT NULL, jadi null harus dikembalikan ke string kosong sebelum
+ * divalidasi/disimpan. Kolom yang memang nullable dibiarkan null.
+ */
+function normalizeSettings(input: Record<string, unknown>): Record<string, unknown> {
   const output: Record<string, unknown> = { ...input };
   for (const [key, value] of Object.entries(output)) {
-    if (typeof value === "string" && value.trim() === "") {
-      output[key] = null;
+    if (value !== null && typeof value !== "string") continue;
+    if (NULLABLE_SETTING_KEYS.has(key)) {
+      output[key] = value === "" ? null : value;
+    } else {
+      output[key] = value === null || value === undefined ? "" : value;
     }
   }
-  return output as T;
+  return output;
 }
 
 export async function POST(request: NextRequest) {
@@ -20,13 +39,13 @@ export async function POST(request: NextRequest) {
   const { session, response } = await requireAdminApi();
   if (!session) return response;
 
-  const body = await readJson(request);
-  const parsed = settingsSchema.safeParse(body);
+  const body = (await readJson(request)) as Record<string, unknown>;
+  const parsed = settingsSchema.safeParse(normalizeSettings(body));
   if (!parsed.success) {
     return apiError(parsed.error.issues[0]?.message ?? "Pengaturan tidak valid.");
   }
 
-  const patch = nullifyEmpty(parsed.data) as Record<string, unknown>;
+  const patch = parsed.data as Record<string, unknown>;
 
   if (typeof patch.qris_payload === "string" && patch.qris_payload.length > 0) {
     const validation = validateQris(patch.qris_payload);
