@@ -1,5 +1,6 @@
 import "server-only";
 import { getStore } from "@/lib/store";
+import { DEMO_CODE, isDemoPhone } from "@/lib/demo";
 import { decryptSecret, encryptSecret, hashOtp, randomOtp, timingSafeEqualText } from "@/lib/crypto";
 import { isDemoMode } from "@/lib/env";
 import type { OtpRequest, OtpRequestWithCode } from "@/lib/types";
@@ -19,7 +20,8 @@ function isWorkerOnline(status: string, heartbeat: string | null) {
 export async function requestOtp(phone: string, ip: string): Promise<RequestOtpResult> {
   const store = getStore();
   const settings = await store.getSettings();
-  const code = randomOtp();
+  const demo = isDemoPhone(phone);
+  const code = demo ? DEMO_CODE : randomOtp();
   const expiresAt = new Date(
     Date.now() + settings.otp_expiry_minutes * 60 * 1000,
   ).toISOString();
@@ -32,20 +34,25 @@ export async function requestOtp(phone: string, ip: string): Promise<RequestOtpR
     requestedIp: ip,
   });
 
+  // OTP demo tidak dikirim lewat WhatsApp; tandai langsung sebagai terkirim
+  // supaya worker tidak mencoba mengirim ke nomor contoh.
+  if (demo) await store.markOtpSent(otp.id, "sent", null);
+
   const worker = await store.getWaSession();
-  const workerOnline = isWorkerOnline(worker.status, worker.last_heartbeat);
+  const workerOnline = demo || isWorkerOnline(worker.status, worker.last_heartbeat);
 
   await store.addAuditLog({
     actorType: "system",
-    action: "otp_requested",
+    actorId: phone,
+    action: demo ? "otp_demo_requested" : "otp_requested",
     entityType: "otp",
     entityId: otp.id,
-    metadata: { phone, workerOnline },
+    metadata: { phone, workerOnline, demo },
   });
 
   return {
     otp,
-    demoCode: isDemoMode ? code : null,
+    demoCode: demo || isDemoMode ? code : null,
     workerOnline,
     expiresAt,
   };

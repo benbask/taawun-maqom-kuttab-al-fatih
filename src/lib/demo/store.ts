@@ -342,6 +342,7 @@ export const demoStore: Store = {
         phone_verified_at: null,
         custom_data: input.customData ?? {},
         consent_at: input.consentAt ?? now(),
+        is_demo: input.isDemo ?? false,
         created_at: now(),
         updated_at: now(),
       };
@@ -447,6 +448,7 @@ export const demoStore: Store = {
         expires_at: expiresAt,
         verified_at: null,
         verified_by: null,
+        is_demo: false,
         created_at: now(),
         updated_at: now(),
       };

@@ -390,6 +390,7 @@ export const supabaseStore: Store = {
           parent_name: input.parentName,
           custom_data: input.customData ?? {},
           consent_at: input.consentAt ?? new Date().toISOString(),
+          is_demo: input.isDemo ?? false,
         })
         .select("*")
         .single(),
@@ -463,7 +464,18 @@ export const supabaseStore: Store = {
 
     const invoice = await fetchInvoice((data as Invoice).id);
     if (!invoice) throw new Error("Invoice gagal dibuat.");
-    return ensureQris(invoice);
+    const withQris = await ensureQris(invoice);
+
+    // Tagihan milik keluarga demo tidak boleh masuk rekap/verifikasi publik.
+    if (withQris.family?.is_demo) {
+      const { error: demoError } = await db()
+        .from("invoices")
+        .update({ is_demo: true })
+        .eq("id", withQris.id);
+      if (demoError) throw new Error(demoError.message);
+      return { ...withQris, is_demo: true };
+    }
+    return withQris;
   },
 
   async getInvoiceById(id) {
@@ -491,6 +503,7 @@ export const supabaseStore: Store = {
         .select(
           "*, family:families(*), items:invoice_items(*, student:students(*), class:classes(*))",
         )
+        .eq("is_demo", false)
         .order("created_at", { ascending: false }),
     );
     return ((data ?? []) as Array<Record<string, unknown>>).map(mapInvoice);
@@ -667,7 +680,8 @@ export const supabaseStore: Store = {
           "id, family_id, base_amount, unique_code, total_amount, proof_uploaded_at, invoice_items(amount, student_id, class_id)",
         )
         .in("status", ["verified", "waiting_verification"])
-        .not("proof_uploaded_at", "is", null),
+        .not("proof_uploaded_at", "is", null)
+        .eq("is_demo", false),
     ) as Array<Record<string, unknown>>;
     const classes = must(
       await db().from("classes").select("*").order("sort_order"),
@@ -764,6 +778,7 @@ export const supabaseStore: Store = {
         )
         .in("status", ["verified", "waiting_verification"])
         .not("proof_uploaded_at", "is", null)
+        .eq("is_demo", false)
         .eq("invoice_items.class_id", selectedClassId),
     ) as Array<Record<string, unknown>>;
 

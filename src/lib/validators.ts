@@ -3,7 +3,7 @@ import { z } from "zod";
 const phoneInput = z
   .string()
   .trim()
-  .min(8, "Nomor WhatsApp terlalu pendek.")
+  .min(4, "Nomor WhatsApp terlalu pendek.")
   .max(24, "Nomor WhatsApp terlalu panjang.");
 
 export const otpRequestSchema = z.object({

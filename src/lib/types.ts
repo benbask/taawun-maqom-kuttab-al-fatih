@@ -96,6 +96,7 @@ export interface Family {
   phone_verified_at: string | null;
   custom_data: Record<string, unknown>;
   consent_at: string | null;
+  is_demo: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -133,6 +134,7 @@ export interface Invoice {
   expires_at: string | null;
   verified_at: string | null;
   verified_by: string | null;
+  is_demo: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -292,6 +294,7 @@ export interface Store {
     parentName: string;
     customData?: Record<string, unknown>;
     consentAt?: string | null;
+    isDemo?: boolean;
   }): Promise<Family>;
   updateFamily(
     id: string,

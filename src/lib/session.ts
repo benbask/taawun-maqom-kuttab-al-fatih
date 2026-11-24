@@ -2,6 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
+import { isDemoPhone } from "@/lib/demo";
 import { SESSION_SECRET } from "@/lib/env";
 
 const userCookie = "taawun_user";
@@ -12,6 +13,7 @@ export interface UserSession {
   role: "user";
   phone: string;
   familyId: string | null;
+  demo?: boolean;
 }
 
 export interface AdminSession {
@@ -51,7 +53,10 @@ function cookieOptions(maxAge: number) {
 }
 
 export async function setUserSession(phone: string, familyId: string | null) {
-  const token = await sign({ role: "user", phone, familyId }, 60 * 60 * 24);
+  const token = await sign(
+    { role: "user", phone, familyId, demo: isDemoPhone(phone) },
+    60 * 60 * 24,
+  );
   (await cookies()).set(userCookie, token, cookieOptions(60 * 60 * 24));
 }
 

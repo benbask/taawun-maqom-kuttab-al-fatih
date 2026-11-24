@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { apiError, apiOk, readJson, sameOrigin } from "@/lib/api";
-import { normalizePhone, waLink } from "@/lib/format";
+import { isDemoPhone, resolvePhone } from "@/lib/demo";
+import { waLink } from "@/lib/format";
 import { requestOtp } from "@/lib/otp";
 import { getClientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { getStore } from "@/lib/store";
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
     return apiError(parsed.error.issues[0]?.message ?? "Nomor tidak valid.");
   }
 
-  const phone = normalizePhone(parsed.data.phone);
+  const phone = resolvePhone(parsed.data.phone);
   if (!phone) {
     return apiError(
       "Nomor WhatsApp tidak valid. Gunakan format 08xx atau 62xx.",
@@ -46,8 +47,9 @@ export async function POST(request: NextRequest) {
               `Assalamu'alaikum admin, saya sudah meminta kode OTP Ta'awun untuk nomor ${phone}, tetapi belum menerimanya. Mohon dibantu.`,
             )
           : null,
-      message:
-        result.workerOnline || result.demoCode
+      message: isDemoPhone(phone)
+        ? "Mode demo aktif. Gunakan kode 8888."
+        : result.workerOnline || result.demoCode
           ? "Kode OTP sedang dikirim melalui WhatsApp."
           : "Kode OTP dibuat. Worker WhatsApp sedang offline, admin akan mengirimkannya secara manual.",
     });

@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { apiError, apiOk, readJson, sameOrigin } from "@/lib/api";
-import { normalizePhone } from "@/lib/format";
+import { ensureDemoData, isDemoPhone, resolvePhone } from "@/lib/demo";
 import { verifyOtp } from "@/lib/otp";
 import { getClientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { setUserSession } from "@/lib/session";
@@ -19,10 +19,12 @@ export async function POST(request: NextRequest) {
     return apiError(parsed.error.issues[0]?.message ?? "Kode tidak valid.");
   }
 
-  const phone = normalizePhone(parsed.data.phone);
+  const phone = resolvePhone(parsed.data.phone);
   if (!phone) return apiError("Nomor WhatsApp tidak valid.");
 
   try {
+    const demo = isDemoPhone(phone);
+    if (demo) await ensureDemoData();
     const result = await verifyOtp(phone, parsed.data.code);
     if (!result.ok) {
       return apiError(result.error, 400, {
@@ -35,6 +37,7 @@ export async function POST(request: NextRequest) {
       phone,
       familyId: result.familyId,
       hasFamily: Boolean(result.familyId),
+      demo,
     });
   } catch (error) {
     console.error("[otp/verify]", error);

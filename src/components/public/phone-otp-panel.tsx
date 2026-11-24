@@ -175,6 +175,23 @@ export function PhoneOtpPanel({
             <FieldHint>
               Gunakan nomor yang aktif di WhatsApp. Format 08xx atau 62xx.
             </FieldHint>
+            <div className="mt-3 rounded-xl border border-dashed border-amber-300 bg-amber-50/60 p-3 text-xs leading-relaxed text-amber-900">
+              <p className="font-bold">Mau mencoba dulu?</p>
+              <p className="mt-0.5 text-amber-900/80">
+                Nomor demo <strong>08888</strong> &amp; kode OTP{" "}
+                <strong>8888</strong>. Data demo tidak masuk rekap publik.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setPhone("08888");
+                  setError(null);
+                }}
+                className="mt-2 rounded-lg border border-amber-300 bg-white px-2.5 py-1.5 font-semibold transition duration-150 ease-out hover:bg-amber-100 active:translate-y-px active:scale-[0.98]"
+              >
+                Isi nomor demo
+              </button>
+            </div>
           </div>
 
           {error && <FieldError>{error}</FieldError>}

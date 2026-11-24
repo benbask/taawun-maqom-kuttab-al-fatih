@@ -160,6 +160,7 @@ export async function seedDemoStore() {
       phone_verified_at: date(1),
       custom_data: { nama_ayah: parentName },
       consent_at: date(1),
+      is_demo: false,
       created_at: date(1),
       updated_at: date(1),
     };
@@ -214,6 +215,7 @@ export async function seedDemoStore() {
       expires_at: date(input.day + 1, 23),
       verified_at: input.status === "verified" ? date(input.day, 11) : null,
       verified_by: input.status === "verified" ? admin.id : null,
+      is_demo: false,
       created_at: date(input.day, 8),
       updated_at: date(input.day, 11),
     };
