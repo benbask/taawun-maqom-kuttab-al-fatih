@@ -5,6 +5,8 @@ import { AdminSetupForm } from "@/components/admin/setup-form";
 import { Card } from "@/components/ui/card";
 import { getStore } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Buat Akun Admin",
   robots: { index: false, follow: false },

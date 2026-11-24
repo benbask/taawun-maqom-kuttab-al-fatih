@@ -7,6 +7,8 @@ import { isDemoMode } from "@/lib/env";
 import { getAdminSession } from "@/lib/session";
 import { getStore } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Masuk Admin",
   robots: { index: false, follow: false },
