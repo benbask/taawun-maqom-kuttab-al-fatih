@@ -78,7 +78,6 @@ export function RegistrationFlow({
   const [parentName, setParentName] = useState(initialParentName);
   const [familyCustom, setFamilyCustom] = useState<Record<string, unknown>>({});
   const [children, setChildren] = useState<ChildForm[]>([newChild()]);
-  const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -130,7 +129,6 @@ export function RegistrationFlow({
         return `Lengkapi ${field.label}.`;
       }
     }
-    if (!consent) return "Centang persetujuan penggunaan data.";
     return null;
   }
 
@@ -157,7 +155,6 @@ export function RegistrationFlow({
             customData: child.customData,
           })),
           customData: familyCustom,
-          consent: true,
         }),
       });
       const data = (await response.json()) as {
@@ -397,20 +394,6 @@ export function RegistrationFlow({
         </div>
 
         <Card className="p-5">
-          <label className="flex items-start gap-2.5 text-sm text-stone-600">
-            <input
-              type="checkbox"
-              checked={consent}
-              onChange={(event) => setConsent(event.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-stone-300 text-emerald-700 focus:ring-emerald-600"
-            />
-            <span>
-              Saya menyetujui data wali dan anak digunakan untuk keperluan
-              Ta&apos;awun Maqom Kuttab Al Fatih Lampung. Nama akan ditampilkan
-              tersamarkan di halaman verifikasi publik.
-            </span>
-          </label>
-
           {existingStudents.length > 0 && (
             <div className="mt-4 rounded-xl border border-stone-200 bg-stone-50 p-3 text-xs text-stone-600">
               <p className="font-bold text-stone-800">Anak yang sudah terdaftar</p>

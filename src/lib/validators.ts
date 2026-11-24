@@ -33,9 +33,6 @@ export const registrationSchema = z.object({
     .min(1, "Minimal satu anak.")
     .max(10, "Maksimal 10 anak."),
   customData: z.record(z.string(), z.unknown()).optional(),
-  consent: z.boolean().refine((value) => value, {
-    message: "Persetujuan data diperlukan.",
-  }),
 });
 
 export const additionSchema = z.object({
