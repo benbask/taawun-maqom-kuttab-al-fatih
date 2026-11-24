@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8f5ee;
+  --foreground: #14281d;
+  --muted: #6b7280;
+  --line: #e7e2d8;
+  --brand: #0f5132;
+  --brand-strong: #064e3b;
+  --gold: #b8860b;
+  --cream: #fbf8f1;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-gold: var(--gold);
+  --color-cream: var(--cream);
+  --font-sans: var(--font-jakarta);
+  --font-arabic: var(--font-arabic);
+}
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: #bbf7d0;
+  color: #064e3b;
+}
+
+.islamic-pattern {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(15, 81, 50, 0.13) 1px, transparent 0),
+    linear-gradient(135deg, rgba(15, 81, 50, 0.04) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(15, 81, 50, 0.04) 25%, transparent 25%);
+  background-size: 22px 22px, 44px 44px, 44px 44px;
+}
+
+.hero-glow {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(16, 185, 129, 0.18), transparent 30%),
+    radial-gradient(circle at 85% 10%, rgba(184, 134, 11, 0.16), transparent 28%),
+    linear-gradient(160deg, #fdfbf6 0%, #f4efe3 100%);
+}
+
+.prose-taawun h1,
+.prose-taawun h2,
+.prose-taawun h3 {
+  color: #064e3b;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+}
+
+.prose-taawun h1:first-child,
+.prose-taawun h2:first-child,
+.prose-taawun h3:first-child {
+  margin-top: 0;
+}
+
+.prose-taawun h2 {
+  font-size: 1.35rem;
+}
+
+.prose-taawun h3 {
+  font-size: 1.1rem;
+}
+
+.prose-taawun p,
+.prose-taawun li {
+  color: #3f4a43;
+  line-height: 1.8;
+}
+
+.prose-taawun ul,
+.prose-taawun ol {
+  padding-left: 1.25rem;
+  margin: 0.75rem 0;
+}
+
+.prose-taawun ul {
+  list-style: disc;
+}
+
+.prose-taawun ol {
+  list-style: decimal;
+}
+
+.prose-taawun a {
+  color: #047857;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose-taawun strong {
+  color: #1c1917;
+}
+
+.prose-taawun blockquote {
+  border-left: 4px solid #d6b25e;
+  background: #fbf6e8;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  color: #57534e;
+  margin: 1rem 0;
+}
+
+.prose-taawun code {
+  background: #ecfdf5;
+  color: #065f46;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.3rem;
+  font-size: 0.9em;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
