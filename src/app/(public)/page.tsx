@@ -29,6 +29,8 @@ import { isDemoMode } from "@/lib/env";
 import { safePublicStats, safeSettings } from "@/lib/safe";
 import { getStore } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Ta'awun Maqom Kuttab Al Fatih Lampung",
   description:
