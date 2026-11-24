@@ -13,11 +13,12 @@ import {
   Label,
   Textarea,
 } from "@/components/ui/field";
+import type { ReactNode } from "react";
 import type { Settings } from "@/lib/types";
 
 type FieldKey = keyof Settings;
 
-interface TextField {
+export interface SettingsField {
   key: FieldKey;
   label: string;
   hint?: string;
@@ -29,9 +30,16 @@ interface TextField {
 export function SettingsForm({
   settings,
   sections,
+  renderControl,
 }: {
   settings: Settings;
-  sections: Array<{ title: string; description?: string; fields: TextField[] }>;
+  sections: Array<{ title: string; description?: string; fields: SettingsField[] }>;
+  renderControl?: (
+    field: SettingsField,
+    value: string,
+    setValue: (value: string) => void,
+    id: string,
+  ) => ReactNode;
 }) {
   const router = useRouter();
   const [values, setValues] = useState<Record<string, string>>(() =>
@@ -104,7 +112,14 @@ export function SettingsForm({
                 className={field.textarea || field.type === "url" ? "sm:col-span-2" : undefined}
               >
                 <Label htmlFor={`setting-${field.key as string}`}>{field.label}</Label>
-                {field.textarea ? (
+                {renderControl ? (
+                  renderControl(
+                    field,
+                    values[field.key as string] ?? "",
+                    (value) => set(field.key, value),
+                    `setting-${field.key as string}`,
+                  )
+                ) : field.textarea ? (
                   <Textarea
                     id={`setting-${field.key as string}`}
                     value={values[field.key as string] ?? ""}
