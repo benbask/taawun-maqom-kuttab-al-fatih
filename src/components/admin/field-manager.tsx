@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ListChecks, Loader2, Pencil, Plus, Power } from "lucide-react";
+import { ListChecks, Pencil, Plus, Power } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
   Label,
   Select,
 } from "@/components/ui/field";
+import { Spinner } from "@/components/ui/spinner";
 import type { FieldScope, FieldType, FormField } from "@/lib/types";
 
 const types: Array<{ value: FieldType; label: string }> = [
@@ -247,8 +248,7 @@ export function FieldManager({ initial }: { initial: FormField[] }) {
               </div>
             )}
             <div className="flex gap-2 sm:col-span-2">
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              <Button type="submit" loading={loading} loadingText="Menyimpan…">
                 Simpan
               </Button>
               <Button type="button" variant="ghost" onClick={() => setEditing(null)}>
@@ -313,7 +313,11 @@ export function FieldManager({ initial }: { initial: FormField[] }) {
                         className="rounded-lg p-2 text-stone-400 hover:bg-rose-50 hover:text-rose-600"
                         aria-label={`Nonaktifkan ${field.label}`}
                       >
-                        <Power className="h-3.5 w-3.5" />
+                        {loading ? (
+                          <Spinner className="size-3.5" />
+                        ) : (
+                          <Power className="h-3.5 w-3.5" />
+                        )}
                       </button>
                     </div>
                   </div>

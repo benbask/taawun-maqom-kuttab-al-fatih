@@ -2,12 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { GraduationCap, Loader2, Pencil, Plus, Power, Trash2 } from "lucide-react";
+import { GraduationCap, Pencil, Plus, Power, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FieldError, Input, Label } from "@/components/ui/field";
+import { Spinner } from "@/components/ui/spinner";
 import type { ClassRecord } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -137,8 +138,7 @@ export function ClassManager({ initial }: { initial: ClassRecord[] }) {
               </div>
             )}
             <div className="flex gap-2 sm:col-span-2">
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              <Button type="submit" loading={loading} loadingText="Menyimpan…">
                 Simpan
               </Button>
               <Button
@@ -198,7 +198,9 @@ export function ClassManager({ initial }: { initial: ClassRecord[] }) {
                   aria-label={record.is_active ? "Nonaktifkan" : "Nonaktif"}
                   title={record.is_active ? "Nonaktifkan" : "Sudah nonaktif"}
                 >
-                  {record.is_active ? (
+                  {loading ? (
+                    <Spinner className="size-3.5" />
+                  ) : record.is_active ? (
                     <Power className="h-3.5 w-3.5" />
                   ) : (
                     <Trash2 className="h-3.5 w-3.5" />
