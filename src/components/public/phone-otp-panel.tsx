@@ -12,8 +12,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { RoleSelector } from "@/components/public/role-selector";
 import { FieldError, FieldHint, Input, Label } from "@/components/ui/field";
 import { formatPhone } from "@/lib/format";
+import type { AccountRole } from "@/lib/account-roles";
 import { cn } from "@/lib/utils";
 
 interface OtpRequestResponse {
@@ -25,6 +27,14 @@ interface OtpRequestResponse {
   demoCode?: string | null;
   manualUrl?: string | null;
   message?: string;
+  needsRole?: boolean;
+  role?: AccountRole | null;
+}
+
+interface VerifiedResult {
+  phone: string;
+  familyId: string | null;
+  role: AccountRole | null;
 }
 
 export function PhoneOtpPanel({
@@ -38,7 +48,7 @@ export function PhoneOtpPanel({
   title?: string;
   description?: string;
   submitLabel?: string;
-  onVerified: (result: { phone: string; familyId: string | null }) => void | Promise<void>;
+  onVerified: (result: VerifiedResult) => void | Promise<void>;
 }) {
   const [stage, setStage] = useState<"phone" | "otp">("phone");
   const [phone, setPhone] = useState(initialPhone);
@@ -48,6 +58,8 @@ export function PhoneOtpPanel({
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [demoCode, setDemoCode] = useState<string | null>(null);
+  const [pendingVerification, setPendingVerification] =
+    useState<VerifiedResult | null>(null);
   const [workerOnline, setWorkerOnline] = useState<boolean | null>(null);
   const [manualUrl, setManualUrl] = useState<string | null>(null);
   const [expiresIn, setExpiresIn] = useState(10);
@@ -115,6 +127,8 @@ export function PhoneOtpPanel({
         familyId?: string | null;
         phone?: string;
         attemptsLeft?: number;
+        needsRole?: boolean;
+        role?: AccountRole | null;
       };
       if (!response.ok || !data.ok) {
         setError(
@@ -124,15 +138,33 @@ export function PhoneOtpPanel({
         return;
       }
       toast.success("Nomor WhatsApp terverifikasi.");
-      await onVerified({
+      const result: VerifiedResult = {
         phone: data.phone ?? normalized,
         familyId: data.familyId ?? null,
-      });
+        role: data.role ?? null,
+      };
+      if (data.needsRole) {
+        setPendingVerification(result);
+        return;
+      }
+      await onVerified(result);
     } catch {
       setError("Tidak dapat menghubungi server.");
     } finally {
       setLoading(false);
     }
+  }
+
+  if (pendingVerification) {
+    return (
+      <RoleSelector
+        onDone={async (role) => {
+          const verified = { ...pendingVerification, role };
+          setPendingVerification(null);
+          await onVerified(verified);
+        }}
+      />
+    );
   }
 
   return (

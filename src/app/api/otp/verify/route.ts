@@ -4,6 +4,7 @@ import { ensureDemoData, isDemoPhone, resolvePhone } from "@/lib/demo";
 import { verifyOtp } from "@/lib/otp";
 import { getClientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { setUserSession } from "@/lib/session";
+import { getStore } from "@/lib/store";
 import { otpVerifySchema } from "@/lib/validators";
 
 export async function POST(request: NextRequest) {
@@ -33,10 +34,17 @@ export async function POST(request: NextRequest) {
     }
 
     await setUserSession(phone, result.familyId);
+    const family = result.familyId
+      ? await getStore().getFamilyById(result.familyId)
+      : null;
+    const needsRole = !family?.account_type;
+
     return apiOk({
       phone,
       familyId: result.familyId,
       hasFamily: Boolean(result.familyId),
+      needsRole,
+      role: family?.account_type ?? null,
       demo,
     });
   } catch (error) {

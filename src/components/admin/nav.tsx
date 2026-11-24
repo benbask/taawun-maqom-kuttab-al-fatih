@@ -14,6 +14,7 @@ import {
   ScrollText,
   Settings,
   UserRound,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ const items = [
   { href: "/admin/konten", label: "Konten Beranda", icon: ScrollText },
   { href: "/admin/kelas", label: "Kelas", icon: GraduationCap },
   { href: "/admin/form", label: "Formulir", icon: ListChecks },
+  { href: "/admin/alumni", label: "Alumni", icon: Users },
   { href: "/admin/qris", label: "QRIS & Pengaturan", icon: QrCode },
   { href: "/admin/whatsapp", label: "WhatsApp & OTP", icon: MessageCircle },
   { href: "/admin/export", label: "Ekspor Data", icon: FileSpreadsheet },

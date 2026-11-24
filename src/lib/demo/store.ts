@@ -343,6 +343,8 @@ export const demoStore: Store = {
         custom_data: input.customData ?? {},
         consent_at: input.consentAt ?? now(),
         is_demo: input.isDemo ?? false,
+        account_type: null,
+        alumni_profile: {},
         created_at: now(),
         updated_at: now(),
       };
@@ -357,9 +359,20 @@ export const demoStore: Store = {
       if (!family) throw new Error("Keluarga tidak ditemukan.");
       if (patch.parent_name !== undefined) family.parent_name = patch.parent_name;
       if (patch.custom_data !== undefined) family.custom_data = patch.custom_data;
+      if (patch.account_type !== undefined) family.account_type = patch.account_type;
+      if (patch.alumni_profile !== undefined) family.alumni_profile = patch.alumni_profile;
       family.updated_at = now();
       return { ...family };
     });
+  },
+
+  async listAlumni() {
+    return withDb((db) =>
+      db.families
+        .filter((item) => item.account_type === "alumni_join")
+        .sort((a, b) => b.created_at.localeCompare(a.created_at))
+        .map((item) => ({ ...item })),
+    );
   },
 
   async listStudents(familyId) {

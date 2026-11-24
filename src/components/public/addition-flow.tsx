@@ -140,7 +140,12 @@ export function AdditionFlow({
             title="Masuk untuk menambah Ta'awun"
             description="Verifikasi nomor WhatsApp Anda. Setelah masuk, pilih santri, kelas, atau Ta'awun umum."
             submitLabel="Kirim kode masuk"
-            onVerified={async () => {
+            onVerified={async (result) => {
+              if (result.role === "alumni_join") {
+                router.push("/alumni");
+                router.refresh();
+                return;
+              }
               setStage("form");
               await refreshProfile();
             }}

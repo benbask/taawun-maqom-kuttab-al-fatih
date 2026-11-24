@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { AccountRoleCard } from "@/components/public/account-role-card";
 import { UserLogoutButton } from "@/components/public/user-logout-button";
 import {
   formatDateTime,
@@ -98,7 +99,14 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      <div className="mt-7 grid gap-4 sm:grid-cols-3">
+      <div className="mt-7">
+        <AccountRoleCard
+          role={family.account_type}
+          hasAlumniProfile={Boolean(family.alumni_profile?.angkatan)}
+        />
+      </div>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-3">
         <Card className="flex items-center gap-3 p-4">
           <span className="rounded-xl bg-emerald-50 p-2.5 text-emerald-700 ring-1 ring-emerald-100">
             <Wallet className="h-5 w-5" />

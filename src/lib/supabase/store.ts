@@ -410,6 +410,10 @@ export const supabaseStore: Store = {
         .update({
           ...(patch.parent_name !== undefined ? { parent_name: patch.parent_name } : {}),
           ...(patch.custom_data !== undefined ? { custom_data: patch.custom_data } : {}),
+          ...(patch.account_type !== undefined ? { account_type: patch.account_type } : {}),
+          ...(patch.alumni_profile !== undefined
+            ? { alumni_profile: patch.alumni_profile }
+            : {}),
           updated_at: new Date().toISOString(),
         })
         .eq("id", id)
@@ -417,6 +421,17 @@ export const supabaseStore: Store = {
         .single(),
     );
     return data as Family;
+  },
+
+  async listAlumni() {
+    const data = must(
+      await db()
+        .from("families")
+        .select("*")
+        .eq("account_type", "alumni_join")
+        .order("created_at", { ascending: false }),
+    );
+    return (data ?? []) as Family[];
   },
 
   async listStudents(familyId) {

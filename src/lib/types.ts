@@ -1,3 +1,5 @@
+import type { AccountRole, AlumniProfile } from "@/lib/account-roles";
+
 export type InvoiceStatus =
   | "pending"
   | "waiting_verification"
@@ -97,6 +99,8 @@ export interface Family {
   custom_data: Record<string, unknown>;
   consent_at: string | null;
   is_demo: boolean;
+  account_type: AccountRole | null;
+  alumni_profile: Partial<AlumniProfile>;
   created_at: string;
   updated_at: string;
 }
@@ -298,8 +302,14 @@ export interface Store {
   }): Promise<Family>;
   updateFamily(
     id: string,
-    patch: Partial<Pick<Family, "parent_name" | "custom_data">>,
+    patch: Partial<
+      Pick<
+        Family,
+        "parent_name" | "custom_data" | "account_type" | "alumni_profile"
+      >
+    >,
   ): Promise<Family>;
+  listAlumni(): Promise<Family[]>;
   listStudents(familyId: string): Promise<Student[]>;
   createStudent(input: {
     familyId: string;

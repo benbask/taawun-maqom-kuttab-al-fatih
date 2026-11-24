@@ -161,6 +161,8 @@ export async function seedDemoStore() {
       custom_data: { nama_ayah: parentName },
       consent_at: date(1),
       is_demo: false,
+      account_type: null,
+      alumni_profile: {},
       created_at: date(1),
       updated_at: date(1),
     };

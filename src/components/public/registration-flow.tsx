@@ -26,6 +26,7 @@ import {
 import { DynamicField } from "@/components/public/dynamic-field";
 import { PhoneOtpPanel } from "@/components/public/phone-otp-panel";
 import { formatNumber, formatRupiah, amountFromInput } from "@/lib/format";
+import type { AccountRole } from "@/lib/account-roles";
 import type { ClassRecord, FormField } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -89,7 +90,21 @@ export function RegistrationFlow({
     );
   }
 
-  async function handleVerified(result: { phone: string; familyId: string | null }) {
+  async function handleVerified(result: {
+    phone: string;
+    familyId: string | null;
+    role: AccountRole | null;
+  }) {
+    if (result.role === "alumni_join") {
+      router.push("/alumni");
+      router.refresh();
+      return;
+    }
+    if (result.role && result.role !== "ots") {
+      router.push("/tambah");
+      router.refresh();
+      return;
+    }
     setPhone(result.phone);
     setStage("form");
     if (result.familyId) {
