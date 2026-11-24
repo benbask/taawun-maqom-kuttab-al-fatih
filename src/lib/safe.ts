@@ -21,6 +21,7 @@ export function emptyStats(target = 0): PublicStats {
     perClass: [],
     umumTotal: 0,
     umumCount: 0,
+    uniqueCodeTotal: 0,
     lastUpdated: null,
   };
 }

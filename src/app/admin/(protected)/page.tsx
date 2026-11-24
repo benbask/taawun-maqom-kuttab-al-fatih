@@ -36,8 +36,7 @@ export const metadata: Metadata = {
 
 export default async function AdminDashboardPage() {
   const store = getStore();
-  const [settings, stats, invoices, wa] = await Promise.all([
-    store.getSettings(),
+  const [stats, invoices, wa] = await Promise.all([
     store.getPublicStats(),
     store.listAllInvoices(),
     store.getWaSession(),
@@ -75,9 +74,9 @@ export default async function AdminDashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={Wallet}
-          label="Ta'awun terverifikasi"
+          label="Total terkumpul"
           value={formatRupiah(stats.total)}
-          note={`Target ${formatRupiah(settings.target_amount)}`}
+          note={`Termasuk menunggu verifikasi & kode unik`}
           tone="emerald"
         />
         <StatCard

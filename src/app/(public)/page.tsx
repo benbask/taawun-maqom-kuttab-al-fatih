@@ -145,6 +145,9 @@ export default async function HomePage() {
                 <p className="mt-1 text-xs text-stone-500">
                   dari target {formatRupiah(settings.target_amount)}
                 </p>
+                <p className="mt-1 text-[11px] text-stone-400">
+                  Termasuk bukti yang menunggu verifikasi dan kode unik audit.
+                </p>
               </div>
               <span className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-700 ring-1 ring-emerald-100">
                 <Wallet className="h-5 w-5" />
@@ -182,7 +185,7 @@ export default async function HomePage() {
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                 {stats.lastUpdated
                   ? `Diperbarui ${formatDateTime(stats.lastUpdated)}`
-                  : "Belum ada pembayaran terverifikasi"}
+                  : "Belum ada pembayaran dengan bukti transfer"}
               </span>
               <Link
                 href="/verifikasi"
@@ -227,7 +230,9 @@ export default async function HomePage() {
                   Ringkasan
                 </p>
                 <p className="mt-2 text-2xl font-extrabold">{formatRupiah(stats.total)}</p>
-                <p className="text-xs text-emerald-100/60">terkumpul &amp; terverifikasi</p>
+                <p className="text-xs text-emerald-100/60">
+                  terkumpul, termasuk menunggu verifikasi
+                </p>
               </div>
               <div className="divide-y divide-stone-100">
                 <Row label="Target Ta'awun" value={formatRupiah(settings.target_amount)} />
@@ -256,9 +261,10 @@ export default async function HomePage() {
                 <CalendarDays className="h-3.5 w-3.5" /> Catatan transparansi
               </p>
               <p className="mt-1.5 text-amber-900/80">
-                Rekap publik hanya menampilkan invoice yang sudah diverifikasi admin.
-                Nominal yang dihitung adalah Ta&apos;awun pokok; kode unik 3 digit
-                dicatat terpisah untuk kebutuhan audit merchant.
+                Rekap publik menampilkan pembayaran yang bukti transfernya sudah
+                diunggah, termasuk yang masih menunggu verifikasi admin. Total
+                terkumpul memakai nominal transfer penuh (Ta&apos;awun pokok +
+                kode unik audit). Rekap per kelas memakai nominal pokok.
               </p>
             </div>
           </div>
@@ -276,8 +282,9 @@ export default async function HomePage() {
                 Total Ta&apos;awun per kelas
               </h2>
               <p className="mt-1 max-w-xl text-sm text-stone-500">
-                Satu kuttab, banyak kelas. Setiap rincian berasal dari pembayaran
-                yang telah diverifikasi admin.
+                Satu kuttab, banyak kelas. Rincian berasal dari pembayaran yang
+                bukti transfernya sudah diunggah, termasuk yang menunggu
+                verifikasi.
               </p>
             </div>
             <Link
@@ -294,7 +301,7 @@ export default async function HomePage() {
               icon={Wallet}
               label="Total kuttab"
               value={formatRupiah(stats.total)}
-              note="Seluruh kelas + umum"
+              note="Termasuk kode unik audit"
             />
             <SummaryCard
               icon={GraduationCap}
@@ -302,7 +309,7 @@ export default async function HomePage() {
               value={formatRupiah(
                 stats.perClass.reduce((total, row) => total + row.total, 0),
               )}
-              note={`${stats.perClass.length} kelas menerima Ta'awun`}
+              note={`${stats.perClass.length} kelas, nominal pokok`}
             />
             <SummaryCard
               icon={HandHeart}
@@ -345,6 +352,14 @@ export default async function HomePage() {
                   </tr>
                 </tbody>
                 <tfoot>
+                  <tr className="border-t border-stone-200 bg-stone-50/70">
+                    <td className="px-5 py-3 font-semibold text-stone-500" colSpan={2}>
+                      Kode unik audit
+                    </td>
+                    <td className="px-5 py-3 text-right font-bold text-amber-700">
+                      {formatRupiah(stats.uniqueCodeTotal)}
+                    </td>
+                  </tr>
                   <tr className="border-t border-emerald-900/10 bg-emerald-950 text-emerald-50">
                     <td className="px-5 py-4 font-bold" colSpan={2}>
                       Total Maqom Kuttab Al Fatih Lampung

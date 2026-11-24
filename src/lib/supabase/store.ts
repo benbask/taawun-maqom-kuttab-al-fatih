@@ -663,8 +663,11 @@ export const supabaseStore: Store = {
     const invoices = must(
       await db()
         .from("invoices")
-        .select("id, family_id, base_amount, proof_uploaded_at, invoice_items(amount, student_id, class_id)")
-        .eq("status", "verified"),
+        .select(
+          "id, family_id, base_amount, unique_code, total_amount, proof_uploaded_at, invoice_items(amount, student_id, class_id)",
+        )
+        .in("status", ["verified", "waiting_verification"])
+        .not("proof_uploaded_at", "is", null),
     ) as Array<Record<string, unknown>>;
     const classes = must(
       await db().from("classes").select("*").order("sort_order"),
@@ -675,12 +678,14 @@ export const supabaseStore: Store = {
     const perClassMap = new Map<string, { total: number; count: number }>();
     let umumTotal = 0;
     let umumCount = 0;
+    let uniqueCodeTotal = 0;
     let lastUpdated: string | null = null;
     let total = 0;
 
     for (const invoice of invoices) {
       donorIds.add(String(invoice.family_id));
-      total += num(invoice.base_amount);
+      total += num(invoice.total_amount);
+      uniqueCodeTotal += num(invoice.unique_code);
       if (
         invoice.proof_uploaded_at &&
         (!lastUpdated || String(invoice.proof_uploaded_at) > lastUpdated)
@@ -723,6 +728,7 @@ export const supabaseStore: Store = {
         })),
       umumTotal,
       umumCount,
+      uniqueCodeTotal,
       lastUpdated,
     };
   },
@@ -754,7 +760,7 @@ export const supabaseStore: Store = {
       await db()
         .from("invoices")
         .select(
-          "invoice_no, status, proof_uploaded_at, families(parent_name, phone), invoice_items(amount, class_id, description, students(name))",
+          "invoice_no, status, unique_code, proof_uploaded_at, families(parent_name, phone), invoice_items(amount, class_id, description, students(name))",
         )
         .in("status", ["verified", "waiting_verification"])
         .not("proof_uploaded_at", "is", null)
@@ -780,6 +786,7 @@ export const supabaseStore: Store = {
                 : null,
               amount: num(item.amount),
               invoiceNo: String(invoice.invoice_no ?? ""),
+              uniqueCode: num(invoice.unique_code),
               status: invoice.status as Invoice["status"],
             };
           });

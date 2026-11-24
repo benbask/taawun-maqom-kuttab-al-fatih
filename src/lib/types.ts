@@ -211,6 +211,7 @@ export interface PublicStats {
   }>;
   umumTotal: number;
   umumCount: number;
+  uniqueCodeTotal: number;
   lastUpdated: string | null;
 }
 
@@ -223,6 +224,7 @@ export interface VerificationRow {
   proofUploadedAt: string | null;
   amount: number;
   invoiceNo: string;
+  uniqueCode: number;
   status: InvoiceStatus;
 }
 

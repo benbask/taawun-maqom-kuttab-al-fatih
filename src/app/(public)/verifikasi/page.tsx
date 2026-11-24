@@ -140,7 +140,8 @@ export default async function VerificationPage({
                 <th className="px-4 py-3 font-semibold">WhatsApp</th>
                 <th className="px-4 py-3 font-semibold">Waktu unggah bukti</th>
                 <th className="px-4 py-3 font-semibold">Status</th>
-                <th className="px-4 py-3 text-right font-semibold">Nominal</th>
+                <th className="px-4 py-3 text-center font-semibold">Kode unik</th>
+                <th className="px-4 py-3 text-right font-semibold">Nominal pokok</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
@@ -169,6 +170,9 @@ export default async function VerificationPage({
                       </Badge>
                     )}
                   </td>
+                  <td className="px-4 py-3 text-center font-mono text-xs font-bold text-amber-700">
+                    {row.uniqueCode}
+                  </td>
                   <td className="px-4 py-3 text-right font-bold text-emerald-900">
                     {formatRupiah(row.amount)}
                   </td>
@@ -176,7 +180,7 @@ export default async function VerificationPage({
               ))}
               {data.rows.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-stone-500">
+                  <td colSpan={7} className="px-4 py-10 text-center text-sm text-stone-500">
                     Belum ada pembayaran dengan bukti transfer untuk kelas ini.
                   </td>
                 </tr>
@@ -185,8 +189,8 @@ export default async function VerificationPage({
             {data.rows.length > 0 && (
               <tfoot>
                 <tr className="border-t border-stone-200 bg-stone-50/80">
-                  <td colSpan={5} className="px-4 py-3 text-right text-xs font-semibold text-stone-500">
-                    Total kelas ini (termasuk menunggu verifikasi)
+                  <td colSpan={6} className="px-4 py-3 text-right text-xs font-semibold text-stone-500">
+                    Total pokok kelas ini (termasuk menunggu verifikasi)
                   </td>
                   <td className="px-4 py-3 text-right font-extrabold text-emerald-900">
                     {formatRupiah(data.classTotal)}

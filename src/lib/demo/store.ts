@@ -634,15 +634,21 @@ export const demoStore: Store = {
 
   async getPublicStats(): Promise<PublicStats> {
     return withDb((db) => {
-      const verified = db.invoices.filter((invoice) => invoice.status === "verified");
-      const donorIds = new Set(verified.map((invoice) => invoice.family_id));
+      const included = db.invoices.filter(
+        (invoice) =>
+          invoice.status === "verified" ||
+          (invoice.status === "waiting_verification" && invoice.proof_uploaded_at),
+      );
+      const donorIds = new Set(included.map((invoice) => invoice.family_id));
       const studentIds = new Set<string>();
       const perClassMap = new Map<string, { total: number; count: number }>();
       let umumTotal = 0;
       let umumCount = 0;
+      let uniqueCodeTotal = 0;
       let lastUpdated: string | null = null;
 
-      for (const invoice of verified) {
+      for (const invoice of included) {
+        uniqueCodeTotal += invoice.unique_code;
         if (
           invoice.proof_uploaded_at &&
           (!lastUpdated || invoice.proof_uploaded_at > lastUpdated)
@@ -680,13 +686,14 @@ export const demoStore: Store = {
         }));
 
       return {
-        total: verified.reduce((total, invoice) => total + invoice.base_amount, 0),
+        total: included.reduce((total, invoice) => total + invoice.total_amount, 0),
         target: db.settings.target_amount,
         donorCount: donorIds.size,
         studentCount: studentIds.size,
         perClass,
         umumTotal,
         umumCount,
+        uniqueCodeTotal,
         lastUpdated,
       };
     });
@@ -726,6 +733,7 @@ export const demoStore: Store = {
               proofUploadedAt: invoice.proof_uploaded_at,
               amount: item.amount,
               invoiceNo: invoice.invoice_no,
+              uniqueCode: invoice.unique_code,
               status: invoice.status,
             };
           });
