@@ -13,6 +13,11 @@ export async function POST(request: NextRequest) {
     return apiError("Peran tidak dikenali.", 400);
   }
   const role = body.role;
+  const parentName =
+    typeof body.parentName === "string" ? body.parentName.trim() : undefined;
+  if (parentName !== undefined && parentName.length < 2) {
+    return apiError("Nama lengkap minimal 2 karakter.", 400);
+  }
 
   let profile: Record<string, unknown> | undefined;
   if (role === "alumni_join") {
@@ -33,16 +38,23 @@ export async function POST(request: NextRequest) {
       family = await store.createFamily({
         phone: session.phone,
         parentName:
-          role === "alumni_join" && typeof profile?.nama === "string"
+          parentName ??
+          (role === "alumni_join" && typeof profile?.nama === "string"
             ? profile.nama
-            : "Donatur Ta'awun",
+            : "Donatur Ta'awun"),
         consentAt: new Date().toISOString(),
       });
     }
 
     const updated = await store.updateFamily(family.id, {
+      ...(parentName ? { parent_name: parentName } : {}),
+      ...(profile && typeof profile.nama === "string"
+        ? { parent_name: profile.nama }
+        : {}),
       account_type: role,
-      ...(profile ? { alumni_profile: profile } : {}),
+      ...(profile
+        ? { alumni_profile: { ...family.alumni_profile, ...profile } }
+        : {}),
     });
 
     await store.addAuditLog({

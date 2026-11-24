@@ -58,65 +58,13 @@ export function RoleSelector({
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className={cn(cardClass, currentRole === "outsider" && "ring-2 ring-emerald-600/20")}>
-          <span className="inline-flex rounded-xl bg-emerald-50 p-2 text-emerald-700">
-            <HeartHandshake className="h-5 w-5" />
-          </span>
-          <p className="mt-3 text-sm font-bold text-stone-900">Pihak luar</p>
-          <p className="mt-1 text-xs leading-relaxed text-stone-500">
-            Ingin ikut ber-ta&apos;awun tanpa data santri.
-          </p>
-          <Button
-            type="button"
-            size="sm"
-            className="mt-4 w-full"
-            disabled={Boolean(saving)}
-            loading={saving === "outsider"}
-            onClick={() => choose("outsider")}
-          >
-            Ta&apos;awun umum
-          </Button>
-        </div>
-
-        <div className={cn(cardClass, currentRole === "alumni" && "ring-2 ring-emerald-600/20")}>
-          <span className="inline-flex rounded-xl bg-amber-50 p-2 text-amber-700">
-            <GraduationCap className="h-5 w-5" />
-          </span>
-          <p className="mt-3 text-sm font-bold text-stone-900">Alumni</p>
-          <p className="mt-1 text-xs leading-relaxed text-stone-500">
-            Alumni Maqom yang ingin ta&apos;awun saja.
-          </p>
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            className="mt-4 w-full"
-            disabled={Boolean(saving)}
-            loading={saving === "alumni"}
-            onClick={() => choose("alumni")}
-          >
-            Ta&apos;awun saja
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="mt-2 w-full"
-            disabled={Boolean(saving)}
-            loading={saving === "alumni_join"}
-            onClick={() => choose("alumni_join")}
-          >
-            Ikut Maqom juga
-          </Button>
-        </div>
-
         <div className={cn(cardClass, currentRole === "ots" && "ring-2 ring-emerald-600/20")}>
-          <span className="inline-flex rounded-xl bg-sky-50 p-2 text-sky-700">
+          <span className="inline-flex rounded-xl bg-emerald-50 p-2 text-emerald-700">
             <UsersRound className="h-5 w-5" />
           </span>
-          <p className="mt-3 text-sm font-bold text-stone-900">Orang tua santri</p>
+          <p className="mt-3 text-sm font-bold text-stone-900">OTS Aktif</p>
           <p className="mt-1 text-xs leading-relaxed text-stone-500">
-            Mendaftarkan anak dan menunaikan Ta&apos;awun.
+            Masih memiliki anak yang aktif belajar. Daftarkan anak dan kelasnya.
           </p>
           <Button
             type="button"
@@ -127,6 +75,58 @@ export function RoleSelector({
             onClick={() => choose("ots")}
           >
             Daftarkan santri
+          </Button>
+        </div>
+
+        <div
+          className={cn(
+            cardClass,
+            currentRole === "alumni_join" && "ring-2 ring-emerald-600/20",
+          )}
+        >
+          <span className="inline-flex rounded-xl bg-amber-50 p-2 text-amber-700">
+            <GraduationCap className="h-5 w-5" />
+          </span>
+          <p className="mt-3 text-sm font-bold text-stone-900">OTS Alumni</p>
+          <p className="mt-1 text-xs leading-relaxed text-stone-500">
+            Cukup isi tahun angkatan, tanpa menambahkan data anak.
+          </p>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            className="mt-4 w-full"
+            disabled={Boolean(saving)}
+            loading={saving === "alumni_join"}
+            onClick={() => choose("alumni_join")}
+          >
+            Isi tahun angkatan
+          </Button>
+        </div>
+
+        <div
+          className={cn(
+            cardClass,
+            currentRole === "outsider" && "ring-2 ring-emerald-600/20",
+          )}
+        >
+          <span className="inline-flex rounded-xl bg-sky-50 p-2 text-sky-700">
+            <HeartHandshake className="h-5 w-5" />
+          </span>
+          <p className="mt-3 text-sm font-bold text-stone-900">Pihak luar</p>
+          <p className="mt-1 text-xs leading-relaxed text-stone-500">
+            Ingin ikut ber-ta&apos;awun tanpa data santri.
+          </p>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="mt-4 w-full"
+            disabled={Boolean(saving)}
+            loading={saving === "outsider"}
+            onClick={() => choose("outsider")}
+          >
+            Ta&apos;awun umum
           </Button>
         </div>
       </div>

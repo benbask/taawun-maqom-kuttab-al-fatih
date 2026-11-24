@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
       family = await store.updateFamily(family.id, {
         parent_name: parsed.data.parentName,
         custom_data: { ...family.custom_data, ...familyCustom },
+        account_type: "ots",
       });
     } else {
       family = await store.createFamily({
@@ -78,6 +79,7 @@ export async function POST(request: NextRequest) {
         customData: familyCustom,
         consentAt: new Date().toISOString(),
       });
+      family = await store.updateFamily(family.id, { account_type: "ots" });
     }
 
     const created = [];

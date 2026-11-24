@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils";
 
-export function UserLogoutButton() {
+export function UserLogoutButton({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -30,10 +31,15 @@ export function UserLogoutButton() {
       onClick={logout}
       disabled={loading}
       aria-busy={loading || undefined}
-      className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3 text-xs font-semibold text-stone-600 transition duration-150 ease-out hover:bg-stone-50 active:translate-y-px active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60 motion-reduce:active:translate-y-0 motion-reduce:active:scale-100"
+      className={cn(
+        "inline-flex h-9 items-center gap-1.5 rounded-xl border border-stone-300 bg-white text-xs font-semibold text-stone-600 transition duration-150 ease-out hover:bg-stone-50 active:translate-y-px active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60 motion-reduce:active:translate-y-0 motion-reduce:active:scale-100",
+        compact ? "w-9 justify-center px-0 sm:w-auto sm:px-3" : "px-3",
+      )}
     >
       {loading ? <Spinner className="size-3.5" /> : <LogOut className="h-3.5 w-3.5" />}
-      {loading ? "Keluar…" : "Keluar"}
+      <span className={compact ? "hidden sm:inline" : undefined}>
+        {loading ? "Keluar…" : "Keluar"}
+      </span>
     </button>
   );
 }

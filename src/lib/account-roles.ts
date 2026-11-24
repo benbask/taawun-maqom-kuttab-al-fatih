@@ -16,8 +16,8 @@ export function isAccountRole(value: unknown): value is AccountRole {
 export const roleLabels: Record<AccountRole, string> = {
   outsider: "Pihak luar",
   alumni: "Alumni (ta'awun saja)",
-  alumni_join: "Alumni (ikut Maqom juga)",
-  ots: "Orang tua santri",
+  alumni_join: "OTS Alumni",
+  ots: "OTS Aktif",
 };
 
 export function roleDestination(role: AccountRole): string {

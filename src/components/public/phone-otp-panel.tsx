@@ -42,12 +42,15 @@ export function PhoneOtpPanel({
   title = "Verifikasi WhatsApp",
   description = "Kami mengirim kode OTP 4 digit ke WhatsApp Anda.",
   submitLabel = "Kirim kode OTP",
+  askRole = true,
   onVerified,
 }: {
   initialPhone?: string;
   title?: string;
   description?: string;
   submitLabel?: string;
+  /** Tampilkan pilihan peran otomatis setelah OTP. Matikan bila form sudah punya langkah sendiri. */
+  askRole?: boolean;
   onVerified: (result: VerifiedResult) => void | Promise<void>;
 }) {
   const [stage, setStage] = useState<"phone" | "otp">("phone");
@@ -143,7 +146,7 @@ export function PhoneOtpPanel({
         familyId: data.familyId ?? null,
         role: data.role ?? null,
       };
-      if (data.needsRole) {
+      if (data.needsRole && askRole) {
         setPendingVerification(result);
         return;
       }

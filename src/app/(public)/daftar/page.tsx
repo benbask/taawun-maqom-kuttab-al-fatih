@@ -79,6 +79,8 @@ export default async function RegistrationPage() {
           studentFields={fields.filter((field) => field.scope === "student")}
           initialPhone={session ? phoneLocal(session.phone) : ""}
           initialParentName={family?.parent_name ?? ""}
+          initialRole={family?.account_type ?? null}
+          initialAlumniYear={String(family?.alumni_profile?.angkatan ?? "")}
           existingStudents={existingStudents}
         />
       )}

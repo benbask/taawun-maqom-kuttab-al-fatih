@@ -1,23 +1,32 @@
 import Link from "next/link";
 import { ArrowUpRight, Menu } from "lucide-react";
 import { Logo } from "@/components/site/logo";
+import { UserLogoutButton } from "@/components/public/user-logout-button";
 import { buttonClasses } from "@/components/ui/button";
 import { waLink } from "@/lib/format";
 
-const links = [
+const baseLinks = [
   { href: "/#kebutuhan", label: "Kebutuhan" },
   { href: "/#rekap", label: "Rekap" },
   { href: "/verifikasi", label: "Verifikasi", newTab: true },
-  { href: "/masuk", label: "Masuk" },
 ];
 
 export function SiteHeader({
   siteName,
   contactWhatsApp,
+  signedIn = false,
 }: {
   siteName: string;
   contactWhatsApp: string;
+  signedIn?: boolean;
 }) {
+  const links = [
+    ...baseLinks,
+    signedIn
+      ? { href: "/akun", label: "Akun", newTab: false }
+      : { href: "/masuk", label: "Masuk", newTab: false },
+  ];
+
   return (
     <header className="sticky top-0 z-40 border-b border-emerald-950/10 bg-[#f8f5ee]/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
@@ -57,6 +66,7 @@ export function SiteHeader({
           <Link href="/daftar" className={buttonClasses("primary", "sm")}>
             Daftar Ta&apos;awun
           </Link>
+          {signedIn && <UserLogoutButton compact />}
 
           <details className="group relative lg:hidden">
             <summary className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-xl border border-stone-300 bg-white text-stone-700 shadow-sm [&::-webkit-details-marker]:hidden">

@@ -375,6 +375,29 @@ export const demoStore: Store = {
     );
   },
 
+  async deleteDemoData() {
+    return withDb((db) => {
+      const familyIds = new Set(
+        db.families.filter((family) => family.is_demo).map((family) => family.id),
+      );
+      const invoiceIds = new Set(
+        db.invoices
+          .filter(
+            (invoice) => invoice.is_demo || familyIds.has(invoice.family_id),
+          )
+          .map((invoice) => invoice.id),
+      );
+      db.invoice_items = db.invoice_items.filter(
+        (item) => !invoiceIds.has(item.invoice_id),
+      );
+      db.invoices = db.invoices.filter((invoice) => !invoiceIds.has(invoice.id));
+      db.students = db.students.filter(
+        (student) => !familyIds.has(student.family_id),
+      );
+      db.families = db.families.filter((family) => !familyIds.has(family.id));
+    });
+  },
+
   async listStudents(familyId) {
     return withDb((db) =>
       db.students

@@ -23,10 +23,10 @@ export default async function AlumniPage() {
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
       <div className="mb-6">
         <h1 className="text-2xl font-extrabold tracking-tight text-emerald-950">
-          Ikut Maqom sebagai alumni
+          Data alumni
         </h1>
         <p className="mt-1 text-sm text-stone-500">
-          Lengkapi data alumni, lalu Anda bisa menunaikan Ta&apos;awun.
+          Cukup isi tahun angkatan, lalu lanjut memilih Ta&apos;awun.
         </p>
       </div>
       <AlumniForm

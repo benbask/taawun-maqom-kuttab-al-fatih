@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { GraduationCap } from "lucide-react";
+import { ArrowRight, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { FieldError, FieldHint, Input, Label, Textarea } from "@/components/ui/field";
+import { FieldError, FieldHint, Input, Label } from "@/components/ui/field";
 
 export function AlumniForm({
   initial,
@@ -30,20 +30,36 @@ export function AlumniForm({
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
+    if (form.nama.trim().length < 2) {
+      setError("Nama lengkap minimal 2 karakter.");
+      return;
+    }
+    if (form.angkatan.trim().length < 2) {
+      setError("Tahun angkatan wajib diisi.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
       const response = await fetch("/api/account/role", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: "alumni_join", profile: form }),
+        body: JSON.stringify({
+          role: "alumni_join",
+          parentName: form.nama.trim(),
+          profile: {
+            ...form,
+            nama: form.nama.trim(),
+            angkatan: form.angkatan.trim(),
+          },
+        }),
       });
       const data = (await response.json()) as { ok?: boolean; error?: string };
       if (!response.ok || !data.ok) {
         setError(data.error ?? "Gagal menyimpan data alumni.");
         return;
       }
-      toast.success("Data alumni tersimpan. Silakan lanjut ta'awun.");
+      toast.success("Data alumni tersimpan. Silakan lanjut Ta'awun.");
       router.push("/tambah");
       router.refresh();
     } catch {
@@ -62,7 +78,7 @@ export function AlumniForm({
         <div>
           <h2 className="text-base font-extrabold text-emerald-950">Data alumni</h2>
           <p className="text-xs text-stone-500">
-            Isi data berikut untuk melanjutkan sebagai alumni yang ikut Maqom.
+            Cukup isi tahun angkatan. Tidak perlu menambahkan data anak.
           </p>
         </div>
       </div>
@@ -78,41 +94,17 @@ export function AlumniForm({
           />
         </div>
         <div>
-          <Label htmlFor="alumni-angkatan">Angkatan / tahun lulus</Label>
+          <Label htmlFor="alumni-angkatan">
+            Tahun angkatan / lulus <span className="text-rose-500">*</span>
+          </Label>
           <Input
             id="alumni-angkatan"
             value={form.angkatan}
             onChange={(event) => set("angkatan", event.target.value)}
             placeholder="Contoh: 2019"
+            inputMode="numeric"
             required
           />
-        </div>
-        <div>
-          <Label htmlFor="alumni-wa">Nomor WhatsApp</Label>
-          <Input
-            id="alumni-wa"
-            value={form.whatsapp}
-            onChange={(event) => set("whatsapp", event.target.value)}
-          />
-        </div>
-        <div>
-          <Label htmlFor="alumni-kota">Kota / domisili</Label>
-          <Input
-            id="alumni-kota"
-            value={form.kota}
-            onChange={(event) => set("kota", event.target.value)}
-            placeholder="Contoh: Bandar Lampung"
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <Label htmlFor="alumni-catatan">Catatan (opsional)</Label>
-          <Textarea
-            id="alumni-catatan"
-            value={form.catatan}
-            onChange={(event) => set("catatan", event.target.value)}
-            placeholder="Ceritakan minat Anda untuk ikut Maqom..."
-          />
-          <FieldHint>Admin akan menghubungi Anda jika diperlukan.</FieldHint>
         </div>
 
         {error && (
@@ -122,9 +114,19 @@ export function AlumniForm({
         )}
 
         <div className="sm:col-span-2">
-          <Button type="submit" loading={loading} loadingText="Menyimpan…" size="lg" className="w-full">
-            Simpan &amp; lanjut ta&apos;awun
+          <Button
+            type="submit"
+            loading={loading}
+            loadingText="Menyimpan…"
+            size="lg"
+            className="w-full"
+          >
+            <ArrowRight className="h-4 w-4" /> Simpan &amp; lanjut Ta&apos;awun
           </Button>
+          <FieldHint className="mt-2 text-center">
+            Admin dapat menghubungi Anda melalui nomor WhatsApp yang sudah
+            terverifikasi.
+          </FieldHint>
         </div>
       </form>
     </Card>

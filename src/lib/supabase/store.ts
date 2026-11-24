@@ -434,6 +434,32 @@ export const supabaseStore: Store = {
     return (data ?? []) as Family[];
   },
 
+  async deleteDemoData() {
+    const demoFamilies = must(
+      await db().from("families").select("id").eq("is_demo", true),
+    ) as Array<{ id: string }>;
+    const ids = demoFamilies.map((family) => family.id);
+
+    if (ids.length) {
+      const { error: invoiceError } = await db()
+        .from("invoices")
+        .delete()
+        .in("family_id", ids);
+      if (invoiceError) throw new Error(invoiceError.message);
+    }
+
+    const { error: orphanError } = await db()
+      .from("invoices")
+      .delete()
+      .eq("is_demo", true);
+    if (orphanError) throw new Error(orphanError.message);
+
+    if (ids.length) {
+      const { error } = await db().from("families").delete().in("id", ids);
+      if (error) throw new Error(error.message);
+    }
+  },
+
   async listStudents(familyId) {
     const data = must(
       await db()

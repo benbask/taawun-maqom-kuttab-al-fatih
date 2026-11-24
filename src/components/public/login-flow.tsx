@@ -139,7 +139,13 @@ export function LoginFlow({
         title="Masuk dengan WhatsApp"
         description="Gunakan nomor yang pernah didaftarkan. Kode OTP akan dikirim melalui WhatsApp admin."
         submitLabel="Kirim kode masuk"
+        askRole={false}
         onVerified={async (result) => {
+          if (!result.role) {
+            router.push("/daftar");
+            router.refresh();
+            return;
+          }
           if (result.role === "alumni_join") {
             router.push("/alumni");
             router.refresh();
