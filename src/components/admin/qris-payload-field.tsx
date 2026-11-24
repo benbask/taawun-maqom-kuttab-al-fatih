@@ -247,8 +247,12 @@ export function QrisPayloadField({
         />
       </div>
 
-      {hasImage && (
-        <div className="rounded-xl border border-stone-200 bg-white p-3">
+      <div
+        className={cn(
+          "rounded-xl border border-stone-200 bg-white p-3",
+          !hasImage && "hidden",
+        )}
+      >
           <div className="relative inline-block max-w-full">
             <canvas ref={previewRef} className="block max-w-full rounded-lg" />
             <canvas
@@ -319,8 +323,7 @@ export function QrisPayloadField({
               Hapus seleksi
             </button>
           </div>
-        </div>
-      )}
+      </div>
 
       {status && (
         <p
