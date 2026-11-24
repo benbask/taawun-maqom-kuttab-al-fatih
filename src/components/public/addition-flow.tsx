@@ -9,7 +9,9 @@ import {
   HandHeart,
   Info,
   Loader2,
+  Plus,
   Receipt,
+  UserPlus,
   Users,
   Wallet,
 } from "lucide-react";
@@ -53,6 +55,10 @@ export function AdditionFlow({
   const [classId, setClassId] = useState(classes[0]?.id ?? "");
   const [amount, setAmount] = useState(0);
   const [note, setNote] = useState("");
+  const [showStudentForm, setShowStudentForm] = useState(initialStudents.length === 0);
+  const [newStudentName, setNewStudentName] = useState("");
+  const [newStudentClassId, setNewStudentClassId] = useState(classes[0]?.id ?? "");
+  const [savingStudent, setSavingStudent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,6 +85,61 @@ export function AdditionFlow({
       }
     } catch {
       // biarkan pengguna memilih kelas/umum
+    }
+  }
+
+  async function saveStudent() {
+    if (newStudentName.trim().length < 2) {
+      const message = "Nama santri minimal 2 karakter.";
+      setError(message);
+      toast.error(message);
+      return;
+    }
+    if (!newStudentClassId) {
+      const message = "Pilih kelas santri terlebih dahulu.";
+      setError(message);
+      toast.error(message);
+      return;
+    }
+    setSavingStudent(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newStudentName.trim(),
+          classId: newStudentClassId,
+        }),
+      });
+      const data = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        student?: { id: string; name: string; class_id: string | null };
+      };
+      if (!response.ok || !data.ok || !data.student) {
+        setError(data.error ?? "Gagal menyimpan data santri.");
+        return;
+      }
+      const created = data.student;
+      const option: StudentOption = {
+        id: created.id,
+        name: created.name,
+        classId: created.class_id,
+        className:
+          classes.find((cls) => cls.id === created.class_id)?.name ??
+          "Kelas belum diatur",
+      };
+      setStudents((items) => [...items, option]);
+      setStudentId(created.id);
+      setTarget("student");
+      setNewStudentName("");
+      setShowStudentForm(false);
+      toast.success("Data santri tersimpan. Santri ini dipilih untuk Ta'awun.");
+    } catch {
+      setError("Tidak dapat menghubungi server.");
+    } finally {
+      setSavingStudent(false);
     }
   }
 
@@ -141,8 +202,8 @@ export function AdditionFlow({
             description="Verifikasi nomor WhatsApp Anda. Setelah masuk, pilih santri, kelas, atau Ta'awun umum."
             submitLabel="Kirim kode masuk"
             onVerified={async (result) => {
-              if (result.role === "alumni_join") {
-                router.push("/alumni");
+              if (!result.role) {
+                router.push("/daftar");
                 router.refresh();
                 return;
               }
@@ -190,9 +251,10 @@ export function AdditionFlow({
               icon={Users}
               title="Santri"
               note={
-                students.length ? `${students.length} anak terdaftar` : "Belum ada anak"
+                students.length
+                  ? `${students.length} anak terdaftar`
+                  : "Pilih atau tambah santri"
               }
-              disabled={students.length === 0}
             />
             <TargetCard
               active={target === "class"}
@@ -211,31 +273,112 @@ export function AdditionFlow({
             />
           </div>
 
-          {target === "student" && students.length > 0 && (
+          {target === "student" && (
             <div className="mt-4">
-              <Label>Pilih santri</Label>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {students.map((student) => (
-                  <button
-                    key={student.id}
-                    type="button"
-                    onClick={() => setStudentId(student.id)}
-                    className={cn(
-                      "rounded-xl border px-3 py-2.5 text-left transition",
-                      studentId === student.id
-                        ? "border-emerald-600 bg-emerald-50 ring-2 ring-emerald-600/10"
-                        : "border-stone-200 bg-white hover:border-emerald-300",
+              {students.length > 0 && (
+                <>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <Label>Pilih santri</Label>
+                    <button
+                      type="button"
+                      onClick={() => setShowStudentForm((value) => !value)}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 underline-offset-2 hover:underline"
+                    >
+                      <UserPlus className="h-3.5 w-3.5" /> Tambah santri baru
+                    </button>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {students.map((student) => (
+                      <button
+                        key={student.id}
+                        type="button"
+                        onClick={() => setStudentId(student.id)}
+                        className={cn(
+                          "rounded-xl border px-3 py-2.5 text-left transition active:translate-y-px",
+                          studentId === student.id
+                            ? "border-emerald-600 bg-emerald-50 ring-2 ring-emerald-600/10"
+                            : "border-stone-200 bg-white hover:border-emerald-300",
+                        )}
+                      >
+                        <span className="block text-sm font-semibold text-stone-800">
+                          {student.name}
+                        </span>
+                        <span className="block text-[11px] text-stone-500">
+                          {student.className}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {(showStudentForm || students.length === 0) && (
+                <div
+                  className={cn(
+                    "rounded-xl border border-dashed border-emerald-300 bg-emerald-50/50 p-4",
+                    students.length > 0 && "mt-3",
+                  )}
+                >
+                  <p className="text-sm font-bold text-emerald-950">
+                    {students.length ? "Santri baru" : "Tambahkan data santri"}
+                  </p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-stone-500">
+                    Data santri tersimpan pada akun ini dan bisa dipilih kembali
+                    untuk Ta&apos;awun berikutnya.
+                  </p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <Label htmlFor="new-student-name">
+                        Nama santri <span className="text-rose-500">*</span>
+                      </Label>
+                      <Input
+                        id="new-student-name"
+                        value={newStudentName}
+                        onChange={(event) => setNewStudentName(event.target.value)}
+                        placeholder="Nama lengkap santri"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="new-student-class">
+                        Kelas <span className="text-rose-500">*</span>
+                      </Label>
+                      <select
+                        id="new-student-class"
+                        value={newStudentClassId}
+                        onChange={(event) => setNewStudentClassId(event.target.value)}
+                        className="h-11 w-full rounded-xl border border-stone-300 bg-white px-3.5 text-sm text-stone-900 shadow-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10"
+                      >
+                        <option value="">Pilih kelas</option>
+                        {classes.map((cls) => (
+                          <option key={cls.id} value={cls.id}>
+                            {cls.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={saveStudent}
+                      loading={savingStudent}
+                      disabled={savingStudent}
+                    >
+                      <Plus className="h-3.5 w-3.5" /> Simpan santri
+                    </Button>
+                    {students.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowStudentForm(false)}
+                        className="text-xs font-semibold text-stone-500 hover:text-stone-700"
+                      >
+                        Batal
+                      </button>
                     )}
-                  >
-                    <span className="block text-sm font-semibold text-stone-800">
-                      {student.name}
-                    </span>
-                    <span className="block text-[11px] text-stone-500">
-                      {student.className}
-                    </span>
-                  </button>
-                ))}
-              </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -268,15 +411,6 @@ export function AdditionFlow({
             </div>
           )}
 
-          {target === "student" && students.length === 0 && (
-            <div className="mt-4 rounded-xl border border-dashed border-stone-300 p-4 text-center text-xs text-stone-500">
-              Belum ada santri terdaftar pada akun ini.{" "}
-              <a href="/daftar" className="font-bold text-emerald-700 underline">
-                Daftarkan anak
-              </a>{" "}
-              atau pilih kelas/umum.
-            </div>
-          )}
         </Card>
 
         <Card className="p-5 sm:p-6">

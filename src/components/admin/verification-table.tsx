@@ -103,6 +103,11 @@ export function VerificationTable({
                   <td className="px-4 py-3">
                     <p className="font-mono text-xs font-bold text-emerald-800">
                       {invoice.invoice_no}
+                      {invoice.is_demo && (
+                        <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 font-sans text-[9px] font-bold text-amber-800">
+                          DEMO
+                        </span>
+                      )}
                     </p>
                     <p className="mt-0.5 text-[10px] text-stone-400">
                       {formatDateTime(invoice.created_at)}

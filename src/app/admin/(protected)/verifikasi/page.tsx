@@ -31,7 +31,7 @@ export default async function AdminVerificationPage({
     ? raw
     : "waiting_verification";
   const store = getStore();
-  const all = await store.listAllInvoices();
+  const all = await store.listAllInvoices({ includeDemo: true });
   const invoices = status === "all"
     ? all
     : all.filter((invoice) => invoice.status === status);

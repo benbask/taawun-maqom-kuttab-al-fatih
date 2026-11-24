@@ -484,7 +484,8 @@ export const demoStore: Store = {
         expires_at: expiresAt,
         verified_at: null,
         verified_by: null,
-        is_demo: false,
+        is_demo:
+          db.families.find((family) => family.id === input.familyId)?.is_demo ?? false,
         created_at: now(),
         updated_at: now(),
       };
@@ -525,9 +526,10 @@ export const demoStore: Store = {
     );
   },
 
-  async listAllInvoices() {
+  async listAllInvoices(options?: { includeDemo?: boolean }) {
     return withDb((db) =>
       [...db.invoices]
+        .filter((invoice) => options?.includeDemo || !invoice.is_demo)
         .sort((a, b) => b.created_at.localeCompare(a.created_at))
         .map((invoice) => hydrate(db, invoice)),
     );
@@ -670,12 +672,14 @@ export const demoStore: Store = {
     });
   },
 
-  async getPublicStats(): Promise<PublicStats> {
+  async getPublicStats(options?: { includeDemo?: boolean }): Promise<PublicStats> {
     return withDb((db) => {
       const included = db.invoices.filter(
         (invoice) =>
-          invoice.status === "verified" ||
-          (invoice.status === "waiting_verification" && invoice.proof_uploaded_at),
+          (invoice.status === "verified" ||
+            (invoice.status === "waiting_verification" &&
+              invoice.proof_uploaded_at)) &&
+          (options?.includeDemo || !invoice.is_demo),
       );
       const donorIds = new Set(included.map((invoice) => invoice.family_id));
       const studentIds = new Set<string>();

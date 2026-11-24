@@ -113,7 +113,7 @@ export function RoleSelector({
           <span className="inline-flex rounded-xl bg-sky-50 p-2 text-sky-700">
             <HeartHandshake className="h-5 w-5" />
           </span>
-          <p className="mt-3 text-sm font-bold text-stone-900">Pihak luar</p>
+          <p className="mt-3 text-sm font-bold text-stone-900">Donatur umum</p>
           <p className="mt-1 text-xs leading-relaxed text-stone-500">
             Ingin ikut ber-ta&apos;awun tanpa data santri.
           </p>

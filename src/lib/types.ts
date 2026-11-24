@@ -322,7 +322,7 @@ export interface Store {
   createInvoice(input: CreateInvoiceInput): Promise<InvoiceWithDetails>;
   getInvoiceById(id: string): Promise<InvoiceWithDetails | null>;
   listInvoicesByFamily(familyId: string): Promise<InvoiceWithDetails[]>;
-  listAllInvoices(): Promise<InvoiceWithDetails[]>;
+  listAllInvoices(options?: { includeDemo?: boolean }): Promise<InvoiceWithDetails[]>;
   setInvoiceQris(id: string, payload: string): Promise<void>;
   setInvoiceProof(
     id: string,
@@ -354,7 +354,7 @@ export interface Store {
   requestWorkerLogout(): Promise<void>;
   resetWaSession(): Promise<void>;
 
-  getPublicStats(): Promise<PublicStats>;
+  getPublicStats(options?: { includeDemo?: boolean }): Promise<PublicStats>;
   getVerificationData(classId?: string | null): Promise<VerificationData>;
 
   listAuditLogs(limit?: number): Promise<AuditLog[]>;

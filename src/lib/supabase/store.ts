@@ -542,16 +542,15 @@ export const supabaseStore: Store = {
     return ((data ?? []) as Array<Record<string, unknown>>).map(mapInvoice);
   },
 
-  async listAllInvoices() {
-    const data = must(
-      await db()
-        .from("invoices")
-        .select(
-          "*, family:families(*), items:invoice_items(*, student:students(*), class:classes(*))",
-        )
-        .eq("is_demo", false)
-        .order("created_at", { ascending: false }),
-    );
+  async listAllInvoices(options?: { includeDemo?: boolean }) {
+    let query = db()
+      .from("invoices")
+      .select(
+        "*, family:families(*), items:invoice_items(*, student:students(*), class:classes(*))",
+      )
+      .order("created_at", { ascending: false });
+    if (!options?.includeDemo) query = query.eq("is_demo", false);
+    const data = must(await query);
     return ((data ?? []) as Array<Record<string, unknown>>).map(mapInvoice);
   },
 
@@ -717,18 +716,17 @@ export const supabaseStore: Store = {
     if (error) throw new Error(error.message);
   },
 
-  async getPublicStats(): Promise<PublicStats> {
+  async getPublicStats(options?: { includeDemo?: boolean }): Promise<PublicStats> {
     const settings = await ensureSettings();
-    const invoices = must(
-      await db()
-        .from("invoices")
-        .select(
-          "id, family_id, base_amount, unique_code, total_amount, proof_uploaded_at, invoice_items(amount, student_id, class_id)",
-        )
-        .in("status", ["verified", "waiting_verification"])
-        .not("proof_uploaded_at", "is", null)
-        .eq("is_demo", false),
-    ) as Array<Record<string, unknown>>;
+    let query = db()
+      .from("invoices")
+      .select(
+        "id, family_id, base_amount, unique_code, total_amount, proof_uploaded_at, invoice_items(amount, student_id, class_id)",
+      )
+      .in("status", ["verified", "waiting_verification"])
+      .not("proof_uploaded_at", "is", null);
+    if (!options?.includeDemo) query = query.eq("is_demo", false);
+    const invoices = must(await query) as Array<Record<string, unknown>>;
     const classes = must(
       await db().from("classes").select("*").order("sort_order"),
     ) as ClassRecord[];

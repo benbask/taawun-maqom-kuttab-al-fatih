@@ -386,7 +386,7 @@ export function RegistrationFlow({
               ) : (
                 <ArrowRight className="h-3.5 w-3.5" />
               )}
-              Bukan orang tua santri? Lanjut sebagai pihak luar
+              Bukan orang tua Santri? Lanjut sebagai donatur umum
             </button>
           </div>
 

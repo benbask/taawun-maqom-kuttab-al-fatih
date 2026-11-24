@@ -35,6 +35,11 @@ export const registrationSchema = z.object({
   customData: z.record(z.string(), z.unknown()).optional(),
 });
 
+export const studentCreateSchema = z.object({
+  name: z.string().trim().min(2, "Nama santri minimal 2 karakter.").max(100),
+  classId: z.string().uuid("Kelas tidak valid."),
+});
+
 export const additionSchema = z.object({
   studentId: z.string().uuid().nullable().optional(),
   classId: z.string().uuid().nullable().optional(),

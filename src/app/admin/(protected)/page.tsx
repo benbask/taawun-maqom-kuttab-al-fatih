@@ -37,8 +37,8 @@ export const metadata: Metadata = {
 export default async function AdminDashboardPage() {
   const store = getStore();
   const [stats, invoices, wa] = await Promise.all([
-    store.getPublicStats(),
-    store.listAllInvoices(),
+    store.getPublicStats({ includeDemo: true }),
+    store.listAllInvoices({ includeDemo: true }),
     store.getWaSession(),
   ]);
 
