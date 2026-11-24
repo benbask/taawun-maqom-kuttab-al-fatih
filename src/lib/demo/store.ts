@@ -705,7 +705,11 @@ export const demoStore: Store = {
         classes.find((cls) => cls.id === selectedClassId)?.name ?? null;
 
       const rows = db.invoices
-        .filter((invoice) => invoice.status === "verified")
+        .filter(
+          (invoice) =>
+            invoice.status === "verified" ||
+            (invoice.status === "waiting_verification" && invoice.proof_uploaded_at),
+        )
         .flatMap((invoice) => {
           const family = db.families.find((item) => item.id === invoice.family_id);
           const items = db.invoice_items.filter(
@@ -722,6 +726,7 @@ export const demoStore: Store = {
               proofUploadedAt: invoice.proof_uploaded_at,
               amount: item.amount,
               invoiceNo: invoice.invoice_no,
+              status: invoice.status,
             };
           });
         })

@@ -223,6 +223,7 @@ export interface VerificationRow {
   proofUploadedAt: string | null;
   amount: number;
   invoiceNo: string;
+  status: InvoiceStatus;
 }
 
 export interface VerificationData {

@@ -754,9 +754,10 @@ export const supabaseStore: Store = {
       await db()
         .from("invoices")
         .select(
-          "invoice_no, proof_uploaded_at, families(parent_name, phone), invoice_items(amount, class_id, description, students(name))",
+          "invoice_no, status, proof_uploaded_at, families(parent_name, phone), invoice_items(amount, class_id, description, students(name))",
         )
-        .eq("status", "verified")
+        .in("status", ["verified", "waiting_verification"])
+        .not("proof_uploaded_at", "is", null)
         .eq("invoice_items.class_id", selectedClassId),
     ) as Array<Record<string, unknown>>;
 
@@ -779,6 +780,7 @@ export const supabaseStore: Store = {
                 : null,
               amount: num(item.amount),
               invoiceNo: String(invoice.invoice_no ?? ""),
+              status: invoice.status as Invoice["status"],
             };
           });
       })

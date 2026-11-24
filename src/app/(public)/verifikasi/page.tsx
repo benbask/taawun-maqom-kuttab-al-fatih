@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, BadgeCheck, Info, ShieldCheck, Users } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Clock, Info, ShieldCheck, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import { getStore } from "@/lib/store";
 export const metadata: Metadata = {
   title: "Verifikasi Ta'awun Publik",
   description:
-    "Rekap pembayaran Ta'awun yang telah diverifikasi admin Maqom Kuttab Al Fatih Lampung, lengkap dengan nama tersamarkan dan waktu unggah bukti.",
+    "Rekap pembayaran Ta'awun Maqom Kuttab Al Fatih Lampung yang bukti transfernya sudah diunggah, lengkap dengan status verifikasi, nama tersamarkan, dan waktu unggah bukti.",
 };
 
 function first(value: string | string[] | undefined) {
@@ -69,9 +69,10 @@ export default async function VerificationPage({
             Verifikasi Ta&apos;awun
           </h1>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-stone-500">
-            Daftar pembayaran yang telah diverifikasi admin, disusun per kelas.
-            Nama santri dan nomor WhatsApp ditampilkan dalam bentuk tersamarkan
-            untuk menjaga privasi.
+            Daftar pembayaran yang bukti transfernya sudah diunggah, disusun per
+            kelas. Status verifikasi admin ditampilkan pada setiap baris. Nama
+            santri dan nomor WhatsApp ditampilkan dalam bentuk tersamarkan untuk
+            menjaga privasi.
           </p>
         </div>
         <div className="rounded-2xl border border-emerald-900/10 bg-emerald-950 px-5 py-4 text-emerald-50 shadow-sm">
@@ -80,7 +81,7 @@ export default async function VerificationPage({
           </p>
           <p className="mt-1 text-2xl font-extrabold">{formatRupiah(data.classTotal)}</p>
           <p className="text-xs text-emerald-100/60">
-            {data.classCount} pembayaran terverifikasi
+            {data.classCount} pembayaran tercatat
           </p>
         </div>
       </div>
@@ -121,12 +122,12 @@ export default async function VerificationPage({
                 {data.selectedClassName ?? "Belum ada kelas"}
               </p>
               <p className="text-xs text-stone-500">
-                Total {data.classCount} baris terverifikasi
+                Total {data.classCount} baris, termasuk yang menunggu verifikasi
               </p>
             </div>
           </div>
-          <Badge tone="green">
-            <BadgeCheck className="h-3.5 w-3.5" /> Terverifikasi admin
+          <Badge tone="amber">
+            <Clock className="h-3.5 w-3.5" /> Status per baris
           </Badge>
         </div>
 
@@ -138,6 +139,7 @@ export default async function VerificationPage({
                 <th className="px-4 py-3 font-semibold">Nama santri</th>
                 <th className="px-4 py-3 font-semibold">WhatsApp</th>
                 <th className="px-4 py-3 font-semibold">Waktu unggah bukti</th>
+                <th className="px-4 py-3 font-semibold">Status</th>
                 <th className="px-4 py-3 text-right font-semibold">Nominal</th>
               </tr>
             </thead>
@@ -156,6 +158,17 @@ export default async function VerificationPage({
                   <td className="px-4 py-3 text-xs text-stone-500">
                     {formatDateTime(row.proofUploadedAt)}
                   </td>
+                  <td className="px-4 py-3">
+                    {row.status === "verified" ? (
+                      <Badge tone="green" className="text-[10px]">
+                        <BadgeCheck className="h-3 w-3" /> Terverifikasi
+                      </Badge>
+                    ) : (
+                      <Badge tone="amber" className="text-[10px]">
+                        <Clock className="h-3 w-3" /> Menunggu verifikasi
+                      </Badge>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-right font-bold text-emerald-900">
                     {formatRupiah(row.amount)}
                   </td>
@@ -163,8 +176,8 @@ export default async function VerificationPage({
               ))}
               {data.rows.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-sm text-stone-500">
-                    Belum ada pembayaran terverifikasi untuk kelas ini.
+                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-stone-500">
+                    Belum ada pembayaran dengan bukti transfer untuk kelas ini.
                   </td>
                 </tr>
               )}
@@ -172,8 +185,8 @@ export default async function VerificationPage({
             {data.rows.length > 0 && (
               <tfoot>
                 <tr className="border-t border-stone-200 bg-stone-50/80">
-                  <td colSpan={4} className="px-4 py-3 text-right text-xs font-semibold text-stone-500">
-                    Total kelas ini
+                  <td colSpan={5} className="px-4 py-3 text-right text-xs font-semibold text-stone-500">
+                    Total kelas ini (termasuk menunggu verifikasi)
                   </td>
                   <td className="px-4 py-3 text-right font-extrabold text-emerald-900">
                     {formatRupiah(data.classTotal)}
@@ -188,11 +201,13 @@ export default async function VerificationPage({
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 text-xs leading-relaxed text-emerald-900">
           <p className="flex items-center gap-1.5 font-bold">
-            <ShieldCheck className="h-3.5 w-3.5" /> Hanya data terverifikasi
+            <ShieldCheck className="h-3.5 w-3.5" /> Muncul setelah bukti diunggah
           </p>
           <p className="mt-1 text-emerald-900/75">
-            Baris muncul setelah admin memeriksa bukti transfer. Nama disamarkan
-            menjadi inisial, nomor WhatsApp hanya empat digit terakhir.
+            Baris tampil otomatis setelah wali mengunggah bukti transfer. Admin
+            tetap memeriksa secara manual; status “Terverifikasi” atau “Menunggu
+            verifikasi” ditampilkan pada tiap baris. Nama disamarkan menjadi
+            inisial, nomor WhatsApp hanya empat digit terakhir.
           </p>
         </div>
         <div className="rounded-2xl border border-stone-200 bg-white p-4 text-xs leading-relaxed text-stone-600">
