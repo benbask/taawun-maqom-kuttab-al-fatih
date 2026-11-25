@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CopyButton } from "@/components/site/copy-button";
 import { InvoiceCountdown, InvoiceStatusPoller } from "@/components/public/invoice-status";
 import { InvoiceProofUploader } from "@/components/public/invoice-proof-uploader";
 import {
@@ -164,26 +163,12 @@ export default async function InvoicePage({
                 </a>
               </div>
 
-              <div className="border-t border-stone-100 bg-amber-50/60 p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wide text-amber-800/80">
-                      Total transfer
-                    </p>
-                    <p className="text-2xl font-extrabold text-amber-950">
-                      {formatRupiah(invoice.total_amount)}
-                    </p>
-                  </div>
-                  <CopyButton
-                    value={String(invoice.total_amount)}
-                    label="Salin nominal"
-                    className="border-amber-200 bg-white text-amber-900 hover:bg-amber-50"
-                  />
-                </div>
-                <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-relaxed text-amber-900/80">
-                  <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  Transfer <strong>tepat sampai digit terakhir</strong>. Tiga digit
-                  terakhir adalah kode unik untuk pencocokan pembayaran.
+              <div className="border-t border-stone-100 bg-amber-50/60 px-5 py-3">
+                <p className="text-xs font-semibold text-amber-900">
+                  Total transfer:{" "}
+                  <span className="font-extrabold text-amber-950">
+                    {formatRupiah(invoice.total_amount)}
+                  </span>
                 </p>
               </div>
             </Card>
