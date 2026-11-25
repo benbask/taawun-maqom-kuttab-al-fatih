@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FieldError, FieldHint, Input, Label } from "@/components/ui/field";
+import { cn } from "@/lib/utils";
 
 export function AlumniForm({
   initial,
@@ -22,6 +23,7 @@ export function AlumniForm({
   const router = useRouter();
   const [form, setForm] = useState(initial);
   const [loading, setLoading] = useState(false);
+  const [joinMaqom, setJoinMaqom] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   function set(key: keyof typeof form, value: string) {
@@ -45,7 +47,7 @@ export function AlumniForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          role: "alumni_join",
+          role: joinMaqom ? "alumni_join" : "alumni",
           parentName: form.nama.trim(),
           profile: {
             ...form,
@@ -84,6 +86,45 @@ export function AlumniForm({
       </div>
 
       <form onSubmit={submit} className="mt-5 grid gap-4 sm:grid-cols-2">
+        <div className="sm:col-span-2">
+          <p className="text-sm font-bold text-emerald-950">Apakah Anda ikut Maqom?</p>
+          <p className="mt-0.5 text-xs text-stone-500">
+            Yang ikut adalah ayah, satu orang per keluarga.
+          </p>
+          <div
+            className="mt-2 inline-flex flex-wrap gap-1.5 rounded-xl border border-stone-200 bg-stone-50 p-1.5"
+            role="group"
+            aria-label="Pilihan mengikuti Maqom"
+          >
+            <button
+              type="button"
+              aria-pressed={joinMaqom}
+              onClick={() => setJoinMaqom(true)}
+              className={cn(
+                "rounded-lg px-3 py-1.5 text-xs font-bold transition active:translate-y-px",
+                joinMaqom
+                  ? "bg-emerald-900 text-white shadow-sm ring-2 ring-emerald-900/20"
+                  : "border border-stone-200 bg-white text-stone-600",
+              )}
+            >
+              Insyaallah saya ikut Maqom
+            </button>
+            <button
+              type="button"
+              aria-pressed={!joinMaqom}
+              onClick={() => setJoinMaqom(false)}
+              className={cn(
+                "rounded-lg px-3 py-1.5 text-xs font-bold transition active:translate-y-px",
+                !joinMaqom
+                  ? "bg-emerald-900 text-white shadow-sm ring-2 ring-emerald-900/20"
+                  : "border border-stone-200 bg-white text-stone-600",
+              )}
+            >
+              Tidak ikut, hanya Ta&apos;awun
+            </button>
+          </div>
+        </div>
+
         <div>
           <Label htmlFor="alumni-nama">Nama lengkap</Label>
           <Input

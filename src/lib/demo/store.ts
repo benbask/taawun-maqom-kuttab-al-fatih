@@ -20,6 +20,7 @@ import type {
   Settings,
   Store,
   Student,
+  StudentDirectoryEntry,
   VerificationData,
   WaSession,
 } from "@/lib/types";
@@ -405,6 +406,10 @@ export const demoStore: Store = {
         .sort((a, b) => a.created_at.localeCompare(b.created_at))
         .map((item) => ({ ...item })),
     );
+  },
+
+  async listStudentDirectory(): Promise<StudentDirectoryEntry[]> {
+    return [];
   },
 
   async createStudent(input) {

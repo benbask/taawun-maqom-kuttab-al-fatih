@@ -121,6 +121,18 @@ export interface Student {
   created_at: string;
 }
 
+export interface StudentDirectoryEntry {
+  id: string;
+  nis: string;
+  name: string;
+  class_name: string;
+  level: string | null;
+  sub_class: string | null;
+  gender: string | null;
+  father_name: string;
+  mother_name: string | null;
+}
+
 export interface Invoice {
   id: string;
   invoice_no: string;
@@ -312,6 +324,7 @@ export interface Store {
   listAlumni(): Promise<Family[]>;
   deleteDemoData(): Promise<void>;
   listStudents(familyId: string): Promise<Student[]>;
+  listStudentDirectory(): Promise<StudentDirectoryEntry[]>;
   createStudent(input: {
     familyId: string;
     name: string;

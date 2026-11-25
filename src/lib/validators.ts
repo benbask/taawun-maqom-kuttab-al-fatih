@@ -10,6 +10,14 @@ export const otpRequestSchema = z.object({
   phone: phoneInput,
 });
 
+export const simpleLoginSchema = z.object({
+  phone: phoneInput,
+  password: z
+    .string()
+    .trim()
+    .refine((value) => value === "Bismillah", "Sandi tidak benar."),
+});
+
 export const otpVerifySchema = z.object({
   phone: phoneInput,
   code: z.string().regex(/^\d{4}$/, "Kode harus 4 digit."),

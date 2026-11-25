@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Mail } from "lucide-react";
 import { toast } from "sonner";
 import { GoogleSignInButton } from "@/components/public/google-signin-button";
+import { AccessPanel } from "@/components/public/access-panel";
 import { PhoneOtpPanel } from "@/components/public/phone-otp-panel";
 
 export function LoginFlow({
@@ -135,18 +136,17 @@ export function LoginFlow({
         </>
       )}
 
-      <PhoneOtpPanel
+      <AccessPanel
         title="Masuk dengan WhatsApp"
-        description="Gunakan nomor yang pernah didaftarkan. Kode OTP akan dikirim melalui WhatsApp admin."
-        submitLabel="Kirim kode masuk"
-        askRole={false}
-        onVerified={async (result) => {
+        description="Masukkan nomor WhatsApp dan sandi bersama yang diberikan panitia."
+        submitLabel="Masuk"
+        onAuthenticated={async (result) => {
           if (!result.role) {
             router.push("/daftar");
             router.refresh();
             return;
           }
-          if (result.role === "alumni_join") {
+          if (result.role === "alumni_join" || result.role === "alumni") {
             router.push("/alumni");
             router.refresh();
             return;
@@ -162,7 +162,7 @@ export function LoginFlow({
 
       {googleEnabled && (
         <p className="text-center text-[11px] leading-relaxed text-stone-400">
-          Masuk dengan Google tetap memerlukan verifikasi WhatsApp sekali pada
+          Masuk dengan Google tetap memerlukan nomor WhatsApp sekali pada
           pengguna baru.
         </p>
       )}

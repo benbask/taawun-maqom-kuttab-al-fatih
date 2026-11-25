@@ -19,6 +19,7 @@ import type {
   Settings,
   Store,
   Student,
+  StudentDirectoryEntry,
   VerificationData,
   WaSession,
 } from "@/lib/types";
@@ -469,6 +470,17 @@ export const supabaseStore: Store = {
         .order("created_at"),
     );
     return (data ?? []) as Student[];
+  },
+
+  async listStudentDirectory(): Promise<StudentDirectoryEntry[]> {
+    const data = must(
+      await db()
+        .from("student_directory")
+        .select("*")
+        .order("class_name")
+        .order("name"),
+    );
+    return (data ?? []) as StudentDirectoryEntry[];
   },
 
   async createStudent(input) {

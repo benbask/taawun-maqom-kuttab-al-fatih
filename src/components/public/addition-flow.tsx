@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FieldError, FieldHint, Input, Label, Textarea } from "@/components/ui/field";
-import { PhoneOtpPanel } from "@/components/public/phone-otp-panel";
+import { AccessPanel } from "@/components/public/access-panel";
 import { amountFromInput, formatNumber, formatRupiah } from "@/lib/format";
 import type { ClassRecord } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -196,12 +196,12 @@ export function AdditionFlow({
     return (
       <div className="mx-auto w-full max-w-lg">
         <Card className="p-6 sm:p-8">
-          <PhoneOtpPanel
+          <AccessPanel
             initialPhone={initialPhone}
             title="Masuk untuk menambah Ta'awun"
-            description="Verifikasi nomor WhatsApp Anda. Setelah masuk, pilih santri, kelas, atau Ta'awun umum."
-            submitLabel="Kirim kode masuk"
-            onVerified={async (result) => {
+            description="Masukkan nomor WhatsApp dan sandi bersama panitia."
+            submitLabel="Lanjutkan"
+            onAuthenticated={async (result) => {
               if (!result.role) {
                 router.push("/daftar");
                 router.refresh();

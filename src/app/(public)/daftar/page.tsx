@@ -19,32 +19,17 @@ export default async function RegistrationPage() {
   const session = await getUserSession();
   const store = getStore();
 
-  const [classes, fields] = await Promise.all([
+  const [classes, directory] = await Promise.all([
     store.listClasses(true).catch(() => []),
-    store.listFormFields(true).catch(() => []),
+    store.listStudentDirectory().catch(() => []),
   ]);
 
   let family = null;
-  let students: Array<{ id: string; name: string; classId: string | null }> = [];
   if (session) {
     family = session.familyId
       ? await store.getFamilyById(session.familyId).catch(() => null)
       : await store.getFamilyByPhone(session.phone).catch(() => null);
-    if (family) {
-      students = (await store.listStudents(family.id).catch(() => [])).map((item) => ({
-        id: item.id,
-        name: item.name,
-        classId: item.class_id,
-      }));
-    }
   }
-
-  const existingStudents = students.map((student) => ({
-    id: student.id,
-    name: student.name,
-    className:
-      classes.find((cls) => cls.id === student.classId)?.name ?? "Kelas belum diatur",
-  }));
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -75,13 +60,11 @@ export default async function RegistrationPage() {
       ) : (
         <RegistrationFlow
           classes={classes}
-          familyFields={fields.filter((field) => field.scope === "family")}
-          studentFields={fields.filter((field) => field.scope === "student")}
+          directory={directory}
           initialPhone={session ? phoneLocal(session.phone) : ""}
           initialParentName={family?.parent_name ?? ""}
           initialRole={family?.account_type ?? null}
           initialAlumniYear={String(family?.alumni_profile?.angkatan ?? "")}
-          existingStudents={existingStudents}
         />
       )}
 
