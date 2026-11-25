@@ -22,6 +22,7 @@ import { buttonClasses } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { InvoiceCountdown, InvoiceStatusPoller } from "@/components/public/invoice-status";
 import { InvoiceProofUploader } from "@/components/public/invoice-proof-uploader";
+import { ProofUploadTrigger } from "@/components/public/proof-upload-trigger";
 import {
   formatDateTime,
   formatRupiah,
@@ -170,6 +171,10 @@ export default async function InvoicePage({
                     {formatRupiah(invoice.total_amount)}
                   </span>
                 </p>
+              </div>
+
+              <div className="border-t border-stone-100 px-5 pb-5 pt-3">
+                <ProofUploadTrigger />
               </div>
             </Card>
           ) : (

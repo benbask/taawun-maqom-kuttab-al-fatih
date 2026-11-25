@@ -26,6 +26,14 @@ export function InvoiceProofUploader({
   const [dragging, setDragging] = useState(false);
 
   useEffect(() => {
+    function openPicker() {
+      inputRef.current?.click();
+    }
+    window.addEventListener("taawun:open-proof", openPicker);
+    return () => window.removeEventListener("taawun:open-proof", openPicker);
+  }, []);
+
+  useEffect(() => {
     return () => {
       if (preview) URL.revokeObjectURL(preview);
     };
