@@ -10,7 +10,7 @@ import {
   buildAttendance,
   type AttendanceStatus,
 } from "@/lib/attendance";
-import { formatPhone, waLink } from "@/lib/format";
+import { formatPhoneIntl, waLink } from "@/lib/format";
 import { getStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -110,7 +110,7 @@ export default async function AdminAttendancePage() {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 font-sans font-bold text-emerald-700 hover:underline"
                       >
-                        <MessageCircle className="h-3 w-3" /> {formatPhone(row.phone)}
+                        <MessageCircle className="h-3 w-3" /> {formatPhoneIntl(row.phone)}
                       </a>
                     ) : (
                       "—"

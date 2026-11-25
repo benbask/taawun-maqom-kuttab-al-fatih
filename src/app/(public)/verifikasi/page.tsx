@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, BadgeCheck, Clock, Info, ShieldCheck, Users } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, BadgeCheck, Clock, Info, ShieldCheck, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -27,10 +27,11 @@ export default async function VerificationPage({
   const params = await searchParams;
   const selected = first(params.kelas) ?? null;
   const settings = await safeSettings();
+  const store = getStore();
 
   let data;
   try {
-    data = await getStore().getVerificationData(selected);
+    data = await store.getVerificationData(selected);
   } catch (error) {
     console.error("[verifikasi] gagal memuat data:", error);
     data = {
@@ -42,6 +43,8 @@ export default async function VerificationPage({
       classCount: 0,
     };
   }
+
+  const stats = await store.getPublicStats().catch(() => null);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
@@ -108,6 +111,57 @@ export default async function VerificationPage({
       ) : (
         <Card className="mt-7 p-6 text-center text-sm text-stone-500">
           Belum ada kelas yang aktif. Hubungi admin Ta&apos;awun.
+        </Card>
+      )}
+
+      {stats && stats.perClass.length > 0 && (
+        <Card className="mt-5 overflow-hidden">
+          <div className="border-b border-stone-100 bg-stone-50/60 px-5 py-4">
+            <h2 className="text-sm font-bold text-stone-900">Rekap per kelas</h2>
+            <p className="text-xs text-stone-500">
+              Klik kelas untuk melihat rincian pembayaran.
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[520px] text-sm">
+              <thead>
+                <tr className="border-b border-stone-200 bg-white text-left text-[11px] uppercase tracking-wide text-stone-500">
+                  <th className="px-5 py-3 font-semibold">Kelas</th>
+                  <th className="px-5 py-3 text-center font-semibold">Kontribusi</th>
+                  <th className="px-5 py-3 text-right font-semibold">Total Ta&apos;awun</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-100">
+                {stats.perClass.map((row) => (
+                  <tr key={row.classId} className="bg-white/70 hover:bg-stone-50/60">
+                    <td className="px-5 py-3.5 font-semibold text-stone-800">
+                      <Link
+                        href={`/verifikasi?kelas=${row.classId}`}
+                        className="inline-flex items-center gap-1 hover:text-emerald-700 hover:underline"
+                      >
+                        {row.className} <ArrowUpRight className="h-3 w-3" />
+                      </Link>
+                    </td>
+                    <td className="px-5 py-3.5 text-center text-stone-500">{row.count}</td>
+                    <td className="px-5 py-3.5 text-right font-bold text-emerald-900">
+                      {formatRupiah(row.total)}
+                    </td>
+                  </tr>
+                ))}
+                <tr className="bg-amber-50/50">
+                  <td className="px-5 py-3.5 font-semibold text-amber-900">
+                    Umum / tidak terikat kelas
+                  </td>
+                  <td className="px-5 py-3.5 text-center text-amber-800/70">
+                    {stats.umumCount}
+                  </td>
+                  <td className="px-5 py-3.5 text-right font-bold text-amber-900">
+                    {formatRupiah(stats.umumTotal)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </Card>
       )}
 

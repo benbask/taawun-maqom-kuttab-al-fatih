@@ -3,7 +3,7 @@ import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { Card } from "@/components/ui/card";
-import { formatDateTime, formatPhone, waLink } from "@/lib/format";
+import { formatDateTime, formatPhoneIntl, waLink } from "@/lib/format";
 import { getStore } from "@/lib/store";
 
 export const metadata: Metadata = {
@@ -62,7 +62,7 @@ export default async function AdminAlumniPage() {
                           className="inline-flex items-center gap-1 text-emerald-700 hover:underline"
                         >
                           <MessageCircle className="h-3 w-3" />
-                          {formatPhone(profile.whatsapp || row.phone)}
+                          {formatPhoneIntl(profile.whatsapp || row.phone)}
                         </a>
                       </td>
                       <td className="px-4 py-3">{profile.kota || "-"}</td>

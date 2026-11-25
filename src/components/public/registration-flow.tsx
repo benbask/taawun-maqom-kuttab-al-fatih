@@ -269,8 +269,8 @@ export function RegistrationFlow({
         <Card className="p-6 sm:p-8">
           <AccessPanel
             initialPhone={initialPhone}
-            title="Daftar / masuk Ta'awun"
-            description="Masukkan nomor WhatsApp dan password Anda. Nomor baru akan otomatis didaftarkan."
+            title="Pendaftaran Maqom & Ta'awun"
+            description="Masukkan nomor WhatsApp dan Kode Keamanan. Nomor baru akan otomatis didaftarkan."
             submitLabel="Lanjutkan"
             onAuthenticated={authenticated}
           />

@@ -103,7 +103,7 @@ export function SiteHeader({
             className={buttonClasses("primary", "sm")}
             onClick={() => setMenuOpen(false)}
           >
-            Daftar Ta&apos;awun
+            Daftar Maqom &amp; Ta&apos;awun
           </Link>
           {signedIn && <UserLogoutButton compact />}
 

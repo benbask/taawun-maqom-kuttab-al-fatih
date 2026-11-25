@@ -334,7 +334,14 @@ export default async function HomePage() {
                 <tbody className="divide-y divide-stone-100">
                   {classRows.map((row) => (
                     <tr key={row.id} className="bg-white/70">
-                      <td className="px-5 py-3.5 font-semibold text-stone-800">{row.name}</td>
+                      <td className="px-5 py-3.5 font-semibold text-stone-800">
+                        <Link
+                          href={`/verifikasi?kelas=${row.id}`}
+                          className="inline-flex items-center gap-1 hover:text-emerald-700 hover:underline"
+                        >
+                          {row.name} <ArrowUpRight className="h-3 w-3" />
+                        </Link>
+                      </td>
                       <td className="px-5 py-3.5 text-center text-stone-500">{row.count}</td>
                       <td className="px-5 py-3.5 text-right font-bold text-emerald-900">
                         {formatRupiah(row.total)}

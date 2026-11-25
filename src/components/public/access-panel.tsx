@@ -18,7 +18,7 @@ export interface SimpleAuthResult {
 export function AccessPanel({
   initialPhone = "",
   title = "Masuk dengan WhatsApp",
-  description = "Masukkan nomor WhatsApp dan password Anda.",
+  description = "Masukkan nomor WhatsApp dan Kode Keamanan yang diberikan di grup angkatan.",
   submitLabel = "Lanjutkan",
   onAuthenticated,
 }: {
@@ -42,7 +42,7 @@ export function AccessPanel({
       return;
     }
     if (!password.trim()) {
-      setError("Password wajib diisi.");
+      setError("Kode Keamanan wajib diisi.");
       return;
     }
 
@@ -118,7 +118,7 @@ export function AccessPanel({
       </div>
 
       <div>
-        <Label htmlFor="access-password">Password</Label>
+        <Label htmlFor="access-password">Masukkan Kode Keamanan</Label>
         <div className="relative">
           <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400">
             <KeyRound className="h-4 w-4" />
@@ -128,7 +128,7 @@ export function AccessPanel({
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            placeholder="Masukkan password"
+            placeholder="Masukkan Kode Keamanan"
             autoComplete="current-password"
             className="pl-11 pr-16"
             required
@@ -141,6 +141,10 @@ export function AccessPanel({
             {showPassword ? "Sembunyikan" : "Lihat"}
           </button>
         </div>
+        <FieldHint>
+          Kode Keamanan untuk memproteksi data, diberikan di pengumuman Maqom
+          di masing-masing grup angkatan.
+        </FieldHint>
       </div>
 
       {error && <FieldError>{error}</FieldError>}

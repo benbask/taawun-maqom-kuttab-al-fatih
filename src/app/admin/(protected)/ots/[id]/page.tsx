@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/admin/page-header";
 import { roleLabels } from "@/lib/account-roles";
 import {
   formatDateTime,
-  formatPhone,
+  formatPhoneIntl,
   formatRupiah,
   invoiceStatusLabel,
   invoiceStatusTone,
@@ -90,7 +90,7 @@ export default async function AdminOtsProfilePage({
                   rel="noopener noreferrer"
                   className="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-800 hover:bg-emerald-100"
                 >
-                  <MessageCircle className="h-4 w-4" /> {formatPhone(family.phone)}
+                  <MessageCircle className="h-4 w-4" /> {formatPhoneIntl(family.phone)}
                 </a>
               </div>
               {linkedPhones.length > 0 && (
@@ -107,7 +107,7 @@ export default async function AdminOtsProfilePage({
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-white px-2.5 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-50"
                       >
-                        <MessageCircle className="h-3 w-3" /> {formatPhone(phone)}
+                        <MessageCircle className="h-3 w-3" /> {formatPhoneIntl(phone)}
                       </a>
                     ))}
                   </div>

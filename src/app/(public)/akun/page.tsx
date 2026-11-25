@@ -247,7 +247,7 @@ export default async function AccountPage() {
                   Mulai Ta&apos;awun pertama Anda sekarang.
                 </p>
                 <Link href="/daftar" className={buttonClasses("primary", "sm", "mt-3")}>
-                  Daftar Ta&apos;awun
+                  Daftar Maqom &amp; Ta&apos;awun
                 </Link>
               </div>
             )}

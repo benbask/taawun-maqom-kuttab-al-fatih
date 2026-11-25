@@ -61,6 +61,14 @@ export function formatPhone(phone: string) {
   return `+62 ${groups.join("-")}`;
 }
 
+export function formatPhoneIntl(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  if (!digits) return phone;
+  let normalized = digits.startsWith("0") ? `62${digits.slice(1)}` : digits;
+  if (!normalized.startsWith("62")) normalized = `62${normalized}`;
+  return formatPhone(normalized);
+}
+
 export function phoneLocal(phone: string) {
   if (phone.startsWith("62")) return `0${phone.slice(2)}`;
   return phone;
@@ -81,7 +89,9 @@ export function maskPhone(phone: string) {
 }
 
 export function waLink(phone: string, text: string) {
-  return `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(text)}`;
+  const digits = phone.replace(/\D/g, "");
+  const normalized = digits.startsWith("0") ? `62${digits.slice(1)}` : digits;
+  return `https://wa.me/${normalized}?text=${encodeURIComponent(text)}`;
 }
 
 export function amountFromInput(value: string) {

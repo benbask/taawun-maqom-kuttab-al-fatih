@@ -18,7 +18,7 @@ import { buttonClasses } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
 import {
   formatDateTime,
-  formatPhone,
+  formatPhoneIntl,
   formatRupiah,
   invoiceStatusLabel,
   invoiceStatusTone,
@@ -177,7 +177,7 @@ export function VerificationTable({
                         className="inline-flex items-center gap-1 hover:text-emerald-700 hover:underline"
                       >
                         <MessageCircle className="h-3 w-3" />
-                        {formatPhone(invoice.family.phone)}
+                        {formatPhoneIntl(invoice.family.phone)}
                       </a>
                     </p>
                     <p className="mt-0.5 max-w-[220px] truncate text-[10px] text-stone-500">
@@ -302,7 +302,7 @@ export function VerificationTable({
                   className="inline-flex items-center gap-1 font-bold text-emerald-700 hover:underline"
                 >
                   <MessageCircle className="h-3 w-3" />
-                  {formatPhone(selected.family.phone)}
+                  {formatPhoneIntl(selected.family.phone)}
                 </a>
               </p>
               <p className="mt-1">

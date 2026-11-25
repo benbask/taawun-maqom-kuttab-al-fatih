@@ -28,7 +28,7 @@ export function SiteFooter({ settings }: { settings: Settings }) {
           <ul className="space-y-2 text-sm">
             <li>
               <Link className="hover:text-white" href="/daftar">
-                Pendaftaran Ta&apos;awun
+                Pendaftaran Maqom &amp; Ta&apos;awun
               </Link>
             </li>
             <li>

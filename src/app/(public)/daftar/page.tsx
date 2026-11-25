@@ -9,7 +9,7 @@ import { getUserSession } from "@/lib/session";
 import { getStore } from "@/lib/store";
 
 export const metadata: Metadata = {
-  title: "Pendaftaran Ta'awun",
+  title: "Pendaftaran Maqom & Ta'awun",
   description:
     "Daftarkan anak Anda dan tunaikan Ta'awun untuk Maqom Kuttab Al Fatih Lampung melalui QRIS dinamis.",
 };
@@ -45,11 +45,11 @@ export default async function RegistrationPage() {
           <GraduationCap className="h-3.5 w-3.5" /> Pendaftaran Ta&apos;awun
         </Badge>
         <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-emerald-950 sm:text-3xl">
-          Daftarkan santri &amp; tunaikan Ta&apos;awun
+          Daftarkan santri Maqom &amp; tunaikan Ta&apos;awun
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-stone-500">
-          Lengkapi data keluarga dan anak. Setelah itu sistem membuat QRIS dinamis
-          sesuai nominal Ta&apos;awun Anda.
+          Daftar Maqom &amp; Ta&apos;awun: lengkapi data keluarga dan santri.
+          Setelah itu sistem membuat QRIS dinamis sesuai nominal Ta&apos;awun Anda.
         </p>
       </div>
 
