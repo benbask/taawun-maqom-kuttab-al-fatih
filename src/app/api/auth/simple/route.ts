@@ -29,8 +29,8 @@ export async function POST(request: NextRequest) {
   try {
     const store = getStore();
     let family =
-      (await store.getFamilyByPhone(phone).catch(() => null)) ??
       (await store.getFamilyByLinkedPhone(phone).catch(() => null)) ??
+      (await store.getFamilyByPhone(phone).catch(() => null)) ??
       null;
 
     if (!family) {
