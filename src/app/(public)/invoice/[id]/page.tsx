@@ -30,6 +30,7 @@ import {
   invoiceStatusTone,
 } from "@/lib/format";
 import { qrDataUrl } from "@/lib/qr-image";
+import { safeSettings } from "@/lib/safe";
 import { getAdminSession, getUserSession } from "@/lib/session";
 import { getStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -46,7 +47,10 @@ export default async function InvoicePage({
 }) {
   const { id } = await params;
   const store = getStore();
-  const invoice = await store.getInvoiceById(id).catch(() => null);
+  const [invoice, settings] = await Promise.all([
+    store.getInvoiceById(id).catch(() => null),
+    safeSettings(),
+  ]);
 
   if (!invoice) {
     return (
@@ -87,6 +91,8 @@ export default async function InvoicePage({
     false;
   const proofUrl = `/api/invoice/${invoice.id}/proof/file`;
   const canSeeProof = (isOwner || isAdmin) && Boolean(invoice.proof_url);
+  const qrisOwner =
+    settings.qris_merchant_name?.trim() || settings.site_name || "Penerima QRIS";
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
@@ -126,6 +132,14 @@ export default async function InvoicePage({
                 </p>
                 <p className="mt-1 text-sm text-emerald-100/70">
                   {invoice.family.parent_name} • {invoice.invoice_no}
+                </p>
+              </div>
+
+              <div className="mt-4 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
+                <p className="text-sm font-semibold leading-relaxed text-emerald-900">
+                  Pastikan penerima QRIS:{" "}
+                  <span className="font-extrabold">{qrisOwner}</span>
                 </p>
               </div>
 
