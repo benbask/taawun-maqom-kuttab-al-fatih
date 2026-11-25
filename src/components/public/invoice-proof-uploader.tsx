@@ -10,6 +10,35 @@ import { FieldError, FieldHint } from "@/components/ui/field";
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 
+async function compressImage(file: File): Promise<File> {
+  try {
+    const url = URL.createObjectURL(file);
+    try {
+      const image = new Image();
+      image.src = url;
+      await image.decode();
+      const maxSide = 1600;
+      const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      const context = canvas.getContext("2d");
+      if (!context) return file;
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/jpeg", 0.82),
+      );
+      if (!blob || blob.size >= file.size) return file;
+      const name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+      return new File([blob], name, { type: "image/jpeg" });
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  } catch {
+    return file;
+  }
+}
+
 export function InvoiceProofUploader({
   invoiceId,
   rejected = false,
@@ -39,7 +68,7 @@ export function InvoiceProofUploader({
     };
   }, [preview]);
 
-  function pick(next: File | null) {
+  async function pick(next: File | null) {
     setError(null);
     if (!next) return;
     if (!ALLOWED.includes(next.type)) {
@@ -50,9 +79,14 @@ export function InvoiceProofUploader({
       setError("Ukuran file maksimal 5 MB.");
       return;
     }
-    setFile(next);
+    const chosen = next.type.startsWith("image/") ? await compressImage(next) : next;
+    if (chosen.size > MAX_BYTES) {
+      setError("Ukuran file masih terlalu besar. Coba crop atau foto ulang bukti.");
+      return;
+    }
+    setFile(chosen);
     if (preview) URL.revokeObjectURL(preview);
-    setPreview(next.type.startsWith("image/") ? URL.createObjectURL(next) : null);
+    setPreview(chosen.type.startsWith("image/") ? URL.createObjectURL(chosen) : null);
   }
 
   async function upload() {
@@ -69,9 +103,19 @@ export function InvoiceProofUploader({
         method: "POST",
         body: form,
       });
-      const data = (await response.json()) as { ok?: boolean; error?: string };
+      let data: { ok?: boolean; error?: string };
+      try {
+        data = (await response.json()) as { ok?: boolean; error?: string };
+      } catch {
+        setError(
+          response.status === 413
+            ? "Ukuran bukti terlalu besar untuk dikirim. Coba foto/crop ulang atau unggah file lebih kecil."
+            : "Server belum merespons dengan benar. Periksa koneksi lalu coba lagi.",
+        );
+        return;
+      }
       if (!response.ok || !data.ok) {
-        setError(data.error ?? "Gagal mengunggah bukti.");
+        setError(data.error ?? "Gagal mengunggah bukti. Silakan coba lagi.");
         return;
       }
       toast.success("Bukti transfer terkirim. Menunggu verifikasi admin.");
