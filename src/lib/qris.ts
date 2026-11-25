@@ -148,52 +148,6 @@ export function validateQris(payload: string): QrisValidation {
   }
 }
 
-function insertBefore(tags: QrisTag[], beforeTag: string, item: QrisTag) {
-  const index = tags.findIndex((tag) => tag.tag === beforeTag);
-  if (index === -1) {
-    tags.push(item);
-  } else {
-    tags.splice(index, 0, item);
-  }
-}
-
-function insertAfter(tags: QrisTag[], afterTag: string, item: QrisTag) {
-  const index = tags.findIndex((tag) => tag.tag === afterTag);
-  if (index === -1) {
-    tags.push(item);
-  } else {
-    tags.splice(index + 1, 0, item);
-  }
-}
-
-function normalizeBillNumber(invoiceNo: string) {
-  return invoiceNo.replace(/[^A-Za-z0-9-]/g, "").slice(0, 25);
-}
-
-function setBillNumber(tags: QrisTag[], invoiceNo: string) {
-  const bill = normalizeBillNumber(invoiceNo);
-  if (!bill) return;
-
-  const existing = tags.find((tag) => tag.tag === "62");
-  let subtags: QrisTag[] = [];
-  if (existing) {
-    try {
-      subtags = parseTlv(existing.value);
-    } catch {
-      subtags = [];
-    }
-  }
-  subtags = subtags.filter((tag) => tag.tag !== "01");
-  subtags.push({ tag: "01", value: bill });
-  const value = buildTlv(subtags);
-
-  if (existing) {
-    existing.value = value;
-  } else {
-    insertBefore(tags, "63", { tag: "62", value });
-  }
-}
-
 export interface DynamicQrisOptions {
   amount: number;
   invoiceNo: string;
@@ -211,15 +165,30 @@ export function toDynamicQris(staticPayload: string, options: DynamicQrisOptions
     throw new QrisError("Nominal QRIS terlalu besar.");
   }
 
-  let tags = validation.tags.filter((tag) => tag.tag !== "63");
-  tags = tags.filter((tag) => tag.tag !== "54");
+  const tags = validation.tags.filter((tag) => !["01", "54", "63"].includes(tag.tag));
 
-  const initiation = tags.find((tag) => tag.tag === "01");
-  if (initiation) initiation.value = "12";
+  // Tag 01 (metode inisiasi) harus langsung setelah tag 00, seperti konverter QRIS.
+  const pfi = tags.findIndex((tag) => tag.tag === "00");
+  if (pfi !== -1) tags.splice(pfi + 1, 0, { tag: "01", value: "12" });
+  else tags.unshift({ tag: "01", value: "12" });
 
-  insertAfter(tags, "53", { tag: "54", value: String(options.amount) });
-  setBillNumber(tags, options.invoiceNo);
-  tags.sort((a, b) => Number(a.tag) - Number(b.tag));
+  // Nominal disisipkan setelah 53 (mata uang) atau 52 (MCC), bila tidak ada
+  // sebelum tag 58/59/60/61/62. Urutan tag asli tetap dipertahankan.
+  let amountIndex = -1;
+  for (const after of ["53", "52"]) {
+    const found = tags.findIndex((tag) => tag.tag === after);
+    if (found !== -1) {
+      amountIndex = found + 1;
+      break;
+    }
+  }
+  if (amountIndex === -1) {
+    const before = ["58", "59", "60", "61", "62"]
+      .map((tag) => tags.findIndex((item) => item.tag === tag))
+      .find((index) => index !== -1);
+    amountIndex = before ?? tags.length;
+  }
+  tags.splice(amountIndex, 0, { tag: "54", value: String(options.amount) });
 
   const body = buildTlv(tags);
   const crc = crc16ccitt(`${body}6304`);

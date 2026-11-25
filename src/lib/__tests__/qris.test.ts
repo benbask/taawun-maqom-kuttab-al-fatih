@@ -17,7 +17,7 @@ describe("QRIS", () => {
     expect(payload.slice(-4)).toBe(crc16ccitt(payload.slice(0, -4)));
   });
 
-  it("mengubah QRIS statis menjadi dinamis dengan nominal dan bill number", () => {
+  it("mengubah QRIS statis menjadi dinamis dengan nominal", () => {
     const staticPayload = createDemoQrisPayload();
     const dynamic = toDynamicQris(staticPayload, {
       amount: 1_500_009,
@@ -31,9 +31,7 @@ describe("QRIS", () => {
     const tags = parseTlv(dynamic);
     expect(tags.find((tag) => tag.tag === "01")?.value).toBe("12");
     expect(tags.find((tag) => tag.tag === "54")?.value).toBe("1500009");
-    const bill = tags.find((tag) => tag.tag === "62");
-    expect(bill).toBeTruthy();
-    expect(bill?.value).toContain("TAA-261124-0001");
+    expect(tags.find((tag) => tag.tag === "62")).toBeUndefined();
     expect(dynamic.slice(-4)).toBe(crc16ccitt(dynamic.slice(0, -4)));
   });
 
