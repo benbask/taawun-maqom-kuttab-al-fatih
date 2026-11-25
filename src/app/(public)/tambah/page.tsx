@@ -50,8 +50,8 @@ export default async function AdditionPage() {
           Tambah kontribusi Ta&apos;awun
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-stone-500">
-          Pilih alokasi untuk santri, kelas, atau kebutuhan umum. QRIS dinamis
-          dibuat otomatis sesuai nominal.
+          Data yang sudah Anda isikan kembali ditampilkan di sini. Pilih santri,
+          lalu masukkan nominal Ta&apos;awun berikutnya.
         </p>
       </div>
 

@@ -306,6 +306,16 @@ export const demoStore: Store = {
     return withDb((db) => db.families.find((item) => item.phone === phone) ?? null);
   },
 
+  async getFamilyByLinkedPhone(phone) {
+    return withDb(
+      (db) =>
+        db.families.find((item) => {
+          const phones = (item.custom_data as { linked_phones?: unknown })?.linked_phones;
+          return Array.isArray(phones) && phones.includes(phone);
+        }) ?? null,
+    );
+  },
+
   async getFamilyById(id) {
     return withDb((db) => db.families.find((item) => item.id === id) ?? null);
   },

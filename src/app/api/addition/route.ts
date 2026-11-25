@@ -34,6 +34,28 @@ export async function POST(request: NextRequest) {
         consentAt: new Date().toISOString(),
       });
     }
+    if (parsed.data.linkFamilyId && parsed.data.linkFamilyId !== family.id) {
+      const target = await store.getFamilyById(parsed.data.linkFamilyId);
+      if (!target) return apiError("Keluarga tujuan tidak ditemukan.", 404);
+
+      const currentPhones = (target.custom_data as { linked_phones?: unknown }).linked_phones;
+      const phones = Array.isArray(currentPhones)
+        ? currentPhones.filter((phone): phone is string => typeof phone === "string")
+        : [];
+      if (!phones.includes(session.phone)) phones.push(session.phone);
+
+      await store.updateFamily(target.id, {
+        custom_data: { ...target.custom_data, linked_phones: phones },
+      });
+      await store.updateFamily(family.id, {
+        custom_data: { ...family.custom_data, linked_family_id: target.id },
+      });
+      family = {
+        ...target,
+        custom_data: { ...target.custom_data, linked_phones: phones },
+      };
+    }
+
     const familyId = family.id;
 
     let classId = parsed.data.classId ?? null;
@@ -80,6 +102,7 @@ export async function POST(request: NextRequest) {
         amount: invoice.base_amount,
         classId,
         studentId,
+        linkFamilyId: parsed.data.linkFamilyId ?? null,
         ip: getClientIp(request),
       },
     });

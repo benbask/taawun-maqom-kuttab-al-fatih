@@ -348,6 +348,16 @@ export const supabaseStore: Store = {
     return (data as Family | null) ?? null;
   },
 
+  async getFamilyByLinkedPhone(phone) {
+    const { data, error } = await db()
+      .from("families")
+      .select("*")
+      .contains("custom_data", { linked_phones: [phone] })
+      .limit(1);
+    if (error) throw new Error(error.message);
+    return ((data as Family[] | null)?.[0] as Family | undefined) ?? null;
+  },
+
   async getFamilyById(id) {
     const { data, error } = await db().from("families").select("*").eq("id", id).maybeSingle();
     if (error) throw new Error(error.message);

@@ -1,17 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   CheckCircle2,
-  GraduationCap,
-  HandHeart,
   Info,
   Loader2,
-  Plus,
   Receipt,
-  UserPlus,
+  ShieldCheck,
   Users,
   Wallet,
 } from "lucide-react";
@@ -32,7 +29,13 @@ interface StudentOption {
   className: string;
 }
 
-type Target = "student" | "class" | "umum";
+interface ExistingTaawun {
+  familyId: string;
+  fatherName: string;
+  invoiceNo: string;
+  amount: number;
+  status: string;
+}
 
 export function AdditionFlow({
   classes,
@@ -48,19 +51,51 @@ export function AdditionFlow({
     initialPhone ? "form" : "phone",
   );
   const [students, setStudents] = useState<StudentOption[]>(initialStudents);
-  const [target, setTarget] = useState<Target>(
-    initialStudents.length ? "student" : classes.length ? "class" : "umum",
-  );
   const [studentId, setStudentId] = useState(initialStudents[0]?.id ?? "");
-  const [classId, setClassId] = useState(classes[0]?.id ?? "");
   const [amount, setAmount] = useState(0);
   const [note, setNote] = useState("");
-  const [showStudentForm, setShowStudentForm] = useState(initialStudents.length === 0);
-  const [newStudentName, setNewStudentName] = useState("");
-  const [newStudentClassId, setNewStudentClassId] = useState(classes[0]?.id ?? "");
-  const [savingStudent, setSavingStudent] = useState(false);
+  const [existing, setExisting] = useState<ExistingTaawun[]>([]);
+  const [confirmAgain, setConfirmAgain] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (stage === "form" && students.length === 0) {
+      router.replace("/daftar");
+      router.refresh();
+    }
+  }, [stage, students.length, router]);
+
+  async function checkExisting(ids: string[]) {
+    if (!ids.length) return;
+    setChecking(true);
+    try {
+      const response = await fetch("/api/addition/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentIds: ids }),
+      });
+      const data = (await response.json()) as {
+        ok?: boolean;
+        existing?: ExistingTaawun[];
+      };
+      if (response.ok && data.ok) {
+        setExisting(data.existing ?? []);
+        setConfirmAgain(null);
+      }
+    } catch {
+      // abaikan: kullanıcı tetap bisa melanjutkan
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!studentId) return;
+    const timer = setTimeout(() => void checkExisting([studentId]), 0);
+    return () => clearTimeout(timer);
+  }, [studentId]);
 
   async function refreshProfile() {
     try {
@@ -79,86 +114,25 @@ export function AdditionFlow({
           classList.find((cls) => cls.id === student.class_id)?.name ?? "Kelas belum diatur",
       }));
       setStudents(mapped);
-      if (mapped.length) {
-        setTarget("student");
-        setStudentId((current) => current || mapped[0].id);
-      }
+      if (mapped.length) setStudentId((current) => current || mapped[0].id);
     } catch {
-      // biarkan pengguna memilih kelas/umum
-    }
-  }
-
-  async function saveStudent() {
-    if (!newStudentName.trim()) {
-      const message = "Nama santri wajib diisi.";
-      setError(message);
-      toast.error(message);
-      return;
-    }
-    if (!newStudentClassId) {
-      const message = "Pilih kelas santri terlebih dahulu.";
-      setError(message);
-      toast.error(message);
-      return;
-    }
-    setSavingStudent(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/students", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newStudentName.trim(),
-          classId: newStudentClassId,
-        }),
-      });
-      const data = (await response.json()) as {
-        ok?: boolean;
-        error?: string;
-        student?: { id: string; name: string; class_id: string | null };
-      };
-      if (!response.ok || !data.ok || !data.student) {
-        setError(data.error ?? "Gagal menyimpan data santri.");
-        return;
-      }
-      const created = data.student;
-      const option: StudentOption = {
-        id: created.id,
-        name: created.name,
-        classId: created.class_id,
-        className:
-          classes.find((cls) => cls.id === created.class_id)?.name ??
-          "Kelas belum diatur",
-      };
-      setStudents((items) => [...items, option]);
-      setStudentId(created.id);
-      setTarget("student");
-      setNewStudentName("");
-      setShowStudentForm(false);
-      toast.success("Data santri tersimpan. Santri ini dipilih untuk Ta'awun.");
-    } catch {
-      setError("Tidak dapat menghubungi server.");
-    } finally {
-      setSavingStudent(false);
+      // biarkan data awal dipakai
     }
   }
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
-
-    if (!Number.isInteger(amount) || amount < 1000) {
-      const message = "Nominal Ta'awun minimal Rp 1.000.";
-      setError(message);
-      toast.error(message);
-      return;
-    }
-    if (target === "student" && !studentId) {
+    if (!studentId) {
       setError("Pilih santri terlebih dahulu.");
       return;
     }
-    if (target === "class" && !classId) {
-      setError("Pilih kelas terlebih dahulu.");
+    if (!Number.isInteger(amount) || amount < 1000) {
+      setError("Nominal Ta'awun minimal Rp 1.000.");
+      return;
+    }
+    if (existing.length && confirmAgain !== true) {
+      setError("Konfirmasi dulu apakah Anda ingin menambah Ta'awun.");
       return;
     }
 
@@ -168,10 +142,10 @@ export function AdditionFlow({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          studentId: target === "student" ? studentId : null,
-          classId: target === "class" ? classId : null,
+          studentId,
           amount,
           note: note.trim() || undefined,
+          linkFamilyId: existing.length && confirmAgain ? existing[0].familyId : null,
         }),
       });
       const data = (await response.json()) as {
@@ -183,8 +157,9 @@ export function AdditionFlow({
         setError(data.error ?? "Gagal membuat invoice.");
         return;
       }
-      toast.success("Invoice tambahan dibuat.");
+      toast.success("Invoice dibuat. Lanjutkan pembayaran.");
       router.push(`/invoice/${data.invoiceId}`);
+      router.refresh();
     } catch {
       setError("Tidak dapat menghubungi server.");
     } finally {
@@ -217,200 +192,118 @@ export function AdditionFlow({
   }
 
   const selectedStudent = students.find((student) => student.id === studentId);
-  const selectedClass = classes.find((cls) => cls.id === classId);
 
   return (
     <form onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-start">
       <div className="space-y-5">
         <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-emerald-800">
-            <CheckCircle2 className="h-3.5 w-3.5" /> Verifikasi
+            <CheckCircle2 className="h-3.5 w-3.5" /> Data tersimpan
           </span>
           <span className="h-px w-5 bg-stone-300" />
           <span className="rounded-full bg-emerald-900 px-3 py-1 text-white">
-            2 Pilih Ta&apos;awun
+            1 Tambah Ta&apos;awun
           </span>
           <span className="h-px w-5 bg-stone-300" />
           <span className="rounded-full bg-stone-100 px-3 py-1 text-stone-500">
-            3 Pembayaran
+            2 Pembayaran
           </span>
         </div>
 
         <Card className="p-5 sm:p-6">
-          <h2 className="text-base font-extrabold text-emerald-950">
-            Ta&apos;awun ini dialokasikan untuk
-          </h2>
-          <p className="text-xs text-stone-500">
-            Pilih santri, kelas, atau serahkan untuk kebutuhan umum kuttab.
-          </p>
-
-          <div className="mt-4 grid gap-2 sm:grid-cols-3">
-            <TargetCard
-              active={target === "student"}
-              onClick={() => setTarget("student")}
-              icon={Users}
-              title="Santri"
-              note={
-                students.length
-                  ? `${students.length} anak terdaftar`
-                  : "Pilih atau tambah santri"
-              }
-            />
-            <TargetCard
-              active={target === "class"}
-              onClick={() => setTarget("class")}
-              icon={GraduationCap}
-              title="Kelas"
-              note={`${classes.length} kelas tersedia`}
-              disabled={classes.length === 0}
-            />
-            <TargetCard
-              active={target === "umum"}
-              onClick={() => setTarget("umum")}
-              icon={HandHeart}
-              title="Umum"
-              note="Kebutuhan kuttab"
-            />
+          <div className="flex items-center gap-2">
+            <span className="rounded-xl bg-emerald-50 p-2 text-emerald-700 ring-1 ring-emerald-100">
+              <Users className="h-4 w-4" />
+            </span>
+            <div>
+              <h2 className="text-base font-extrabold text-emerald-950">
+                Data yang sudah tersimpan
+              </h2>
+              <p className="text-xs text-stone-500">
+                Pilih santri yang ingin ditambahi Ta&apos;awun.
+              </p>
+            </div>
+            <Badge tone="green" className="ml-auto">
+              <ShieldCheck className="h-3 w-3" /> Tersimpan
+            </Badge>
           </div>
 
-          {target === "student" && (
-            <div className="mt-4">
-              {students.length > 0 && (
-                <>
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <Label>Pilih santri</Label>
-                    <button
-                      type="button"
-                      onClick={() => setShowStudentForm((value) => !value)}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 underline-offset-2 hover:underline"
-                    >
-                      <UserPlus className="h-3.5 w-3.5" /> Tambah santri baru
-                    </button>
-                  </div>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {students.map((student) => (
-                      <button
-                        key={student.id}
-                        type="button"
-                        onClick={() => setStudentId(student.id)}
-                        className={cn(
-                          "rounded-xl border px-3 py-2.5 text-left transition active:translate-y-px",
-                          studentId === student.id
-                            ? "border-emerald-600 bg-emerald-50 ring-2 ring-emerald-600/10"
-                            : "border-stone-200 bg-white hover:border-emerald-300",
-                        )}
-                      >
-                        <span className="block text-sm font-semibold text-stone-800">
-                          {student.name}
-                        </span>
-                        <span className="block text-[11px] text-stone-500">
-                          {student.className}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {(showStudentForm || students.length === 0) && (
-                <div
-                  className={cn(
-                    "rounded-xl border border-dashed border-emerald-300 bg-emerald-50/50 p-4",
-                    students.length > 0 && "mt-3",
-                  )}
-                >
-                  <p className="text-sm font-bold text-emerald-950">
-                    {students.length ? "Santri baru" : "Tambahkan data santri"}
-                  </p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-stone-500">
-                    Data santri tersimpan pada akun ini dan bisa dipilih kembali
-                    untuk Ta&apos;awun berikutnya.
-                  </p>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div>
-                      <Label htmlFor="new-student-name">
-                        Nama santri <span className="text-rose-500">*</span>
-                      </Label>
-                      <Input
-                        id="new-student-name"
-                        value={newStudentName}
-                        onChange={(event) => setNewStudentName(event.target.value)}
-                        placeholder="Nama santri"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="new-student-class">
-                        Kelas <span className="text-rose-500">*</span>
-                      </Label>
-                      <select
-                        id="new-student-class"
-                        value={newStudentClassId}
-                        onChange={(event) => setNewStudentClassId(event.target.value)}
-                        className="h-11 w-full rounded-xl border border-stone-300 bg-white px-3.5 text-sm text-stone-900 shadow-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10"
-                      >
-                        <option value="">Pilih kelas</option>
-                        {classes.map((cls) => (
-                          <option key={cls.id} value={cls.id}>
-                            {cls.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={saveStudent}
-                      loading={savingStudent}
-                      disabled={savingStudent}
-                    >
-                      <Plus className="h-3.5 w-3.5" /> Simpan santri
-                    </Button>
-                    {students.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setShowStudentForm(false)}
-                        className="text-xs font-semibold text-stone-500 hover:text-stone-700"
-                      >
-                        Batal
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {target === "class" && (
-            <div className="mt-4">
-              <Label>Pilih kelas</Label>
-              <select
-                value={classId}
-                onChange={(event) => setClassId(event.target.value)}
-                className="h-11 w-full rounded-xl border border-stone-300 bg-white px-3.5 text-sm text-stone-900 shadow-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10"
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {students.map((student) => (
+              <button
+                key={student.id}
+                type="button"
+                onClick={() => {
+                  setStudentId(student.id);
+                  void checkExisting([student.id]);
+                }}
+                className={cn(
+                  "rounded-xl border px-3 py-2.5 text-left transition active:translate-y-px",
+                  studentId === student.id
+                    ? "border-emerald-600 bg-emerald-50 ring-2 ring-emerald-600/10"
+                    : "border-stone-200 bg-white hover:border-emerald-300",
+                )}
               >
-                {classes.map((cls) => (
-                  <option key={cls.id} value={cls.id}>
-                    {cls.name}
-                  </option>
+                <span className="block text-sm font-semibold text-stone-800">
+                  {student.name}
+                </span>
+                <span className="block text-[11px] text-stone-500">
+                  {student.className}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {checking && (
+            <p className="mt-3 flex items-center gap-1.5 text-xs text-stone-500">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Memeriksa data
+              Ta&apos;awun sebelumnya...
+            </p>
+          )}
+
+          {existing.length > 0 && (
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+              <p className="flex items-start gap-1.5 text-xs font-semibold text-amber-900">
+                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                Data ini sudah memiliki Ta&apos;awun sebelumnya.
+              </p>
+              <ul className="mt-2 space-y-1 pl-5 text-xs text-amber-900">
+                {existing.map((item) => (
+                  <li key={item.invoiceNo} className="list-disc">
+                    Ayah {item.fatherName} sudah berta&apos;awun{" "}
+                    <strong>{formatRupiah(item.amount)}</strong> ({item.invoiceNo})
+                  </li>
                 ))}
-              </select>
+              </ul>
+              <p className="mt-3 text-xs font-bold text-amber-950">
+                Apakah Anda ingin berta&apos;awun lagi?
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setConfirmAgain(true)}
+                  className={cn(confirmAgain === true && "ring-2 ring-emerald-900/20")}
+                >
+                  Ya, lanjut berta&apos;awun
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setConfirmAgain(false)}
+                  className={cn(confirmAgain === false && "ring-2 ring-stone-400/30")}
+                >
+                  Tidak jadi
+                </Button>
+              </div>
+              {confirmAgain === false && (
+                <p className="mt-2 text-[11px] text-amber-800">
+                  Pilih nominal hanya jika Anda tetap ingin menambah Ta&apos;awun.
+                </p>
+              )}
             </div>
           )}
-
-          {target === "umum" && (
-            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/70 p-3 text-xs leading-relaxed text-amber-900">
-              <p className="flex items-center gap-1.5 font-bold">
-                <Info className="h-3.5 w-3.5" /> Ta&apos;awun umum
-              </p>
-              <p className="mt-0.5">
-                Kontribusi ini tidak terikat kelas tertentu dan akan dicatat
-                sebagai Ta&apos;awun umum pada rekap publik.
-              </p>
-            </div>
-          )}
-
         </Card>
 
         <Card className="p-5 sm:p-6">
@@ -442,7 +335,7 @@ export function AdditionFlow({
                   key={value}
                   type="button"
                   onClick={() => setAmount(value)}
-                  className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-semibold text-stone-600 hover:border-emerald-300 hover:text-emerald-800"
+                  className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-semibold text-stone-600 hover:border-emerald-300 hover:text-emerald-800 active:translate-y-px"
                 >
                   {formatRupiah(value)}
                 </button>
@@ -456,7 +349,7 @@ export function AdditionFlow({
               id="addition-note"
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              placeholder="Contoh: Ta'awun untuk kegiatan mabit santri"
+              placeholder="Contoh: Ta'awun tambahan ibunda"
               maxLength={300}
               className="min-h-20"
             />
@@ -475,11 +368,7 @@ export function AdditionFlow({
             </p>
             <p className="mt-2 text-2xl font-extrabold">{formatRupiah(amount)}</p>
             <p className="text-xs text-emerald-100/60">
-              {target === "student"
-                ? selectedStudent?.name ?? "Pilih santri"
-                : target === "class"
-                  ? selectedClass?.name ?? "Pilih kelas"
-                  : "Ta'awun umum"}
+              {selectedStudent?.name ?? "Pilih santri"}
             </p>
           </div>
           <div className="space-y-2 p-5 text-sm">
@@ -491,22 +380,16 @@ export function AdditionFlow({
               <span className="text-stone-500">Kode unik audit</span>
               <span className="font-semibold text-amber-700">+ 3 digit</span>
             </div>
-            <div className="flex items-center justify-between border-t border-dashed border-stone-200 pt-2">
-              <span className="font-bold text-stone-800">Total transfer</span>
-              <span className="font-extrabold text-emerald-900">
-                {formatRupiah(amount)}
-                <span className="text-xs text-amber-700"> + kode</span>
-              </span>
-            </div>
           </div>
           <div className="p-5 pt-0">
-            <Button type="submit" className="w-full" size="lg" disabled={loading}>
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Wallet className="h-4 w-4" />
-              )}
-              Buat QRIS pembayaran
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              loading={loading}
+              disabled={loading || (existing.length > 0 && confirmAgain !== true)}
+            >
+              <Wallet className="h-4 w-4" /> Buat QRIS pembayaran
             </Button>
             <FieldHint className="mt-2 text-center">
               QRIS dinamis langsung menampilkan total transfer.
@@ -527,41 +410,5 @@ export function AdditionFlow({
         </div>
       </aside>
     </form>
-  );
-}
-
-function TargetCard({
-  active,
-  onClick,
-  icon: Icon,
-  title,
-  note,
-  disabled = false,
-}: {
-  active: boolean;
-  onClick: () => void;
-  icon: typeof Users;
-  title: string;
-  note: string;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={cn(
-        "rounded-xl border px-3 py-3 text-left transition",
-        active
-          ? "border-emerald-600 bg-emerald-50 ring-2 ring-emerald-600/10"
-          : "border-stone-200 bg-white hover:border-emerald-300",
-        disabled && "cursor-not-allowed opacity-40",
-      )}
-    >
-      <span className="flex items-center gap-1.5 text-sm font-bold text-stone-800">
-        <Icon className="h-4 w-4 text-emerald-700" /> {title}
-      </span>
-      <span className="mt-0.5 block text-[11px] text-stone-500">{note}</span>
-    </button>
   );
 }

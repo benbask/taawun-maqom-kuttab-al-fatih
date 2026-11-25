@@ -299,6 +299,7 @@ export interface Store {
   deleteFormField(id: string): Promise<void>;
 
   getFamilyByPhone(phone: string): Promise<Family | null>;
+  getFamilyByLinkedPhone(phone: string): Promise<Family | null>;
   getFamilyById(id: string): Promise<Family | null>;
   getFamilyByGoogleSub(sub: string): Promise<Family | null>;
   linkGoogleToFamily(

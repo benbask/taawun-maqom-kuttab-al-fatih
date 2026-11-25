@@ -57,6 +57,7 @@ export const additionSchema = z.object({
     .min(1000, "Nominal minimal Rp 1.000.")
     .max(100_000_000, "Nominal terlalu besar."),
   note: z.string().trim().max(300).optional(),
+  linkFamilyId: z.string().uuid().nullable().optional(),
 });
 
 export const googleTokenSchema = z.object({

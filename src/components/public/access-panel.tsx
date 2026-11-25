@@ -111,7 +111,10 @@ export function AccessPanel({
             required
           />
         </div>
-        <FieldHint>Gunakan nomor WhatsApp yang aktif.</FieldHint>
+        <FieldHint>
+          Periksa kembali nomor Anda sebelum melanjutkan. Nomor yang salah
+          membuat data dan invoice tidak dapat ditemukan.
+        </FieldHint>
       </div>
 
       <div>
