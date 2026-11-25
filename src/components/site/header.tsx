@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { ArrowUpRight, Menu, ShieldCheck } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowUpRight, Menu, ShieldCheck, X } from "lucide-react";
 import { Logo } from "@/components/site/logo";
 import { UserLogoutButton } from "@/components/public/user-logout-button";
 import { buttonClasses } from "@/components/ui/button";
@@ -20,6 +23,29 @@ export function SiteHeader({
   contactWhatsApp: string;
   signedIn?: boolean;
 }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    function closeOnOutside(event: PointerEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    function closeOnKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
+
+    document.addEventListener("pointerdown", closeOnOutside);
+    document.addEventListener("keydown", closeOnKey);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutside);
+      document.removeEventListener("keydown", closeOnKey);
+    };
+  }, [menuOpen]);
+
   const links = [
     ...baseLinks,
     signedIn
@@ -67,42 +93,56 @@ export function SiteHeader({
             href="/admin"
             aria-label="Masuk ke panel admin"
             className={buttonClasses("outline", "sm", "w-9 px-0 sm:w-auto sm:px-3")}
+            onClick={() => setMenuOpen(false)}
           >
             <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
             <span className="hidden sm:inline">Masuk Admin</span>
           </Link>
-          <Link href="/daftar" className={buttonClasses("primary", "sm")}>
+          <Link
+            href="/daftar"
+            className={buttonClasses("primary", "sm")}
+            onClick={() => setMenuOpen(false)}
+          >
             Daftar Ta&apos;awun
           </Link>
           {signedIn && <UserLogoutButton compact />}
 
-          <details className="group relative lg:hidden">
-            <summary className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-xl border border-stone-300 bg-white text-stone-700 shadow-sm [&::-webkit-details-marker]:hidden">
-              <Menu className="h-4 w-4" />
-              <span className="sr-only">Buka menu</span>
-            </summary>
-            <div className="absolute right-0 top-11 w-56 rounded-2xl border border-stone-200 bg-white p-2 shadow-xl">
-              {links.map((link) => (
+          <div className="relative lg:hidden" ref={menuRef}>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-label={menuOpen ? "Tutup menu" : "Buka menu"}
+              aria-expanded={menuOpen}
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-stone-300 bg-white text-stone-700 shadow-sm transition active:translate-y-px"
+            >
+              {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-11 w-56 rounded-2xl border border-stone-200 bg-white p-2 shadow-xl">
+                {links.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    target={link.newTab ? "_blank" : undefined}
+                    rel={link.newTab ? "noopener noreferrer" : undefined}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold text-stone-700 hover:bg-emerald-50 hover:text-emerald-900"
+                  >
+                    {link.label}
+                    {link.newTab && <ArrowUpRight className="h-3.5 w-3.5" />}
+                  </Link>
+                ))}
                 <Link
-                  key={link.href}
-                  href={link.href}
-                  target={link.newTab ? "_blank" : undefined}
-                  rel={link.newTab ? "noopener noreferrer" : undefined}
-                  className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold text-stone-700 hover:bg-emerald-50 hover:text-emerald-900"
+                  href="/admin"
+                  onClick={() => setMenuOpen(false)}
+                  className="mt-1 flex items-center justify-between rounded-xl border-t border-stone-100 px-3 py-2.5 text-sm font-semibold text-stone-500 hover:bg-stone-50"
                 >
-                  {link.label}
-                  {link.newTab && <ArrowUpRight className="h-3.5 w-3.5" />}
+                  Panel Admin
+                  <ArrowUpRight className="h-3.5 w-3.5" />
                 </Link>
-              ))}
-              <Link
-                href="/admin"
-                className="mt-1 flex items-center justify-between rounded-xl border-t border-stone-100 px-3 py-2.5 text-sm font-semibold text-stone-500 hover:bg-stone-50"
-              >
-                Panel Admin
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-          </details>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

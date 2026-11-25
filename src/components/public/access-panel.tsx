@@ -138,7 +138,6 @@ export function AccessPanel({
             {showPassword ? "Sembunyikan" : "Lihat"}
           </button>
         </div>
-        <FieldHint>Sandi bersama panitia: Bismillah</FieldHint>
       </div>
 
       {error && <FieldError>{error}</FieldError>}

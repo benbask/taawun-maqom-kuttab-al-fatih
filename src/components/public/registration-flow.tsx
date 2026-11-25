@@ -66,6 +66,7 @@ export function RegistrationFlow({
     initialRole === "alumni" ? "taawun" : "maqom",
   );
   const [classId, setClassId] = useState(classes[0]?.id ?? "");
+  const [query, setQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -80,6 +81,11 @@ export function RegistrationFlow({
   const classEntries = directory.filter(
     (entry) => entry.class_name === sortedClasses.find((c) => c.id === classId)?.name,
   );
+  const matches = query.trim()
+    ? classEntries.filter((entry) =>
+        normalizeName(entry.name).includes(normalizeName(query)),
+      )
+    : [];
   const fatherName = selected[0]?.father_name ?? "";
   const youngestClass = [...selected].sort((a, b) => {
     const orderA = sortedClasses.find((c) => c.name === a.class_name)?.sort_order ?? 999;
@@ -378,7 +384,8 @@ export function RegistrationFlow({
                   Pilih kelas &amp; santri
                 </h2>
                 <p className="text-xs text-stone-500">
-                  Nama ayah dipakai sistem untuk mencocokkan data dan verifikasi.
+                  pilih kelas salah satu anak nanti sistem akan otomatis
+                  mencocokkan data saudaranya jika memang lebih dari satu anak.
                 </p>
               </div>
               <button
@@ -395,7 +402,10 @@ export function RegistrationFlow({
               <select
                 id="class-select"
                 value={classId}
-                onChange={(event) => setClassId(event.target.value)}
+                onChange={(event) => {
+                  setClassId(event.target.value);
+                  setQuery("");
+                }}
                 className="h-11 w-full rounded-xl border border-stone-300 bg-white px-3.5 text-sm text-stone-900 shadow-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10"
               >
                 {sortedClasses.map((cls) => (
@@ -407,50 +417,83 @@ export function RegistrationFlow({
             </div>
 
             <div className="mt-4">
-              <Label>Nama santri yang tampil</Label>
-              {classEntries.length ? (
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {classEntries.map((entry) => {
-                    const active = selectedIds.includes(entry.id);
-                    return (
-                      <button
-                        key={entry.id}
-                        type="button"
-                        onClick={() => toggleChild(entry)}
-                        className={cn(
-                          "rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition active:translate-y-px",
-                          active
-                            ? "border-emerald-600 bg-emerald-50 text-emerald-900 ring-2 ring-emerald-600/10"
-                            : "border-stone-200 bg-white text-stone-700 hover:border-emerald-300",
-                        )}
-                      >
-                        {entry.name}
-                        {active && (
-                          <CheckCircle2 className="ml-1 inline h-3.5 w-3.5" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="rounded-xl border border-dashed border-stone-300 p-4 text-center text-xs text-stone-500">
-                  Belum ada data santri pada kelas ini.
-                </p>
-              )}
+              <Label htmlFor="santri-search">Cari nama santri</Label>
+              <Input
+                id="santri-search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Ketik satu huruf nama santri"
+                autoComplete="off"
+              />
               <FieldHint>
                 Nama ayah tidak ditampilkan di sini, tetapi tersimpan di sistem
                 untuk pencocokan dan verifikasi admin.
               </FieldHint>
+
+              {query.trim() && (
+                <div className="mt-2 max-h-60 space-y-2 overflow-y-auto rounded-xl border border-stone-200 bg-white p-2">
+                  {matches.length ? (
+                    matches.map((entry) => {
+                      const active = selectedIds.includes(entry.id);
+                      return (
+                        <button
+                          key={entry.id}
+                          type="button"
+                          onClick={() => {
+                            toggleChild(entry);
+                            setQuery("");
+                          }}
+                          className={cn(
+                            "flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-semibold transition active:translate-y-px",
+                            active
+                              ? "bg-emerald-50 text-emerald-900 ring-1 ring-emerald-300"
+                              : "text-stone-700 hover:bg-emerald-50/60",
+                          )}
+                        >
+                          {entry.name}
+                          {active && <CheckCircle2 className="h-4 w-4 text-emerald-700" />}
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <p className="p-3 text-center text-xs text-stone-500">
+                      Tidak ada santri yang cocok.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {selected.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {selected.map((entry) => (
+                    <button
+                      key={entry.id}
+                      type="button"
+                      onClick={() => toggleChild(entry)}
+                      className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-800 hover:bg-emerald-100"
+                    >
+                      {entry.name} ×
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {selected.length > 1 && (
               <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900">
                 <p className="flex items-start gap-1.5 font-semibold">
                   <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  Terdapat {selected.length} anak dari ayah yang sama di kelas
-                  berbeda. Semua anak ikut, dan Ta&apos;awun otomatis masuk ke
-                  kelas anak paling bungsu di kuttab.
+                  Sistem menemukan {selected.length} anak dari ayah yang sama.
+                  Semua saudara otomatis ikut, dan Ta&apos;awun masuk ke kelas
+                  anak paling bungsu di kuttab.
                 </p>
+                <ul className="mt-2 space-y-1 pl-5">
+                  {selected.map((entry) => (
+                    <li key={entry.id} className="list-disc">
+                      {entry.name} — {entry.class_name}
+                    </li>
+                  ))}
+                </ul>
                 {youngestClass && (
                   <p className="mt-1 pl-5 font-bold">
                     Kelas bungsu: {youngestClass.class_name}
