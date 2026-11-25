@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 import { QrisPayloadField } from "@/components/admin/qris-payload-field";
+import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -22,7 +23,7 @@ export interface SettingsField {
   key: FieldKey;
   label: string;
   hint?: string;
-  type?: "text" | "number" | "date" | "url";
+  type?: "text" | "number" | "date" | "url" | "image";
   textarea?: boolean;
   placeholder?: string;
 }
@@ -104,11 +105,17 @@ export function SettingsForm({
             {section.fields.map((field) => (
               <div
                 key={field.key as string}
-                className={field.textarea || field.type === "url" ? "sm:col-span-2" : undefined}
+                className={field.textarea || field.type === "url" || field.type === "image" ? "sm:col-span-2" : undefined}
               >
                 <Label htmlFor={`setting-${field.key as string}`}>{field.label}</Label>
                 {imageDecodeField && field.key === imageDecodeField ? (
                   <QrisPayloadField
+                    id={`setting-${field.key as string}`}
+                    value={values[field.key as string] ?? ""}
+                    onChange={(value) => set(field.key, value)}
+                  />
+                ) : field.type === "image" ? (
+                  <ImageUploadField
                     id={`setting-${field.key as string}`}
                     value={values[field.key as string] ?? ""}
                     onChange={(value) => set(field.key, value)}

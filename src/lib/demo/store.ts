@@ -856,6 +856,18 @@ export const demoStore: Store = {
     return { path: `demo:${invoiceId}`, url: dataUrl };
   },
 
+  async uploadPublicImage({ file }) {
+    if (file.size > UPLOAD_MAX_BYTES) {
+      throw new Error("Ukuran gambar terlalu besar.");
+    }
+    const allowed = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      throw new Error("Format gambar harus JPG, PNG, atau WEBP.");
+    }
+    const buffer = Buffer.from(await file.arrayBuffer());
+    return { url: `data:${file.type};base64,${buffer.toString("base64")}` };
+  },
+
   async getProofResponse(invoiceId) {
     return withDb((db) => {
       const invoice = db.invoices.find((item) => item.id === invoiceId);

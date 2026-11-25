@@ -6,38 +6,10 @@ import { FileCheck2, ImagePlus, Loader2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { FieldError, FieldHint } from "@/components/ui/field";
+import { compressImage } from "@/lib/image-compress";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-
-async function compressImage(file: File): Promise<File> {
-  try {
-    const url = URL.createObjectURL(file);
-    try {
-      const image = new Image();
-      image.src = url;
-      await image.decode();
-      const maxSide = 1600;
-      const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.max(1, Math.round(image.width * scale));
-      canvas.height = Math.max(1, Math.round(image.height * scale));
-      const context = canvas.getContext("2d");
-      if (!context) return file;
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, "image/jpeg", 0.82),
-      );
-      if (!blob || blob.size >= file.size) return file;
-      const name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
-      return new File([blob], name, { type: "image/jpeg" });
-    } finally {
-      URL.revokeObjectURL(url);
-    }
-  } catch {
-    return file;
-  }
-}
 
 export function InvoiceProofUploader({
   invoiceId,

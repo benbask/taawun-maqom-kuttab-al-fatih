@@ -932,6 +932,30 @@ export const supabaseStore: Store = {
     return { path, url: path };
   },
 
+  async uploadPublicImage({ file, folder = "settings" }) {
+    if (file.size > UPLOAD_MAX_BYTES) {
+      throw new Error("Ukuran gambar terlalu besar.");
+    }
+    const allowed = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      throw new Error("Format gambar harus JPG, PNG, atau WEBP.");
+    }
+    const ext =
+      file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+    const safeFolder = folder.replace(/[^A-Za-z0-9/_-]/g, "").replace(/^\/+|\/+$/g, "");
+    const path = `${safeFolder || "settings"}/${crypto.randomUUID()}.${ext}`;
+    const { error } = await db()
+      .storage.from("public-assets")
+      .upload(path, new Uint8Array(await file.arrayBuffer()), {
+        contentType: file.type,
+        cacheControl: "31536000",
+        upsert: false,
+      });
+    if (error) throw new Error(error.message);
+    const { data } = db().storage.from("public-assets").getPublicUrl(path);
+    return { url: data.publicUrl };
+  },
+
   async getProofResponse(invoiceId) {
     const invoice = await fetchInvoice(invoiceId);
     if (!invoice?.proof_url) return null;

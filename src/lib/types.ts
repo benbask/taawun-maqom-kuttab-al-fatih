@@ -390,4 +390,8 @@ export interface Store {
     file: File;
   }): Promise<{ path: string; url: string }>;
   getProofResponse(invoiceId: string): Promise<Response | null>;
+  uploadPublicImage(input: {
+    file: File;
+    folder?: string;
+  }): Promise<{ url: string }>;
 }
