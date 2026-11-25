@@ -40,13 +40,13 @@ export const metadata: Metadata = {
 const steps = [
   {
     icon: MessageCircle,
-    title: "Verifikasi WhatsApp",
-    body: "Masukkan nomor WhatsApp aktif, lalu konfirmasi kode OTP 4 digit yang dikirim admin.",
+    title: "Masukkan nomor WhatsApp",
+    body: "Gunakan nomor WhatsApp aktif dan Kode Keamanan dari pengumuman Maqom di grup angkatan.",
   },
   {
     icon: GraduationCap,
-    title: "Isi data santri",
-    body: "Lengkapi nama wali, jumlah anak, kelas, dan nominal Ta'awun yang ingin ditunaikan.",
+    title: "Daftarkan ayah & data anak",
+    body: "Pilih peran, kelas, dan nama anak. Nama anak dipakai untuk rekap per kelas.",
   },
   {
     icon: QrCode,
@@ -112,13 +112,26 @@ export default async function HomePage() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href="/daftar" className={buttonClasses("primary", "lg")}>
-                Daftar &amp; Ta&apos;awun <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link href="/tambah" className={buttonClasses("outline", "lg")}>
-                <HandHeart className="h-4 w-4" /> Tambah Ta&apos;awun
-              </Link>
+            <div className="space-y-2">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link href="/daftar" className={buttonClasses("primary", "lg")}>
+                  Daftar Maqom &amp; Ta&apos;awun{" "}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link href="/tambah" className={buttonClasses("outline", "lg")}>
+                  <HandHeart className="h-4 w-4" /> Tambah Ta&apos;awun
+                </Link>
+              </div>
+              <p className="text-xs leading-relaxed text-stone-500">
+                Sudah pernah daftar? Gunakan{" "}
+                <span className="font-semibold text-emerald-800">
+                  Tambah Ta&apos;awun
+                </span>{" "}
+                — data lama otomatis terisi.
+              </p>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-800/70">
+                ± 2 menit • Tanpa OTP • QRIS otomatis
+              </p>
             </div>
 
             <div className="grid gap-2.5 text-sm text-stone-600 sm:grid-cols-3">
@@ -129,7 +142,7 @@ export default async function HomePage() {
                 <QrCode className="h-4 w-4 text-emerald-700" /> QRIS dinamis
               </span>
               <span className="flex items-center gap-2">
-                <Lock className="h-4 w-4 text-emerald-700" /> OTP WhatsApp
+                <Lock className="h-4 w-4 text-emerald-700" /> Kode Keamanan
               </span>
             </div>
           </div>
@@ -253,7 +266,8 @@ export default async function HomePage() {
                   href="/daftar"
                   className={buttonClasses("primary", "md", "w-full")}
                 >
-                  Mulai Ta&apos;awun <ArrowRight className="h-4 w-4" />
+                  Daftar Maqom &amp; Ta&apos;awun{" "}
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </Card>
@@ -433,7 +447,8 @@ export default async function HomePage() {
             </p>
             <div className="flex flex-col justify-center gap-3 pt-2 sm:flex-row">
               <Link href="/daftar" className={buttonClasses("gold", "lg")}>
-                Daftar sekarang <ArrowRight className="h-4 w-4" />
+                Daftar Maqom &amp; Ta&apos;awun{" "}
+                <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/verifikasi"

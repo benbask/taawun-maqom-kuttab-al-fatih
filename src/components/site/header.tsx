@@ -2,11 +2,21 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Menu, ShieldCheck, X } from "lucide-react";
+import {
+  ArrowUpRight,
+  HandHeart,
+  Menu,
+  MessageCircle,
+  ShieldCheck,
+  X,
+} from "lucide-react";
 import { Logo } from "@/components/site/logo";
 import { UserLogoutButton } from "@/components/public/user-logout-button";
 import { buttonClasses } from "@/components/ui/button";
 import { waLink } from "@/lib/format";
+
+const WA_MESSAGE =
+  "Assalamu'alaikum, saya ingin bertanya tentang Ta'awun Maqom Kuttab Al Fatih Lampung.";
 
 const baseLinks = [
   { href: "/#kebutuhan", label: "Kebutuhan" },
@@ -75,35 +85,57 @@ export function SiteHeader({
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {contactWhatsApp && (
             <a
-              href={waLink(
-                contactWhatsApp,
-                "Assalamu'alaikum, saya ingin bertanya tentang Ta'awun Maqom Kuttab Al Fatih Lampung.",
-              )}
+              href={waLink(contactWhatsApp, WA_MESSAGE)}
               target="_blank"
               rel="noopener noreferrer"
-              className={buttonClasses("outline", "sm", "hidden sm:inline-flex")}
+              className={buttonClasses(
+                "outline",
+                "sm",
+                "hidden lg:inline-flex",
+              )}
             >
-              Hubungi Admin
+              <MessageCircle className="h-3.5 w-3.5 shrink-0" />
+              WhatsApp
             </a>
           )}
           <Link
             href="/admin"
             aria-label="Masuk ke panel admin"
-            className={buttonClasses("outline", "sm", "w-9 px-0 sm:w-auto sm:px-3")}
+            className={buttonClasses(
+              "ghost",
+              "sm",
+              "w-9 px-0 text-stone-500 xl:w-auto xl:px-2.5",
+            )}
             onClick={() => setMenuOpen(false)}
           >
             <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
-            <span className="hidden sm:inline">Masuk Admin</span>
+            <span className="hidden xl:inline">Masuk Admin</span>
           </Link>
           <Link
-            href="/daftar"
+            href={signedIn ? "/tambah" : "/daftar"}
+            aria-label={
+              signedIn ? "Tambah Ta'awun" : "Daftar Maqom & Ta'awun"
+            }
             className={buttonClasses("primary", "sm")}
             onClick={() => setMenuOpen(false)}
           >
-            Daftar Maqom &amp; Ta&apos;awun
+            {signedIn ? (
+              <>
+                <HandHeart className="h-3.5 w-3.5 shrink-0 sm:hidden" />
+                <span className="sm:hidden">Tambah</span>
+                <span className="hidden sm:inline">Tambah Ta&apos;awun</span>
+              </>
+            ) : (
+              <>
+                <span className="sm:hidden">Daftar</span>
+                <span className="hidden sm:inline">
+                  Daftar Maqom &amp; Ta&apos;awun
+                </span>
+              </>
+            )}
           </Link>
           {signedIn && <UserLogoutButton compact />}
 
@@ -119,6 +151,20 @@ export function SiteHeader({
             </button>
             {menuOpen && (
               <div className="absolute right-0 top-11 w-56 rounded-2xl border border-stone-200 bg-white p-2 shadow-xl">
+                {contactWhatsApp && (
+                  <a
+                    href={waLink(contactWhatsApp, WA_MESSAGE)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMenuOpen(false)}
+                    className="mb-1 flex items-center justify-between rounded-xl bg-emerald-50 px-3 py-2.5 text-sm font-semibold text-emerald-900 hover:bg-emerald-100"
+                  >
+                    <span className="flex items-center gap-2">
+                      <MessageCircle className="h-4 w-4" /> Tanya via WhatsApp
+                    </span>
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </a>
+                )}
                 {links.map((link) => (
                   <Link
                     key={link.href}
