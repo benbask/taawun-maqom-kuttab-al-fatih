@@ -143,6 +143,10 @@ export default async function InvoicePage({
                 </p>
               </div>
 
+              <div className="px-5 pt-4">
+                <ProofUploadTrigger />
+              </div>
+
               <div className="flex flex-col items-center px-5 py-6">
                 <div className="rounded-2xl border border-stone-200 bg-white p-3 shadow-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -162,6 +166,9 @@ export default async function InvoicePage({
                 >
                   <Download className="h-3.5 w-3.5" /> Unduh QR
                 </a>
+                <div className="mt-4 w-full max-w-sm">
+                  <ProofUploadTrigger />
+                </div>
               </div>
 
               <div className="border-t border-stone-100 bg-amber-50/60 px-5 py-3">
@@ -171,10 +178,6 @@ export default async function InvoicePage({
                     {formatRupiah(invoice.total_amount)}
                   </span>
                 </p>
-              </div>
-
-              <div className="border-t border-stone-100 px-5 pb-5 pt-3">
-                <ProofUploadTrigger />
               </div>
             </Card>
           ) : (
