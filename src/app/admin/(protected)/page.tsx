@@ -98,7 +98,7 @@ export default async function AdminDashboardPage() {
           icon={Users}
           label="Donatur"
           value={String(stats.donorCount)}
-          note={`${stats.studentCount} santri tercatat`}
+          note={`${stats.studentCount} anak tercatat`}
           tone="stone"
         />
       </div>

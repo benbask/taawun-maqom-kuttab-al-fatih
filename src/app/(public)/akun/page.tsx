@@ -132,7 +132,7 @@ export default async function AccountPage() {
             <GraduationCap className="h-5 w-5" />
           </span>
           <div>
-            <p className="text-xs text-stone-500">Santri terdaftar</p>
+            <p className="text-xs text-stone-500">Data anak</p>
             <p className="text-xl font-extrabold text-emerald-950">{students.length} anak</p>
           </div>
         </Card>
@@ -140,9 +140,10 @@ export default async function AccountPage() {
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
         <Card className="p-5">
-          <h2 className="text-sm font-bold text-stone-900">Data santri</h2>
+          <h2 className="text-sm font-bold text-stone-900">Data anak</h2>
           <p className="text-xs text-stone-500">
-            Daftar anak yang terhubung dengan akun ini.
+            Nama anak dipakai untuk rekap per kelas. Yang mendaftar Maqom adalah
+            ayah.
           </p>
           <div className="mt-4 space-y-2">
             {students.map((student) => (
@@ -172,7 +173,7 @@ export default async function AccountPage() {
             href="/daftar"
             className={buttonClasses("outline", "sm", "mt-4 w-full")}
           >
-            Daftarkan anak baru
+            Perbarui data anak
           </Link>
         </Card>
 

@@ -69,12 +69,23 @@ export async function POST(request: NextRequest) {
       custom_data: { ...family.custom_data, father_name: father },
     });
 
+    const existingStudents = await store.listStudents(family.id);
     const saved = [];
     for (const entry of selected) {
+      const classId = classes.find((cls) => cls.name === entry.class_name)?.id ?? null;
+      const existing = existingStudents.find(
+        (student) =>
+          (student.custom_data as { nis?: unknown })?.nis === entry.nis ||
+          (student.name === entry.name && student.class_id === classId),
+      );
+      if (existing) {
+        saved.push(existing);
+        continue;
+      }
       const student = await store.createStudent({
         familyId: family.id,
         name: entry.name,
-        classId: classes.find((cls) => cls.name === entry.class_name)?.id ?? null,
+        classId,
         customData: {
           nis: entry.nis,
           father_name: entry.father_name,
@@ -83,6 +94,7 @@ export async function POST(request: NextRequest) {
         },
       });
       saved.push(student);
+      existingStudents.push(student);
     }
 
     const childNames = selected.map((entry) => entry.name).join(", ");
