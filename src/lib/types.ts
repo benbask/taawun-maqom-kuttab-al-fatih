@@ -322,6 +322,7 @@ export interface Store {
     >,
   ): Promise<Family>;
   listAlumni(): Promise<Family[]>;
+  listAllFamilies(): Promise<Family[]>;
   deleteDemoData(): Promise<void>;
   listStudents(familyId: string): Promise<Student[]>;
   listStudentDirectory(): Promise<StudentDirectoryEntry[]>;

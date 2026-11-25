@@ -376,6 +376,14 @@ export const demoStore: Store = {
     );
   },
 
+  async listAllFamilies(): Promise<Family[]> {
+    return withDb((db) =>
+      [...db.families]
+        .sort((a, b) => a.parent_name.localeCompare(b.parent_name))
+        .map((family) => ({ ...family })),
+    );
+  },
+
   async deleteDemoData() {
     return withDb((db) => {
       const familyIds = new Set(

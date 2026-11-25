@@ -435,6 +435,11 @@ export const supabaseStore: Store = {
     return (data ?? []) as Family[];
   },
 
+  async listAllFamilies(): Promise<Family[]> {
+    const data = must(await db().from("families").select("*").order("parent_name"));
+    return (data ?? []) as Family[];
+  },
+
   async deleteDemoData() {
     const demoFamilies = must(
       await db().from("families").select("id").eq("is_demo", true),

@@ -1,5 +1,6 @@
 import "server-only";
 import { formatDateTime } from "@/lib/format";
+import type { AttendanceRow } from "@/lib/attendance";
 import type { InvoiceWithDetails } from "@/lib/types";
 
 export function invoiceExportRows(invoices: InvoiceWithDetails[]) {
@@ -42,6 +43,18 @@ export function itemExportRows(invoices: InvoiceWithDetails[]) {
   );
 }
 
+export function attendanceExportRows(rows: AttendanceRow[]) {
+  return rows.map((row) => ({
+    nama_ayah: row.fatherName,
+    nama_anak: row.children.join(" | "),
+    kelas_anak: row.classes.join(" | "),
+    status_hadir:
+      row.status === "hadir" ? "Hadir" : row.status === "tidak" ? "Tidak Hadir" : "Belum Pilih",
+    whatsapp: row.phone ?? "",
+    waktu_update: row.updatedAt ? formatDateTime(row.updatedAt) : "",
+  }));
+}
+
 export type ExportRow = Record<string, string | number>;
 
 const headers: Record<string, string> = {
@@ -61,6 +74,11 @@ const headers: Record<string, string> = {
   catatan: "Catatan",
   deskripsi: "Deskripsi",
   nominal: "Nominal",
+  nama_ayah: "Nama Ayah",
+  nama_anak: "Nama Anak",
+  kelas_anak: "Kelas Anak",
+  status_hadir: "Status Kehadiran",
+  waktu_update: "Waktu Update",
 };
 
 function label(key: string) {

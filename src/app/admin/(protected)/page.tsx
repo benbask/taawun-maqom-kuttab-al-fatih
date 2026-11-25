@@ -13,6 +13,7 @@ import {
   ScrollText,
   Users,
   Wallet,
+  UserCheck,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
@@ -230,6 +231,7 @@ export default async function AdminDashboardPage() {
               <QuickLink href="/admin/kelas" icon={GraduationCap} label="Kelola kelas" />
               <QuickLink href="/admin/qris" icon={QrCode} label="Atur QRIS statis" />
               <QuickLink href="/admin/form" icon={LayoutDashboard} label="Kelola formulir" />
+              <QuickLink href="/admin/kehadiran" icon={UserCheck} label="Daftar hadir ayah" />
               <QuickLink href="/admin/export" icon={FileSpreadsheet} label="Ekspor XLSX / Sheets" />
             </div>
           </Card>

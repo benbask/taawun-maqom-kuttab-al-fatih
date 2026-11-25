@@ -13,6 +13,7 @@ import {
   QrCode,
   ScrollText,
   Settings,
+  UserCheck,
   UserRound,
   Users,
 } from "lucide-react";
@@ -25,6 +26,7 @@ const items = [
   { href: "/admin/kelas", label: "Kelas", icon: GraduationCap },
   { href: "/admin/form", label: "Formulir", icon: ListChecks },
   { href: "/admin/alumni", label: "Alumni", icon: Users },
+  { href: "/admin/kehadiran", label: "Daftar Hadir Ayah", icon: UserCheck },
   { href: "/admin/qris", label: "QRIS & Pengaturan", icon: QrCode },
   { href: "/admin/whatsapp", label: "WhatsApp & OTP", icon: MessageCircle },
   { href: "/admin/export", label: "Ekspor Data", icon: FileSpreadsheet },
