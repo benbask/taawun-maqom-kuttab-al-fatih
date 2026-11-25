@@ -27,6 +27,7 @@ import { ProgressBar } from "@/components/site/progress-bar";
 import { formatDate, formatDateTime, formatRupiah } from "@/lib/format";
 import { isDemoMode } from "@/lib/env";
 import { safePublicStats, safeSettings } from "@/lib/safe";
+import { getUserSession } from "@/lib/session";
 import { getStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -63,6 +64,7 @@ const steps = [
 export default async function HomePage() {
   const settings = await safeSettings();
   const stats = await safePublicStats(settings.target_amount);
+  const session = await getUserSession();
   const classes = await getStore()
     .listClasses(true)
     .catch(() => []);
@@ -114,20 +116,57 @@ export default async function HomePage() {
 
             <div className="space-y-2">
               <div className="flex flex-col gap-3 sm:flex-row">
-                <Link href="/daftar" className={buttonClasses("primary", "lg")}>
-                  Daftar Maqom &amp; Ta&apos;awun{" "}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link href="/tambah" className={buttonClasses("outline", "lg")}>
-                  <HandHeart className="h-4 w-4" /> Tambah Ta&apos;awun
-                </Link>
+                {session ? (
+                  <>
+                    <Link
+                      href="/tambah"
+                      className={buttonClasses("primary", "lg")}
+                    >
+                      Tambah Ta&apos;awun <ArrowRight className="h-4 w-4" />
+                    </Link>
+                    <Link
+                      href="/akun"
+                      className={buttonClasses("outline", "lg")}
+                    >
+                      <Wallet className="h-4 w-4" /> Lihat akun
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/daftar"
+                      className={buttonClasses("primary", "lg")}
+                    >
+                      Daftar Maqom &amp; Ta&apos;awun{" "}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                    <Link
+                      href="/tambah"
+                      className={buttonClasses("outline", "lg")}
+                    >
+                      <HandHeart className="h-4 w-4" /> Tambah Ta&apos;awun
+                    </Link>
+                  </>
+                )}
               </div>
               <p className="text-xs leading-relaxed text-stone-500">
-                Sudah pernah daftar? Gunakan{" "}
-                <span className="font-semibold text-emerald-800">
-                  Tambah Ta&apos;awun
-                </span>{" "}
-                — data lama otomatis terisi.
+                {session ? (
+                  <>
+                    Data anak dan invoice Anda tersimpan di{" "}
+                    <span className="font-semibold text-emerald-800">
+                      akun
+                    </span>
+                    .
+                  </>
+                ) : (
+                  <>
+                    Sudah pernah daftar? Gunakan{" "}
+                    <span className="font-semibold text-emerald-800">
+                      Tambah Ta&apos;awun
+                    </span>{" "}
+                    — data lama otomatis terisi.
+                  </>
+                )}
               </p>
               <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-800/70">
                 ± 2 menit • Tanpa OTP • QRIS otomatis
@@ -263,10 +302,10 @@ export default async function HomePage() {
               </div>
               <div className="p-5 pt-4">
                 <Link
-                  href="/daftar"
+                  href={session ? "/tambah" : "/daftar"}
                   className={buttonClasses("primary", "md", "w-full")}
                 >
-                  Daftar Maqom &amp; Ta&apos;awun{" "}
+                  {session ? "Tambah Ta'awun" : "Daftar Maqom & Ta'awun"}{" "}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -446,8 +485,11 @@ export default async function HomePage() {
               dan pengembangan sarana Maqom Kuttab Al Fatih Lampung.
             </p>
             <div className="flex flex-col justify-center gap-3 pt-2 sm:flex-row">
-              <Link href="/daftar" className={buttonClasses("gold", "lg")}>
-                Daftar Maqom &amp; Ta&apos;awun{" "}
+              <Link
+                href={session ? "/tambah" : "/daftar"}
+                className={buttonClasses("gold", "lg")}
+              >
+                {session ? "Tambah Ta'awun" : "Daftar Maqom & Ta'awun"}{" "}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
