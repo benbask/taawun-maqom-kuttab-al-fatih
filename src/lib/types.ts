@@ -54,6 +54,9 @@ export interface Settings {
   sheets_webhook_url: string | null;
   sheets_webhook_secret: string | null;
   footer_credit: string;
+  share_title: string;
+  share_description: string;
+  share_image_url: string | null;
   updated_at: string;
 }
 

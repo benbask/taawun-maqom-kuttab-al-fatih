@@ -60,6 +60,9 @@ Setiap kontribusi akan dicatat, diverifikasi, dan ditampilkan pada halaman rekap
     sheets_webhook_url: null,
     sheets_webhook_secret: null,
     footer_credit: "Beny Abu Ibrahim",
+    share_title: "",
+    share_description: "",
+    share_image_url: null,
     updated_at: nowIso(),
   };
 }

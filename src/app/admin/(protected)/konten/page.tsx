@@ -70,6 +70,30 @@ export default async function AdminContentPage() {
             ],
           },
           {
+            title: "Pratinjau saat dibagikan (WhatsApp & media sosial)",
+            description:
+              "Dipakai saat tautan situs dibagikan di WhatsApp, Facebook, X, atau Telegram.",
+            fields: [
+              {
+                key: "share_title",
+                label: "Judul pratinjau tautan",
+                hint: "Kosongkan untuk memakai nama situs. Disarankan maksimal 60 karakter.",
+              },
+              {
+                key: "share_description",
+                label: "Deskripsi pratinjau tautan",
+                textarea: true,
+                hint: "Kosongkan untuk memakai tagline. Disarankan 80–160 karakter.",
+              },
+              {
+                key: "share_image_url",
+                label: "URL gambar pratinjau",
+                type: "url",
+                hint: "Tautan HTTPS gambar JPG/PNG, disarankan 1200 × 630 px. Kosongkan bila tidak ingin menampilkan gambar.",
+              },
+            ],
+          },
+          {
             title: "Kontak & kredit",
             fields: [
               { key: "contact_name", label: "Nama kontak" },

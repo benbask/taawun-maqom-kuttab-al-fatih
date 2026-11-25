@@ -14,6 +14,7 @@ const NULLABLE_SETTING_KEYS = new Set([
   "qris_merchant_city",
   "sheets_webhook_url",
   "sheets_webhook_secret",
+  "share_image_url",
 ]);
 
 /**
@@ -93,6 +94,7 @@ export async function POST(request: NextRequest) {
     });
 
     revalidatePath("/");
+    revalidatePath("/", "layout");
     revalidatePath("/verifikasi");
     revalidatePath("/admin");
     revalidatePath("/admin/konten");

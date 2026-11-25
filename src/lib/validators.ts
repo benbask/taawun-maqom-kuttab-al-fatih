@@ -105,6 +105,9 @@ export const settingsSchema = z
     sheets_webhook_url: z.string().nullable(),
     sheets_webhook_secret: z.string().nullable(),
     footer_credit: z.string().max(200).nullable(),
+    share_title: z.string().trim().max(120).nullable(),
+    share_description: z.string().trim().max(300).nullable(),
+    share_image_url: z.string().nullable(),
   })
   .partial();
 
