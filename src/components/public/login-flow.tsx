@@ -138,7 +138,7 @@ export function LoginFlow({
 
       <AccessPanel
         title="Masuk dengan WhatsApp"
-        description="Masukkan nomor WhatsApp dan sandi bersama yang diberikan panitia."
+        description="Masukkan nomor WhatsApp dan password Anda."
         submitLabel="Masuk"
         onAuthenticated={async (result) => {
           if (!result.role) {

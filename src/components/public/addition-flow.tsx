@@ -174,7 +174,7 @@ export function AdditionFlow({
           <AccessPanel
             initialPhone={initialPhone}
             title="Masuk untuk menambah Ta'awun"
-            description="Masukkan nomor WhatsApp dan sandi bersama panitia."
+            description="Masukkan nomor WhatsApp dan password Anda."
             submitLabel="Lanjutkan"
             onAuthenticated={async (result) => {
               if (!result.role) {

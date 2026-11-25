@@ -15,7 +15,7 @@ export const simpleLoginSchema = z.object({
   password: z
     .string()
     .trim()
-    .refine((value) => value === "Bismillah", "Sandi tidak benar."),
+    .refine((value) => value.toLowerCase() === "bismillah", "Password tidak benar."),
 });
 
 export const otpVerifySchema = z.object({

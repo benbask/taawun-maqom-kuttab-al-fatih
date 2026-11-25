@@ -270,7 +270,7 @@ export function RegistrationFlow({
           <AccessPanel
             initialPhone={initialPhone}
             title="Daftar / masuk Ta'awun"
-            description="Masukkan nomor WhatsApp dan sandi bersama panitia. Nomor baru akan otomatis didaftarkan."
+            description="Masukkan nomor WhatsApp dan password Anda. Nomor baru akan otomatis didaftarkan."
             submitLabel="Lanjutkan"
             onAuthenticated={authenticated}
           />
