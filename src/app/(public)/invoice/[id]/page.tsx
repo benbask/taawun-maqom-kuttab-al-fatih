@@ -206,6 +206,85 @@ export default async function InvoicePage({
             </Card>
           )}
 
+          <Card
+            className={cn(
+              "p-5",
+              canUpload
+                ? "border-amber-300 bg-amber-50/50 shadow-sm ring-2 ring-amber-200/60"
+                : "border-stone-200",
+            )}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <span className="rounded-xl bg-amber-100 p-2 text-amber-800 ring-1 ring-amber-200">
+                  <Upload className="h-5 w-5" />
+                </span>
+                <div>
+                  <h2 className="text-sm font-extrabold text-amber-950">
+                    Unggah bukti transfer
+                  </h2>
+                  <p className="mt-0.5 text-xs text-amber-900/70">
+                    Langkah terakhir setelah transfer. Jangan sampai terlewat.
+                  </p>
+                </div>
+              </div>
+              {canUpload && (
+                <span className="shrink-0 rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-stone-950">
+                  Penting
+                </span>
+              )}
+            </div>
+
+            <div className="mt-4">
+              {canUpload && (
+                <InvoiceProofUploader
+                  invoiceId={invoice.id}
+                  rejected={invoice.status === "rejected"}
+                />
+              )}
+
+              {isOwner && invoice.status === "waiting_verification" && canSeeProof && (
+                <ProofPreview
+                  proofUrl={proofUrl}
+                  isPdf={proofIsPdf}
+                  uploadedAt={invoice.proof_uploaded_at}
+                />
+              )}
+
+              {isOwner && invoice.status === "verified" && canSeeProof && (
+                <ProofPreview
+                  proofUrl={proofUrl}
+                  isPdf={proofIsPdf}
+                  uploadedAt={invoice.proof_uploaded_at}
+                />
+              )}
+
+              {!user && (
+                <div className="rounded-xl border border-stone-200 bg-white/80 p-4 text-center">
+                  <p className="text-sm font-semibold text-stone-700">
+                    Ingin mengunggah bukti transfer?
+                  </p>
+                  <p className="mt-0.5 text-xs text-stone-500">
+                    Masuk dengan nomor WhatsApp yang didaftarkan.
+                  </p>
+                  <Link
+                    href={`/masuk?next=/invoice/${invoice.id}`}
+                    className={buttonClasses("primary", "sm", "mt-3")}
+                  >
+                    Masuk untuk unggah bukti
+                  </Link>
+                </div>
+              )}
+
+              {user && !isOwner && !isAdmin && (
+                <p className="rounded-xl border border-amber-200 bg-white/80 p-3 text-xs text-amber-900">
+                  Invoice ini terhubung dengan nomor WhatsApp lain. Masuk dengan
+                  nomor yang sesuai untuk mengunggah bukti.
+                </p>
+              )}
+            </div>
+          </Card>
+
           <Card className="p-5">
             <h2 className="text-sm font-bold text-stone-900">Rincian pembayaran</h2>
             <div className="mt-3 space-y-2 text-sm">
@@ -305,57 +384,8 @@ export default async function InvoicePage({
                   tone="sky"
                   icon={ShieldCheck}
                   title="Menunggu pembayaran"
-                  body="Scan QRIS, transfer sesuai total, lalu unggah bukti transfer di bawah."
+                  body="Scan QRIS, transfer sesuai total, lalu unggah bukti di kotak kuning tepat di bawah QRIS."
                 />
-              )}
-            </div>
-
-            <div className="border-t border-stone-100 p-5">
-              {canUpload && (
-                <InvoiceProofUploader
-                  invoiceId={invoice.id}
-                  rejected={invoice.status === "rejected"}
-                />
-              )}
-
-              {isOwner && invoice.status === "waiting_verification" && canSeeProof && (
-                <ProofPreview
-                  proofUrl={proofUrl}
-                  isPdf={proofIsPdf}
-                  uploadedAt={invoice.proof_uploaded_at}
-                />
-              )}
-
-              {isOwner && invoice.status === "verified" && canSeeProof && (
-                <ProofPreview
-                  proofUrl={proofUrl}
-                  isPdf={proofIsPdf}
-                  uploadedAt={invoice.proof_uploaded_at}
-                />
-              )}
-
-              {!user && (
-                <div className="rounded-xl border border-stone-200 bg-stone-50 p-4 text-center">
-                  <p className="text-sm font-semibold text-stone-700">
-                    Ingin mengunggah bukti transfer?
-                  </p>
-                  <p className="mt-0.5 text-xs text-stone-500">
-                    Masuk dengan nomor WhatsApp yang didaftarkan.
-                  </p>
-                  <Link
-                    href={`/masuk?next=/invoice/${invoice.id}`}
-                    className={buttonClasses("primary", "sm", "mt-3")}
-                  >
-                    Masuk untuk unggah bukti
-                  </Link>
-                </div>
-              )}
-
-              {user && !isOwner && !isAdmin && (
-                <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-                  Invoice ini terhubung dengan nomor WhatsApp lain. Masuk dengan
-                  nomor yang sesuai untuk mengunggah bukti.
-                </p>
               )}
             </div>
           </Card>
@@ -365,7 +395,7 @@ export default async function InvoicePage({
             <ol className="mt-3 space-y-3 text-xs text-stone-600">
               <Step icon={ScanLine} title="Scan QRIS" body="Buka aplikasi bank/e-wallet, pilih bayar QRIS, lalu scan kode di samping." />
               <Step icon={Banknote} title="Transfer tepat" body={`Masukkan nominal ${formatRupiah(invoice.total_amount)} tanpa dibulatkan.`} />
-              <Step icon={Upload} title="Unggah bukti" body="Simpan screenshot transaksi berhasil, lalu unggah melalui halaman ini." />
+              <Step icon={Upload} title="Unggah bukti" body="Simpan screenshot transaksi berhasil, lalu unggah di kotak kuning tepat di bawah QRIS." />
               <Step icon={CheckCircle2} title="Tunggu verifikasi" body="Admin memverifikasi bukti. Setelah itu pembayaran tampil di rekap publik." />
             </ol>
           </Card>
