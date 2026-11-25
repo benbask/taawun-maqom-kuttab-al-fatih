@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, Menu } from "lucide-react";
+import { ArrowUpRight, Menu, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/site/logo";
 import { UserLogoutButton } from "@/components/public/user-logout-button";
 import { buttonClasses } from "@/components/ui/button";
@@ -63,6 +63,14 @@ export function SiteHeader({
               Hubungi Admin
             </a>
           )}
+          <Link
+            href="/admin"
+            aria-label="Masuk ke panel admin"
+            className={buttonClasses("outline", "sm", "w-9 px-0 sm:w-auto sm:px-3")}
+          >
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+            <span className="hidden sm:inline">Masuk Admin</span>
+          </Link>
           <Link href="/daftar" className={buttonClasses("primary", "sm")}>
             Daftar Ta&apos;awun
           </Link>
