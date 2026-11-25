@@ -74,6 +74,17 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  if (typeof patch.share_image_url === "string") {
+    try {
+      const url = new URL(patch.share_image_url);
+      if (url.protocol !== "https:") {
+        return apiError("URL gambar pratinjau harus diawali https://.");
+      }
+    } catch {
+      return apiError("URL gambar pratinjau tidak valid.");
+    }
+  }
+
   if (patch.unique_code_base !== undefined) {
     const base = Number(patch.unique_code_base);
     if (!Number.isInteger(base) || base < 1 || base > 999) {
