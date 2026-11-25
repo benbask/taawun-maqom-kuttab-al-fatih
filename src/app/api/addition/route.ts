@@ -34,6 +34,8 @@ export async function POST(request: NextRequest) {
         consentAt: new Date().toISOString(),
       });
     }
+    const ownerFamilyId = family.id;
+
     if (parsed.data.linkFamilyId && parsed.data.linkFamilyId !== family.id) {
       const target = await store.getFamilyById(parsed.data.linkFamilyId);
       if (!target) return apiError("Keluarga tujuan tidak ditemukan.", 404);
@@ -63,7 +65,7 @@ export async function POST(request: NextRequest) {
     let description = parsed.data.note?.trim() || "Ta'awun tambahan";
 
     if (studentId) {
-      const students = await store.listStudents(familyId);
+      const students = await store.listStudents(ownerFamilyId);
       const student = students.find((item) => item.id === studentId);
       if (!student) return apiError("Santri tidak ditemukan pada keluarga ini.", 403);
       classId = student.class_id;
