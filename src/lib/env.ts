@@ -22,7 +22,7 @@ export const OTP_SECRET =
 export const DEMO_ADMIN_USERNAME = process.env.DEMO_ADMIN_USERNAME ?? "admin";
 export const DEMO_ADMIN_PASSWORD = process.env.DEMO_ADMIN_PASSWORD ?? "Taawun123!";
 
-export const UPLOAD_MAX_BYTES = Number(process.env.UPLOAD_MAX_BYTES ?? 3 * 1024 * 1024);
+export const UPLOAD_MAX_BYTES = Number(process.env.UPLOAD_MAX_BYTES ?? 5 * 1024 * 1024);
 
 export function assertProductionSecrets() {
   if (process.env.NODE_ENV === "production" && !process.env.SESSION_SECRET) {

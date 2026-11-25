@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { FieldError, FieldHint } from "@/components/ui/field";
 
-const MAX_BYTES = 3 * 1024 * 1024;
+const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 
 export function InvoiceProofUploader({
@@ -39,7 +39,7 @@ export function InvoiceProofUploader({
       return;
     }
     if (next.size > MAX_BYTES) {
-      setError("Ukuran file maksimal 3 MB.");
+      setError("Ukuran file maksimal 5 MB.");
       return;
     }
     setFile(next);
@@ -89,7 +89,7 @@ export function InvoiceProofUploader({
             {rejected ? "Unggah ulang bukti transfer" : "Unggah bukti transfer"}
           </h3>
           <p className="text-xs text-stone-500">
-            JPG, PNG, WEBP, atau PDF. Maksimal 3 MB.
+            JPG, PNG, WEBP, atau PDF. Maksimal 5 MB.
           </p>
         </div>
       </div>
