@@ -7,7 +7,7 @@ import {
   BadgeCheck,
   CheckCircle2,
   GraduationCap,
-  Loader2,
+  HeartHandshake,
   Plus,
   Receipt,
   ShieldCheck,
@@ -41,6 +41,7 @@ interface ChildForm {
 }
 
 type AccountKind = "active" | "alumni";
+type MaqomChoice = "maqom" | "taawun" | null;
 
 function newChild(): ChildForm {
   return {
@@ -93,6 +94,13 @@ export function RegistrationFlow({
         : null,
   );
   const [alumniYear, setAlumniYear] = useState(initialAlumniYear);
+  const [joinChoice, setJoinChoice] = useState<MaqomChoice>(
+    initialRole === "ots" || initialRole === "alumni_join"
+      ? "maqom"
+      : initialRole === "outsider"
+        ? "taawun"
+        : null,
+  );
   const [familyCustom, setFamilyCustom] = useState<Record<string, unknown>>({});
   const [children, setChildren] = useState<ChildForm[]>([newChild()]);
   const [loading, setLoading] = useState(false);
@@ -114,8 +122,15 @@ export function RegistrationFlow({
   }) {
     setPhone(result.phone);
     setStage("form");
-    if (result.role === "alumni_join") setKind("alumni");
-    if (result.role === "ots") setKind("active");
+    if (result.role === "alumni_join") {
+      setKind("alumni");
+      setJoinChoice("maqom");
+    }
+    if (result.role === "ots") {
+      setKind("active");
+      setJoinChoice("maqom");
+    }
+    if (result.role === "outsider") setJoinChoice("taawun");
 
     if (result.familyId) {
       try {
@@ -132,8 +147,15 @@ export function RegistrationFlow({
           if (family?.parent_name && !parentName) {
             setParentName(family.parent_name);
           }
-          if (family?.account_type === "alumni_join") setKind("alumni");
-          if (family?.account_type === "ots") setKind("active");
+          if (family?.account_type === "alumni_join") {
+            setKind("alumni");
+            setJoinChoice("maqom");
+          }
+          if (family?.account_type === "ots") {
+            setKind("active");
+            setJoinChoice("maqom");
+          }
+          if (family?.account_type === "outsider") setJoinChoice("taawun");
           const year = family?.alumni_profile?.angkatan;
           if (year && !alumniYear) setAlumniYear(String(year));
         }
@@ -147,7 +169,7 @@ export function RegistrationFlow({
     if (parentName.trim().length < 2) return "Nama wali minimal 2 karakter.";
     if (!children.length) return "Tambahkan minimal satu anak.";
     for (const child of children) {
-      if (child.name.trim().length < 2) return "Nama anak minimal 2 karakter.";
+      if (!child.name.trim()) return "Nama anak wajib diisi.";
       if (!child.classId) return `Pilih kelas untuk ${child.name || "anak"}.`;
       if (!Number.isInteger(child.amount) || child.amount < 1000) {
         return `Nominal Ta'awun ${child.name || "anak"} minimal Rp 1.000.`;
@@ -280,7 +302,7 @@ export function RegistrationFlow({
         setError(data.error ?? "Gagal menyimpan data.");
         return;
       }
-      toast.success("Lanjut sebagai pihak luar.");
+      toast.success("Lanjut sebagai donatur umum.");
       router.push("/tambah");
       router.refresh();
     } catch {
@@ -347,48 +369,101 @@ export function RegistrationFlow({
           </div>
 
           <div className="mt-6 border-t border-stone-200 pt-5">
-            <h3 className="text-sm font-extrabold text-emerald-950">
-              Pilih jenis akun
-            </h3>
-            <p className="mt-0.5 text-xs text-stone-500">
-              Pilih salah satu untuk melanjutkan.
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 className="text-sm font-extrabold text-emerald-950">
+                  Apakah Anda ikut Maqom?
+                </h3>
+                <p className="mt-0.5 text-xs text-stone-500">
+                  Pilih salah satu sesuai rencana Anda.
+                </p>
+              </div>
+              {joinChoice && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError(null);
+                    setJoinChoice(null);
+                    setKind(null);
+                  }}
+                  className="text-xs font-bold text-emerald-700 underline-offset-2 hover:underline"
+                >
+                  Ubah pilihan
+                </button>
+              )}
+            </div>
 
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <ChoiceCard
-                icon={Users}
-                title="OTS Aktif"
-                description="Masih memiliki anak yang aktif belajar. Daftarkan nama anak dan kelasnya."
+                icon={HeartHandshake}
+                title="Insyaallah saya ikut Maqom"
+                description="Ikut serta sebagai OTS aktif atau alumni. Nanti isi data santri atau tahun angkatan."
                 onClick={() => {
                   setError(null);
-                  setKind("active");
+                  setJoinChoice("maqom");
                 }}
               />
               <ChoiceCard
-                icon={GraduationCap}
-                title="OTS Alumni"
-                description="Cukup isi tahun angkatan. Tidak perlu menambahkan data anak."
+                icon={Wallet}
+                title="Tidak ikut Maqom, hanya Ta'awun"
+                description="Tanpa data santri. Langsung menunaikan Ta'awun sebagai donatur umum."
                 onClick={() => {
                   setError(null);
-                  setKind("alumni");
+                  setJoinChoice("taawun");
                 }}
               />
             </div>
-
-            <button
-              type="button"
-              onClick={chooseOutside}
-              disabled={outsideLoading}
-              className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-stone-500 underline-offset-2 hover:text-emerald-800 hover:underline disabled:opacity-60"
-            >
-              {outsideLoading ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <ArrowRight className="h-3.5 w-3.5" />
-              )}
-              Bukan orang tua Santri? Lanjut sebagai donatur umum
-            </button>
           </div>
+
+          {joinChoice === "maqom" && (
+            <div className="mt-5 border-t border-stone-200 pt-5">
+              <h3 className="text-sm font-extrabold text-emerald-950">
+                Pilih jenis kepesertaan Maqom
+              </h3>
+              <p className="mt-0.5 text-xs text-stone-500">
+                Pilih salah satu untuk melanjutkan.
+              </p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <ChoiceCard
+                  icon={Users}
+                  title="OTS Aktif"
+                  description="Masih memiliki anak yang aktif belajar. Daftarkan nama anak dan kelasnya."
+                  onClick={() => {
+                    setError(null);
+                    setKind("active");
+                  }}
+                />
+                <ChoiceCard
+                  icon={GraduationCap}
+                  title="OTS Alumni"
+                  description="Cukup isi tahun angkatan. Tidak perlu menambahkan data anak."
+                  onClick={() => {
+                    setError(null);
+                    setKind("alumni");
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {joinChoice === "taawun" && (
+            <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50/70 p-4">
+              <p className="text-sm font-bold text-emerald-950">Hanya Ta&apos;awun</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-stone-600">
+                Data santri tidak diperlukan. Setelah nama tersimpan, Anda akan
+                diarahkan ke halaman Ta&apos;awun.
+              </p>
+              <Button
+                type="button"
+                className="mt-3 w-full"
+                onClick={chooseOutside}
+                loading={outsideLoading}
+                disabled={outsideLoading}
+              >
+                <ArrowRight className="h-4 w-4" /> Lanjut ke Ta&apos;awun
+              </Button>
+            </div>
+          )}
 
           {error && <FieldError className="mt-3">{error}</FieldError>}
         </Card>
@@ -536,7 +611,7 @@ export function RegistrationFlow({
                       onChange={(event) =>
                         updateChild(child.uid, { name: event.target.value })
                       }
-                      placeholder="Nama lengkap anak"
+                      placeholder="Nama anak"
                       required
                     />
                   </div>

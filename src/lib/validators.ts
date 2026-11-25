@@ -16,7 +16,7 @@ export const otpVerifySchema = z.object({
 });
 
 export const registrationChildSchema = z.object({
-  name: z.string().trim().min(2, "Nama anak minimal 2 karakter.").max(100),
+  name: z.string().trim().min(1, "Nama anak wajib diisi.").max(100),
   classId: z.string().uuid("Kelas tidak valid."),
   amount: z.coerce
     .number()
@@ -36,7 +36,7 @@ export const registrationSchema = z.object({
 });
 
 export const studentCreateSchema = z.object({
-  name: z.string().trim().min(2, "Nama santri minimal 2 karakter.").max(100),
+  name: z.string().trim().min(1, "Nama santri wajib diisi.").max(100),
   classId: z.string().uuid("Kelas tidak valid."),
 });
 

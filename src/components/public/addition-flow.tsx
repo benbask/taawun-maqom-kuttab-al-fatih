@@ -89,8 +89,8 @@ export function AdditionFlow({
   }
 
   async function saveStudent() {
-    if (newStudentName.trim().length < 2) {
-      const message = "Nama santri minimal 2 karakter.";
+    if (!newStudentName.trim()) {
+      const message = "Nama santri wajib diisi.";
       setError(message);
       toast.error(message);
       return;
@@ -335,7 +335,7 @@ export function AdditionFlow({
                         id="new-student-name"
                         value={newStudentName}
                         onChange={(event) => setNewStudentName(event.target.value)}
-                        placeholder="Nama lengkap santri"
+                        placeholder="Nama santri"
                       />
                     </div>
                     <div>
