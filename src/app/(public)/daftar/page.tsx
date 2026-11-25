@@ -25,10 +25,17 @@ export default async function RegistrationPage() {
   ]);
 
   let family = null;
+  let initialNis: string[] = [];
   if (session) {
     family = session.familyId
       ? await store.getFamilyById(session.familyId).catch(() => null)
       : await store.getFamilyByPhone(session.phone).catch(() => null);
+    if (family) {
+      const students = await store.listStudents(family.id).catch(() => []);
+      initialNis = students
+        .map((student) => String((student.custom_data as { nis?: unknown })?.nis ?? ""))
+        .filter(Boolean);
+    }
   }
 
   return (
@@ -65,6 +72,7 @@ export default async function RegistrationPage() {
           initialParentName={family?.parent_name ?? ""}
           initialRole={family?.account_type ?? null}
           initialAlumniYear={String(family?.alumni_profile?.angkatan ?? "")}
+          initialNis={initialNis}
         />
       )}
 

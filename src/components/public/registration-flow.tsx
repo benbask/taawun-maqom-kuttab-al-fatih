@@ -47,6 +47,7 @@ export function RegistrationFlow({
   initialParentName,
   initialRole,
   initialAlumniYear,
+  initialNis,
 }: {
   classes: ClassRecord[];
   directory: StudentDirectoryEntry[];
@@ -54,6 +55,7 @@ export function RegistrationFlow({
   initialParentName: string;
   initialRole: AccountRole | null;
   initialAlumniYear: string;
+  initialNis: string[];
 }) {
   const router = useRouter();
   const [stage, setStage] = useState<Stage>(
@@ -67,7 +69,11 @@ export function RegistrationFlow({
   );
   const [classId, setClassId] = useState(classes[0]?.id ?? "");
   const [query, setQuery] = useState("");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>(() =>
+    directory
+      .filter((entry) => initialNis.includes(entry.nis))
+      .map((entry) => entry.id),
+  );
   const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -146,16 +146,6 @@ export function LoginFlow({
             router.refresh();
             return;
           }
-          if (result.role === "alumni_join" || result.role === "alumni") {
-            router.push("/alumni");
-            router.refresh();
-            return;
-          }
-          if (result.role === "ots") {
-            router.push("/daftar");
-            router.refresh();
-            return;
-          }
           finish();
         }}
       />
