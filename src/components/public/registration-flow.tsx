@@ -648,6 +648,13 @@ export function RegistrationFlow({
             </p>
           </div>
           <div className="p-5">
+            <div className="mb-3 rounded-xl border-2 border-emerald-400 bg-emerald-50 p-3 text-sm font-extrabold leading-relaxed text-emerald-950 shadow-sm">
+              <p className="flex items-start gap-2">
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
+                Untuk menyimpan data pendaftaran, silakan tekan tombol bayar di
+                bawah ini.
+              </p>
+            </div>
             <Button type="submit" className="w-full" size="lg" loading={loading}>
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
