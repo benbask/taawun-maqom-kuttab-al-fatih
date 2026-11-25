@@ -37,15 +37,22 @@ export function Logo({
   siteName,
   compact = false,
   light = false,
+  hideNameOnMobile = false,
 }: {
   siteName: string;
   compact?: boolean;
   light?: boolean;
+  hideNameOnMobile?: boolean;
 }) {
   return (
     <span className="flex min-w-0 items-center gap-2.5">
       <LogoMark className="h-10 w-10" />
-      <span className="min-w-0 leading-tight">
+      <span
+        className={cn(
+          "min-w-0 leading-tight",
+          hideNameOnMobile && "hidden sm:block",
+        )}
+      >
         <span
           className={cn(
             "block truncate text-[13px] font-extrabold tracking-tight sm:text-sm",

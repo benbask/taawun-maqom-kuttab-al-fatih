@@ -67,7 +67,7 @@ export function SiteHeader({
     <header className="sticky top-0 z-40 border-b border-emerald-950/10 bg-[#f8f5ee]/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link href="/" className="min-w-0" aria-label={siteName}>
-          <Logo siteName={siteName} />
+          <Logo siteName={siteName} hideNameOnMobile />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
@@ -94,7 +94,7 @@ export function SiteHeader({
               className={buttonClasses(
                 "outline",
                 "sm",
-                "hidden lg:inline-flex",
+                "hidden whitespace-nowrap lg:inline-flex",
               )}
             >
               <MessageCircle className="h-3.5 w-3.5 shrink-0" />
@@ -104,22 +104,22 @@ export function SiteHeader({
           <Link
             href="/admin"
             aria-label="Masuk ke panel admin"
+            title="Masuk Admin"
             className={buttonClasses(
               "ghost",
               "sm",
-              "w-9 px-0 text-stone-500 xl:w-auto xl:px-2.5",
+              "w-9 shrink-0 px-0 text-stone-500",
             )}
             onClick={() => setMenuOpen(false)}
           >
             <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
-            <span className="hidden xl:inline">Masuk Admin</span>
           </Link>
           <Link
             href={signedIn ? "/tambah" : "/daftar"}
             aria-label={
               signedIn ? "Tambah Ta'awun" : "Daftar Maqom & Ta'awun"
             }
-            className={buttonClasses("primary", "sm")}
+            className={buttonClasses("primary", "sm", "shrink-0 whitespace-nowrap")}
             onClick={() => setMenuOpen(false)}
           >
             {signedIn ? (
