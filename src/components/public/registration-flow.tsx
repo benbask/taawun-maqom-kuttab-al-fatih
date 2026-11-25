@@ -7,7 +7,6 @@ import {
   BadgeCheck,
   CheckCircle2,
   GraduationCap,
-  HeartHandshake,
   Plus,
   Receipt,
   ShieldCheck,
@@ -393,25 +392,43 @@ export function RegistrationFlow({
               )}
             </div>
 
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <ChoiceCard
-                icon={HeartHandshake}
-                title="Insyaallah saya ikut Maqom"
-                description="Ikut serta sebagai OTS aktif atau alumni. Nanti isi data santri atau tahun angkatan."
+            <div
+              className="mt-3 inline-flex flex-wrap gap-1.5 rounded-xl border border-stone-200 bg-stone-50 p-1.5"
+              role="group"
+              aria-label="Pilihan mengikuti Maqom"
+            >
+              <button
+                type="button"
+                aria-pressed={joinChoice === "maqom"}
                 onClick={() => {
                   setError(null);
                   setJoinChoice("maqom");
                 }}
-              />
-              <ChoiceCard
-                icon={Wallet}
-                title="Tidak ikut Maqom, hanya Ta'awun"
-                description="Tanpa data santri. Langsung menunaikan Ta'awun sebagai donatur umum."
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-xs font-bold transition active:translate-y-px motion-reduce:active:translate-y-0",
+                  joinChoice === "maqom"
+                    ? "bg-emerald-900 text-white shadow-sm ring-2 ring-emerald-900/20"
+                    : "border border-stone-200 bg-white text-stone-600 hover:border-emerald-400 hover:text-emerald-800",
+                )}
+              >
+                Insyaallah saya ikut Maqom
+              </button>
+              <button
+                type="button"
+                aria-pressed={joinChoice === "taawun"}
                 onClick={() => {
                   setError(null);
                   setJoinChoice("taawun");
                 }}
-              />
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-xs font-bold transition active:translate-y-px motion-reduce:active:translate-y-0",
+                  joinChoice === "taawun"
+                    ? "bg-emerald-900 text-white shadow-sm ring-2 ring-emerald-900/20"
+                    : "border border-stone-200 bg-white text-stone-600 hover:border-emerald-400 hover:text-emerald-800",
+                )}
+              >
+                Tidak ikut Maqom, hanya Ta&apos;awun
+              </button>
             </div>
           </div>
 
