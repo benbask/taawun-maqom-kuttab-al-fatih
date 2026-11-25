@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
+  Copy,
   ExternalLink,
   Loader2,
   MessageCircle,
@@ -41,6 +42,7 @@ interface WaInfo {
     worker_error: string | null;
   }>;
   workerOnline: boolean;
+  adminWhatsapp: string;
   serverTime: string;
 }
 
@@ -206,6 +208,12 @@ export function WaPanel() {
               <p className="text-xs text-stone-500">
                 {data?.otps.length ?? 0} permintaan terakhir
               </p>
+              {!online && !data?.adminWhatsapp && (
+                <p className="mt-1 text-[11px] font-semibold text-amber-700">
+                  Nomor WhatsApp admin belum diatur. Isi di menu QRIS &amp;
+                  Pengaturan supaya OTP bisa dikirim manual.
+                </p>
+              )}
             </div>
             <Badge tone={online ? "green" : "amber"}>
               {online ? "Worker aktif" : "Mode manual"}
@@ -231,9 +239,23 @@ export function WaPanel() {
                     </td>
                     <td className="px-4 py-3">
                       {otp.code ? (
-                        <span className="font-mono text-base font-extrabold tracking-[0.2em] text-emerald-800">
-                          {otp.code}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-base font-extrabold tracking-[0.2em] text-emerald-800">
+                            {otp.code}
+                          </span>
+                          <button
+                            type="button"
+                            title="Salin kode"
+                            aria-label="Salin kode OTP"
+                            onClick={() => {
+                              void navigator.clipboard.writeText(otp.code ?? "");
+                              toast.success("Kode OTP disalin.");
+                            }}
+                            className="rounded-md p-1 text-stone-400 transition hover:bg-stone-100 hover:text-emerald-700 active:translate-y-px"
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
                       ) : (
                         <span className="text-stone-400">—</span>
                       )}

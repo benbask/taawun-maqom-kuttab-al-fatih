@@ -43,6 +43,7 @@ export async function GET() {
         wa.status === "connected" &&
         Boolean(wa.last_heartbeat) &&
         Date.now() - new Date(wa.last_heartbeat as string).getTime() < 2 * 60 * 1000,
+      adminWhatsapp: settings.admin_whatsapp,
       serverTime: formatDateTime(new Date().toISOString()),
     });
   } catch (error) {

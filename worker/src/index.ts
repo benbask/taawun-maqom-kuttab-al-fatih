@@ -83,7 +83,6 @@ async function connect() {
           status: "qr",
           qr,
           connected_phone: null,
-          last_error: null,
         });
         log.info("QR login tersedia di panel admin /admin/whatsapp.");
       }
@@ -115,14 +114,23 @@ async function connect() {
         const reason = lastDisconnect?.error instanceof Error
           ? lastDisconnect.error.message
           : "Koneksi terputus";
+        const visibleReason = loggedOut
+          ? "Sesi WhatsApp dicabut server WhatsApp (kode 401). Perlu pindai QR ulang."
+          : reason;
         await updateWaSession({
           status: "disconnected",
-          last_error: loggedOut ? null : reason,
+          last_error: visibleReason,
+        });
+        await addAuditLog(loggedOut ? "wa_logged_out" : "wa_disconnected", {
+          statusCode: statusCode ?? null,
+          reason,
+          loggedOut,
         });
         if (loggedOut) {
           await clearAuth();
           await updateWaSession({ connected_phone: null, qr: null });
         }
+        log.warn({ statusCode, loggedOut, reason }, "Koneksi WhatsApp terputus.");
         scheduleReconnect(loggedOut ? 2000 : 5000);
       }
     });

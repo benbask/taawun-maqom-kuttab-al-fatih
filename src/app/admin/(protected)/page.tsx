@@ -208,6 +208,11 @@ export default async function AdminDashboardPage() {
             <p className="mt-3 text-[11px] text-stone-400">
               Heartbeat terakhir: {formatDateTime(wa.last_heartbeat)}
             </p>
+            {!workerOnline && wa.last_error && (
+              <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-2 text-[11px] leading-relaxed text-amber-900">
+                {wa.last_error}
+              </p>
+            )}
             <Link
               href="/admin/whatsapp"
               className={buttonClasses("outline", "sm", "mt-3 w-full")}
