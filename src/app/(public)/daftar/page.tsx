@@ -45,7 +45,7 @@ export default async function RegistrationPage() {
           <GraduationCap className="h-3.5 w-3.5" /> Pendaftaran Ta&apos;awun
         </Badge>
         <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-emerald-950 sm:text-3xl">
-          Daftarkan santri Maqom &amp; tunaikan Ta&apos;awun
+          Daftarkan Ayah Maqom &amp; tunaikan Ta&apos;awun
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-stone-500">
           Daftar Maqom &amp; Ta&apos;awun: lengkapi data keluarga dan santri.
