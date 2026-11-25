@@ -78,7 +78,7 @@ export default async function InvoicePage({
   const isOwner = Boolean(familyId && invoice.family_id === familyId);
   const isAdmin = Boolean(admin);
   const canUpload =
-    isOwner && ["pending", "expired", "rejected"].includes(invoice.status);
+    (isOwner || isAdmin) && ["pending", "expired", "rejected"].includes(invoice.status);
 
   let qr = null;
   if (invoice.qris_payload && ["pending", "expired", "rejected"].includes(invoice.status)) {

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Download, UserCheck, UserX, Users } from "lucide-react";
+import { Download, MessageCircle, UserCheck, UserX, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import {
   buildAttendance,
   type AttendanceStatus,
 } from "@/lib/attendance";
-import { formatPhone } from "@/lib/format";
+import { formatPhone, waLink } from "@/lib/format";
 import { getStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -82,7 +82,16 @@ export default async function AdminAttendancePage() {
               {rows.map((row) => (
                 <tr key={row.fatherName} className="bg-white hover:bg-stone-50/60">
                   <td className="px-4 py-3 text-xs font-bold text-stone-800">
-                    {row.fatherName}
+                    {row.familyId ? (
+                      <Link
+                        href={`/admin/ots/${row.familyId}`}
+                        className="hover:text-emerald-700 hover:underline"
+                      >
+                        {row.fatherName}
+                      </Link>
+                    ) : (
+                      row.fatherName
+                    )}
                   </td>
                   <td className="px-4 py-3 text-xs text-stone-600">
                     {row.children.join(", ")}
@@ -94,7 +103,18 @@ export default async function AdminAttendancePage() {
                     <Badge tone={tone[row.status]}>{attendanceLabels[row.status]}</Badge>
                   </td>
                   <td className="px-4 py-3 font-mono text-[11px] text-stone-500">
-                    {row.phone ? formatPhone(row.phone) : "—"}
+                    {row.phone ? (
+                      <a
+                        href={waLink(row.phone, `Assalamu'alaikum ${row.fatherName}, ...`)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-sans font-bold text-emerald-700 hover:underline"
+                      >
+                        <MessageCircle className="h-3 w-3" /> {formatPhone(row.phone)}
+                      </a>
+                    ) : (
+                      "—"
+                    )}
                   </td>
                 </tr>
               ))}

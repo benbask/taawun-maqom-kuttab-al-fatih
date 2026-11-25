@@ -1,13 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import Link from "next/link";
+import { useRef, useState } from "react";
 import {
   BadgeCheck,
   ExternalLink,
   Eye,
   Loader2,
+  MessageCircle,
   Receipt,
+  Upload,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -19,6 +22,7 @@ import {
   formatRupiah,
   invoiceStatusLabel,
   invoiceStatusTone,
+  waLink,
 } from "@/lib/format";
 import type { InvoiceWithDetails } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -33,8 +37,49 @@ export function VerificationTable({
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  async function decide(status: "verified" | "rejected" | "cancelled") {
+  async function uploadProof() {
+    if (!selected || !proofFile) return;
+    setUploading(true);
+    setError(null);
+    try {
+      const form = new FormData();
+      form.append("file", proofFile);
+      const response = await fetch(`/api/invoice/${selected.id}/proof`, {
+        method: "POST",
+        body: form,
+      });
+      const data = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        uploadedAt?: string;
+      };
+      if (!response.ok || !data.ok) {
+        setError(data.error ?? "Gagal mengunggah bukti.");
+        return;
+      }
+      toast.success("Bukti transfer berhasil diunggah.");
+      setSelected({
+        ...selected,
+        proof_url: `/api/invoice/${selected.id}/proof/file`,
+        proof_uploaded_at: data.uploadedAt ?? new Date().toISOString(),
+        status: "waiting_verification",
+      });
+      setProofFile(null);
+      router.refresh();
+    } catch {
+      setError("Tidak dapat menghubungi server.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function decide(
+    status: "verified" | "rejected" | "cancelled" | "pending" | "waiting_verification",
+  ) {
     if (!selected) return;
     if (status === "rejected" && !reason.trim()) {
       setError("Alasan penolakan wajib diisi.");
@@ -54,21 +99,23 @@ export function VerificationTable({
         sheets?: { ok: boolean; error?: string } | null;
       };
       if (!response.ok || !data.ok) {
-        setError(data.error ?? "Gagal memproses verifikasi.");
+        setError(data.error ?? "Gagal mengubah status.");
         return;
       }
-      toast.success(
-        status === "verified"
-          ? "Pembayaran terverifikasi."
-          : status === "rejected"
-            ? "Bukti ditolak."
-            : "Invoice dibatalkan.",
-      );
+      const messages = {
+        verified: "Pembayaran terverifikasi.",
+        rejected: "Bukti ditolak.",
+        cancelled: "Invoice dibatalkan.",
+        pending: "Status diubah menjadi belum bayar.",
+        waiting_verification: "Status diubah menjadi menunggu verifikasi.",
+      } as const;
+      toast.success(messages[status]);
       if (status === "verified" && data.sheets && !data.sheets.ok) {
         toast.warning(`Sinkron Sheets gagal: ${data.sheets.error}`);
       }
       setSelected(null);
       setReason("");
+      setProofFile(null);
       router.refresh();
     } catch {
       setError("Tidak dapat menghubungi server.");
@@ -115,10 +162,23 @@ export function VerificationTable({
                   </td>
                   <td className="px-4 py-3">
                     <p className="text-xs font-semibold text-stone-800">
-                      {invoice.family.parent_name}
+                      <Link
+                        href={`/admin/ots/${invoice.family_id}`}
+                        className="hover:text-emerald-700 hover:underline"
+                      >
+                        {invoice.family.parent_name}
+                      </Link>
                     </p>
                     <p className="text-[10px] text-stone-400">
-                      {formatPhone(invoice.family.phone)}
+                      <a
+                        href={waLink(invoice.family.phone, `Assalamu'alaikum ${invoice.family.parent_name}, ...`)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 hover:text-emerald-700 hover:underline"
+                      >
+                        <MessageCircle className="h-3 w-3" />
+                        {formatPhone(invoice.family.phone)}
+                      </a>
                     </p>
                     <p className="mt-0.5 max-w-[220px] truncate text-[10px] text-stone-500">
                       {invoice.items
@@ -164,19 +224,19 @@ export function VerificationTable({
                     </p>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    {waiting ? (
+                    <div className="flex items-center justify-end gap-1">
                       <button
                         type="button"
                         onClick={() => {
                           setSelected(invoice);
                           setReason("");
+                          setProofFile(null);
                           setError(null);
                         }}
                         className={buttonClasses("primary", "sm")}
                       >
-                        Periksa
+                        {waiting ? "Periksa" : "Ubah status"}
                       </button>
-                    ) : (
                       <a
                         href={`/invoice/${invoice.id}`}
                         target="_blank"
@@ -185,7 +245,7 @@ export function VerificationTable({
                       >
                         Buka
                       </a>
-                    )}
+                    </div>
                   </td>
                 </tr>
               );
@@ -228,8 +288,22 @@ export function VerificationTable({
 
             <div className="mt-4 rounded-xl border border-stone-200 bg-stone-50 p-3 text-xs text-stone-600">
               <p>
-                <strong>{selected.family.parent_name}</strong> •{" "}
-                {formatPhone(selected.family.phone)}
+                <Link
+                  href={`/admin/ots/${selected.family.id}`}
+                  className="font-bold text-emerald-700 hover:underline"
+                >
+                  {selected.family.parent_name}
+                </Link>{" "}
+                •{" "}
+                <a
+                  href={waLink(selected.family.phone, `Assalamu'alaikum ${selected.family.parent_name}, ...`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-bold text-emerald-700 hover:underline"
+                >
+                  <MessageCircle className="h-3 w-3" />
+                  {formatPhone(selected.family.phone)}
+                </a>
               </p>
               <p className="mt-1">
                 Kode unik: <strong className="text-amber-700">{selected.unique_code}</strong>{" "}
@@ -255,6 +329,37 @@ export function VerificationTable({
               </p>
             )}
 
+            <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50/60 p-3">
+              <p className="text-xs font-bold text-emerald-950">
+                Unggah bukti sebagai admin
+              </p>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,application/pdf"
+                onChange={(event) => setProofFile(event.target.files?.[0] ?? null)}
+                className="mt-2 block w-full text-xs text-stone-600 file:mr-2 file:rounded-lg file:border-0 file:bg-emerald-900 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-white"
+              />
+              {proofFile && (
+                <p className="mt-1 truncate text-[11px] text-stone-500">
+                  {proofFile.name}
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={uploadProof}
+                disabled={!proofFile || uploading || Boolean(loading)}
+                className={buttonClasses("secondary", "sm", "mt-2 w-full")}
+              >
+                {uploading ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Upload className="h-3.5 w-3.5" />
+                )}
+                Unggah bukti
+              </button>
+            </div>
+
             <div className="mt-4">
               <label
                 htmlFor="reject-reason"
@@ -278,7 +383,7 @@ export function VerificationTable({
               </div>
             )}
 
-            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            <div className="mt-4 grid gap-2 sm:grid-cols-5">
               <button
                 type="button"
                 onClick={() => decide("verified")}
@@ -312,6 +417,28 @@ export function VerificationTable({
                 className={buttonClasses("ghost", "sm")}
               >
                 Batalkan
+              </button>
+              <button
+                type="button"
+                onClick={() => decide("waiting_verification")}
+                disabled={Boolean(loading)}
+                className={buttonClasses("outline", "sm")}
+              >
+                {loading === "waiting_verification" ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : null}
+                Menunggu verifikasi
+              </button>
+              <button
+                type="button"
+                onClick={() => decide("pending")}
+                disabled={Boolean(loading)}
+                className={buttonClasses("ghost", "sm")}
+              >
+                {loading === "pending" ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : null}
+                Belum bayar
               </button>
             </div>
             <p className="mt-3 text-[11px] leading-relaxed text-stone-400">

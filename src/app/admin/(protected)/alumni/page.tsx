@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { MessageCircle } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { Card } from "@/components/ui/card";
-import { formatDateTime, formatPhone } from "@/lib/format";
+import { formatDateTime, formatPhone, waLink } from "@/lib/format";
 import { getStore } from "@/lib/store";
 
 export const metadata: Metadata = {
@@ -44,11 +46,24 @@ export default async function AdminAlumniPage() {
                   return (
                     <tr key={row.id} className="text-xs text-stone-700">
                       <td className="px-4 py-3 font-bold text-stone-900">
-                        {profile.nama || row.parent_name}
+                        <Link
+                          href={`/admin/ots/${row.id}`}
+                          className="hover:text-emerald-700 hover:underline"
+                        >
+                          {profile.nama || row.parent_name}
+                        </Link>
                       </td>
                       <td className="px-4 py-3">{profile.angkatan || "-"}</td>
                       <td className="px-4 py-3">
-                        {formatPhone(profile.whatsapp || row.phone)}
+                        <a
+                          href={waLink(profile.whatsapp || row.phone, `Assalamu'alaikum ${profile.nama || row.parent_name}, ...`)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-emerald-700 hover:underline"
+                        >
+                          <MessageCircle className="h-3 w-3" />
+                          {formatPhone(profile.whatsapp || row.phone)}
+                        </a>
                       </td>
                       <td className="px-4 py-3">{profile.kota || "-"}</td>
                       <td className="px-4 py-3 text-stone-500">{profile.catatan || "-"}</td>

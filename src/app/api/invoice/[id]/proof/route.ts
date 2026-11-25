@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
-import { apiError, apiOk, requireUserApi, sameOrigin } from "@/lib/api";
+import { apiError, apiOk, sameOrigin } from "@/lib/api";
+import { getAdminSession, getUserSession } from "@/lib/session";
 import { getStore } from "@/lib/store";
 
 export async function POST(
@@ -8,8 +9,8 @@ export async function POST(
   context: { params: Promise<{ id: string }> },
 ) {
   if (!sameOrigin(request)) return apiError("Permintaan tidak valid.", 403);
-  const { session, response } = await requireUserApi();
-  if (!session) return response;
+  const [user, admin] = await Promise.all([getUserSession(), getAdminSession()]);
+  if (!user && !admin) return apiError("Masuk terlebih dahulu.", 401);
 
   const { id } = await context.params;
 
@@ -18,9 +19,10 @@ export async function POST(
     const invoice = await store.getInvoiceById(id);
     if (!invoice) return apiError("Invoice tidak ditemukan.", 404);
 
-    const familyId =
-      session.familyId ?? (await store.getFamilyByPhone(session.phone))?.id ?? null;
-    if (!familyId || invoice.family_id !== familyId) {
+    const familyId = user
+      ? user.familyId ?? (await store.getFamilyByPhone(user.phone))?.id ?? null
+      : null;
+    if (!admin && (!familyId || invoice.family_id !== familyId)) {
       return apiError("Anda tidak berhak mengunggah bukti untuk invoice ini.", 403);
     }
     if (invoice.status === "verified") {
@@ -37,8 +39,8 @@ export async function POST(
     const uploadedAt = new Date().toISOString();
     await store.setInvoiceProof(id, uploaded.url, uploadedAt);
     await store.addAuditLog({
-      actorType: "user",
-      actorId: session.phone,
+      actorType: admin ? "admin" : "user",
+      actorId: admin ? admin.adminId : user?.phone ?? null,
       action: "proof_uploaded",
       entityType: "invoice",
       entityId: id,

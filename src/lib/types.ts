@@ -346,7 +346,7 @@ export interface Store {
   ): Promise<void>;
   verifyInvoice(
     id: string,
-    status: "verified" | "rejected" | "cancelled",
+    status: "verified" | "rejected" | "cancelled" | "pending" | "waiting_verification",
     adminId: string,
     reason?: string | null,
   ): Promise<void>;

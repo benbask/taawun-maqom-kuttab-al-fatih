@@ -136,7 +136,7 @@ export const formFieldSchema = z.object({
 });
 
 export const verifyInvoiceSchema = z.object({
-  status: z.enum(["verified", "rejected", "cancelled"]),
+  status: z.enum(["verified", "rejected", "cancelled", "pending", "waiting_verification"]),
   reason: z.string().trim().max(500).nullable().optional(),
 });
 

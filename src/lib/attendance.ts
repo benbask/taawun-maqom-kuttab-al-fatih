@@ -7,6 +7,7 @@ export interface AttendanceRow {
   children: string[];
   classes: string[];
   status: AttendanceStatus;
+  familyId: string | null;
   phone: string | null;
   updatedAt: string | null;
 }
@@ -61,6 +62,7 @@ export function buildAttendance(
         children: group.children.sort((a, b) => a.localeCompare(b)),
         classes: Array.from(group.classes).sort((a, b) => a.localeCompare(b)),
         status: family ? attendanceStatus(family.account_type) : ("belum" as AttendanceStatus),
+        familyId: family?.id ?? null,
         phone: family?.phone ?? null,
         updatedAt: family?.updated_at ?? null,
       };

@@ -144,7 +144,12 @@ export default async function AdminDashboardPage() {
                     </td>
                     <td className="px-5 py-3">
                       <p className="text-xs font-semibold text-stone-700">
-                        {invoice.family.parent_name}
+                        <Link
+                          href={`/admin/ots/${invoice.family_id}`}
+                          className="hover:text-emerald-700 hover:underline"
+                        >
+                          {invoice.family.parent_name}
+                        </Link>
                       </p>
                       <p className="text-[10px] text-stone-400">
                         {formatPhone(invoice.family.phone)}
