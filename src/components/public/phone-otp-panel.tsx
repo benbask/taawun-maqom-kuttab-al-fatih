@@ -59,7 +59,6 @@ export function PhoneOtpPanel({
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
   const [demoCode, setDemoCode] = useState<string | null>(null);
   const [pendingVerification, setPendingVerification] =
     useState<VerifiedResult | null>(null);
@@ -78,7 +77,6 @@ export function PhoneOtpPanel({
     event?.preventDefault();
     setLoading(true);
     setError(null);
-    setInfo(null);
     try {
       const response = await fetch("/api/otp/request", {
         method: "POST",
@@ -98,7 +96,6 @@ export function PhoneOtpPanel({
       setManualUrl(data.manualUrl ?? null);
       setExpiresIn(data.expiresInMinutes ?? 10);
       setSeconds(60);
-      setInfo(data.message ?? null);
       if (data.demoCode) {
         setCode(data.demoCode);
         toast.info(`Mode demo: kode OTP ${data.demoCode}`);
@@ -225,9 +222,12 @@ export function PhoneOtpPanel({
         </form>
       ) : (
         <form onSubmit={verify} className="space-y-3">
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 text-xs text-emerald-900">
-            <p className="font-semibold">
-              Kode dikirim ke <span className="font-mono">{formatPhone(normalized)}</span>
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 text-xs leading-relaxed text-emerald-900">
+            <p>
+              OTP terkirim ke nomor{" "}
+              <span className="font-mono font-semibold">{formatPhone(normalized)}</span>
+              . Silakan cek pesan baru di WhatsApp Anda, lalu salin OTP-nya ke
+              bawah ini.
             </p>
             <p className="mt-0.5 text-emerald-800/70">
               Berlaku {expiresIn} menit. Jangan bagikan kode kepada siapa pun.
@@ -283,7 +283,6 @@ export function PhoneOtpPanel({
             />
           </div>
 
-          {info && !demoCode && <p className="text-xs text-stone-500">{info}</p>}
           {error && <FieldError>{error}</FieldError>}
 
           <Button type="submit" className="w-full" disabled={loading || code.length !== 4}>
