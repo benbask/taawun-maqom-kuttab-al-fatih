@@ -329,18 +329,6 @@ export function AdditionFlow({
                 required
               />
             </div>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {[100_000, 250_000, 500_000, 1_000_000, 2_000_000].map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setAmount(value)}
-                  className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-semibold text-stone-600 hover:border-emerald-300 hover:text-emerald-800 active:translate-y-px"
-                >
-                  {formatRupiah(value)}
-                </button>
-              ))}
-            </div>
           </div>
 
           <div className="mt-4">
