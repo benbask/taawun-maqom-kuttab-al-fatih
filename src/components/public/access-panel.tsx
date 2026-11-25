@@ -113,7 +113,8 @@ export function AccessPanel({
         </div>
         <FieldHint>
           Periksa kembali nomor Anda sebelum melanjutkan. Nomor yang salah
-          membuat data dan invoice tidak dapat ditemukan.
+          membuat data dan invoice tidak dapat ditemukan. Boleh 08xx, 8xx atau
+          62xx, sistem menyesuaikan otomatis.
         </FieldHint>
       </div>
 

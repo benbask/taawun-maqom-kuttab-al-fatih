@@ -130,6 +130,11 @@ export function RegistrationFlow({
     if (result.parentName && result.parentName !== "Calon peserta") {
       setParentName(result.parentName);
     }
+    if (result.role) {
+      router.push("/akun");
+      router.refresh();
+      return;
+    }
     setStage("roles");
   }
 
