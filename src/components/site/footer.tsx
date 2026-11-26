@@ -81,17 +81,31 @@ export function SiteFooter({ settings }: { settings: Settings }) {
       </div>
 
       <div className="border-t border-white/10">
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-2 px-4 py-6 text-xs text-emerald-100/55 sm:flex-row sm:px-6">
-          <p>
-            © {new Date().getFullYear()} {settings.site_name}. Hak cipta dilindungi.
-          </p>
-          <p className="flex items-center gap-1.5">
-            Dibuat dengan
-            <Heart className="h-3.5 w-3.5 fill-rose-400 text-rose-400" />
-            oleh
-            <span className="font-semibold text-amber-200">
-              {settings.footer_credit || "Beny Abu Ibrahim"}
-            </span>
+        <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
+          <div className="flex flex-col items-center justify-between gap-2 text-xs text-emerald-100/55 sm:flex-row">
+            <p>
+              © {new Date().getFullYear()} {settings.site_name}. Hak cipta dilindungi.
+            </p>
+            <p className="flex items-center gap-1.5">
+              Dibuat dengan
+              <Heart className="h-3.5 w-3.5 fill-rose-400 text-rose-400" />
+              oleh
+              <span className="font-semibold text-amber-200">
+                {settings.footer_credit || "Beny Abu Ibrahim"}
+              </span>
+            </p>
+          </div>
+          <p className="mt-3 text-center text-[10px] text-emerald-100/40">
+            Open source dikelola oleh{" "}
+            <a
+              href="https://github.com/benbask/taawun-maqom-kuttab-al-fatih"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 font-semibold text-emerald-100/70 underline decoration-emerald-100/30 underline-offset-2 transition hover:text-white hover:decoration-white"
+            >
+              Beny Abu Ibrahim
+              <ArrowUpRight className="h-3 w-3" />
+            </a>
           </p>
         </div>
       </div>
