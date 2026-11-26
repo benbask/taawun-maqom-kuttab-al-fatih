@@ -7,7 +7,15 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
-export function LogoutButton({ compact = false }: { compact?: boolean }) {
+export function LogoutButton({
+  compact = false,
+  iconOnly = false,
+  className,
+}: {
+  compact?: boolean;
+  iconOnly?: boolean;
+  className?: string;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +39,7 @@ export function LogoutButton({ compact = false }: { compact?: boolean }) {
       onClick={logout}
       disabled={loading}
       aria-busy={loading || undefined}
+      aria-label={iconOnly ? "Keluar" : undefined}
       className={cn(
         "inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-semibold transition duration-150 ease-out",
         "active:translate-y-px active:scale-[0.98] motion-reduce:active:translate-y-0 motion-reduce:active:scale-100",
@@ -38,10 +47,12 @@ export function LogoutButton({ compact = false }: { compact?: boolean }) {
         compact
           ? "border border-white/15 text-emerald-100/80 hover:bg-white/10"
           : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50",
+        iconOnly && "w-9 shrink-0 px-0 justify-center",
+        className,
       )}
     >
       {loading ? <Spinner className="size-3.5" /> : <LogOut className="h-3.5 w-3.5" />}
-      {loading ? "Keluar…" : "Keluar"}
+      {!iconOnly && (loading ? "Keluar…" : "Keluar")}
     </button>
   );
 }

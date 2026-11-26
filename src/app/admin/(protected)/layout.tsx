@@ -74,7 +74,12 @@ export default async function AdminProtectedLayout({
               <span className="hidden rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-800 sm:inline-flex">
                 Admin aktif
               </span>
-              <LogoutButton />
+              <span className="sm:hidden">
+                <LogoutButton iconOnly />
+              </span>
+              <span className="hidden sm:inline-flex">
+                <LogoutButton />
+              </span>
             </div>
           </div>
           <div className="border-t border-stone-200/70 px-4 py-2 lg:hidden">
