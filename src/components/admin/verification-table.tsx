@@ -41,6 +41,23 @@ export function VerificationTable({
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  function remind(invoice: InvoiceWithDetails) {
+    const invoiceUrl = `${window.location.origin}/invoice/${invoice.id}`;
+    const text =
+      `Assalamu'alaikum Ayah ${invoice.family.parent_name},` +
+      `\n\nKami mengingatkan bahwa Ta'awun Maqom dengan invoice ` +
+      `${invoice.invoice_no} (${formatRupiah(invoice.total_amount)}, kode unik ` +
+      `${invoice.unique_code}) belum menerima bukti transfer.` +
+      `\n\nSilakan buka ${invoiceUrl} lalu unggah bukti transfer agar dapat ` +
+      `diverifikasi dan masuk rekap Ta'awun. Terima kasih, Jazakumullahu khairan.`;
+    window.open(
+      waLink(invoice.family.phone, text),
+      "_blank",
+      "noopener,noreferrer",
+    );
+    toast.success("Pesan pengingat disiapkan di WhatsApp.");
+  }
+
   async function uploadProof() {
     if (!selected || !proofFile) return;
     setUploading(true);
@@ -225,6 +242,20 @@ export function VerificationTable({
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
+                      {!invoice.proof_url && invoice.status === "pending" && (
+                        <button
+                          type="button"
+                          onClick={() => remind(invoice)}
+                          title="Kirim pengingat upload bukti via WhatsApp"
+                          className={buttonClasses(
+                            "outline",
+                            "sm",
+                            "border-amber-300 text-amber-800",
+                          )}
+                        >
+                          <MessageCircle className="h-3.5 w-3.5" /> Ingatkan WA
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => {
@@ -313,6 +344,16 @@ export function VerificationTable({
                 Diunggah: {formatDateTime(selected.proof_uploaded_at)}
               </p>
             </div>
+
+            {!selected.proof_url && selected.status === "pending" && (
+              <button
+                type="button"
+                onClick={() => remind(selected)}
+                className={buttonClasses("secondary", "sm", "mt-3 w-full")}
+              >
+                <MessageCircle className="h-3.5 w-3.5" /> Kirim pengingat upload bukti via WhatsApp
+              </button>
+            )}
 
             {selected.proof_url ? (
               <a
