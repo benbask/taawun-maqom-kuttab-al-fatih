@@ -10,6 +10,8 @@ Panduan ini menyiapkan tiga komponen:
 
 Tanpa worker, sistem tetap berfungsi dengan mode manual: admin melihat kode OTP di `/admin/whatsapp` dan mengirimkannya lewat tombol WhatsApp.
 
+> **Catatan:** alur pendaftaran publik sekarang memakai **nomor WhatsApp + Kode Keamanan** (bukan OTP). Antrean OTP dan worker tetap tersedia untuk kebutuhan internal serta pengikatan akun Google.
+
 ---
 
 ## 1. Supabase
@@ -22,7 +24,7 @@ Tanpa worker, sistem tetap berfungsi dengan mode manual: admin melihat kode OTP 
    - sequence nomor invoice;
    - RPC `create_invoice` untuk alokasi kode unik yang aman terhadap konkurensi;
    - RLS (akses lewat service role);
-   - bucket Storage `proofs` (private) dan `site-assets` (public);
+   - bucket Storage `proofs` (private) dan `public-assets` (public);
    - seed `settings`, `wa_session`, dan kelas contoh.
 5. Salin **Project URL**, **anon key**, dan **service_role key** dari *Project Settings → API*.
 
@@ -47,7 +49,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
 SESSION_SECRET=<32+ karakter acak>
 OTP_ENCRYPTION_KEY=<32+ karakter acak, berbeda dari SESSION_SECRET>
-UPLOAD_MAX_BYTES=3145728
+UPLOAD_MAX_BYTES=5242880
 
 # Opsional — aktifkan tombol "Masuk dengan Google"
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
