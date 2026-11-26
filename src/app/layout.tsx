@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Amiri, Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import { NavigationLoading } from "@/components/site/navigation-loading";
-import { safeSettings } from "@/lib/safe";
+import { safePublicStats, safeSettings } from "@/lib/safe";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -24,6 +24,7 @@ const FALLBACK_DESCRIPTION =
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await safeSettings();
+  const stats = await safePublicStats(settings.target_amount).catch(() => null);
 
   const siteName = settings.site_name?.trim() || FALLBACK_TITLE;
   const shareTitle = settings.share_title?.trim() || siteName;
@@ -31,7 +32,9 @@ export async function generateMetadata(): Promise<Metadata> {
     settings.share_description?.trim() ||
     settings.tagline?.trim() ||
     FALLBACK_DESCRIPTION;
-  const shareImage = settings.share_image_url?.trim() || null;
+  const shareImage =
+    settings.share_image_url?.trim() ||
+    `/api/share-card?v=${stats?.total ?? 0}`;
 
   return {
     metadataBase: new URL(

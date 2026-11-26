@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/site/progress-bar";
+import { ShareProgressButton } from "@/components/public/share-progress-button";
 import { formatDate, formatDateTime, formatRupiah } from "@/lib/format";
 import { isDemoMode } from "@/lib/env";
 import { safePublicStats, safeSettings } from "@/lib/safe";
@@ -69,6 +70,10 @@ export default async function HomePage() {
     .listClasses(true)
     .catch(() => []);
   const remaining = Math.max(0, settings.target_amount - stats.total);
+  const percent =
+    settings.target_amount > 0
+      ? Math.round((stats.total / settings.target_amount) * 100)
+      : 0;
 
   const classRows = classes.map((cls) => {
     const row = stats.perClass.find((item) => item.classId === cls.id);
@@ -233,6 +238,8 @@ export default async function HomePage() {
                 <p className="text-[11px] text-stone-500">Batas</p>
               </div>
             </div>
+
+            <ShareProgressButton total={stats.total} percent={percent} />
 
             <div className="mt-5 flex items-center justify-between gap-2 border-t border-stone-100 pt-4 text-xs text-stone-500">
               <span className="flex items-center gap-1.5">
