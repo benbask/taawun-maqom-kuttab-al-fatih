@@ -323,7 +323,7 @@ export function AdditionFlow({
               <Input
                 value={amount ? formatNumber(amount) : ""}
                 onChange={(event) => setAmount(amountFromInput(event.target.value))}
-                placeholder="500.000"
+                placeholder="Contoh: 250.000"
                 inputMode="numeric"
                 className="pl-11 text-lg font-bold"
                 required

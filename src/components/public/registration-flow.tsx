@@ -522,7 +522,7 @@ export function RegistrationFlow({
                 <Input
                   value={amount ? formatNumber(amount) : ""}
                   onChange={(event) => setAmount(amountFromInput(event.target.value))}
-                  placeholder="1.500.000"
+                  placeholder="Contoh: 250.000"
                   inputMode="numeric"
                   className="pl-11"
                   required
@@ -605,7 +605,7 @@ export function RegistrationFlow({
                 <Input
                   value={amount ? formatNumber(amount) : ""}
                   onChange={(event) => setAmount(amountFromInput(event.target.value))}
-                  placeholder="500.000"
+                  placeholder="Contoh: 250.000"
                   inputMode="numeric"
                   className="pl-11"
                   required
