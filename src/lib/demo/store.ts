@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { seedDemoStore } from "@/lib/demo/defaults";
+import { maskName } from "@/lib/format";
 import { toDynamicQris } from "@/lib/qris";
 import { findUniqueCode } from "@/lib/unique-code";
 import { UPLOAD_MAX_BYTES } from "@/lib/env";
@@ -706,6 +707,7 @@ export const demoStore: Store = {
       );
       const donorIds = new Set(included.map((invoice) => invoice.family_id));
       const studentIds = new Set<string>();
+      const contributorAmounts = new Map<string, { name: string; amount: number }>();
       const billedByFamily = new Map<string, Set<string>>();
       const perClassMap = new Map<
         string,
@@ -717,6 +719,14 @@ export const demoStore: Store = {
       let lastUpdated: string | null = null;
 
       for (const invoice of included) {
+        const family = db.families.find((item) => item.id === invoice.family_id);
+        const familyName = family?.parent_name ?? "Ayah";
+        const contributor = contributorAmounts.get(invoice.family_id) ?? {
+          name: familyName,
+          amount: 0,
+        };
+        contributor.amount += invoice.base_amount;
+        contributorAmounts.set(invoice.family_id, contributor);
         uniqueCodeTotal += invoice.unique_code;
         if (
           invoice.proof_uploaded_at &&
@@ -794,6 +804,14 @@ export const demoStore: Store = {
         umumCount,
         uniqueCodeTotal,
         lastUpdated,
+        topContributors: [...contributorAmounts.entries()]
+          .map(([id, value]) => ({
+            id,
+            name: maskName(value.name),
+            amount: value.amount,
+          }))
+          .sort((a, b) => b.amount - a.amount)
+          .slice(0, 10),
       };
     });
   },

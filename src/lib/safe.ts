@@ -23,6 +23,7 @@ export function emptyStats(target = 0): PublicStats {
     umumCount: 0,
     uniqueCodeTotal: 0,
     lastUpdated: null,
+    topContributors: [],
   };
 }
 

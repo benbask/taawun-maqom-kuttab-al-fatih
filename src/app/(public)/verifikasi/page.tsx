@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PrintButton } from "@/components/site/print-button";
+import { TopContributorsCard } from "@/components/site/top-contributors";
 import {
   formatDateTime,
   formatRupiah,
@@ -313,6 +314,8 @@ export default async function VerificationPage({
           </>
         </Card>
       )}
+
+      <TopContributorsCard contributors={stats.topContributors} className="mt-5" />
 
       <Card className="mt-5 overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 bg-stone-50/60 px-5 py-4">

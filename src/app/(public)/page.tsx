@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/site/progress-bar";
+import { TopContributorsCard } from "@/components/site/top-contributors";
 import { ShareProgressButton } from "@/components/public/share-progress-button";
 import { formatDate, formatDateTime, formatRupiah } from "@/lib/format";
 import { isDemoMode } from "@/lib/env";
@@ -404,8 +405,10 @@ export default async function HomePage() {
             />
           </div>
 
-          <Card className="mt-5 overflow-hidden">
-            <div className="overflow-x-auto">
+          <div className="mt-5 grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+            <TopContributorsCard contributors={stats.topContributors} />
+            <Card className="overflow-hidden">
+              <div className="overflow-x-auto">
               <table className="w-full min-w-[560px] text-sm">
                 <thead>
                   <tr className="border-b border-stone-200 bg-stone-50/80 text-left text-xs uppercase tracking-wide text-stone-500">
@@ -468,7 +471,8 @@ export default async function HomePage() {
                 </tfoot>
               </table>
             </div>
-          </Card>
+            </Card>
+          </div>
 
           {classRows.length === 0 && (
             <p className="mt-4 rounded-xl border border-dashed border-stone-300 bg-white/60 p-4 text-center text-sm text-stone-500">

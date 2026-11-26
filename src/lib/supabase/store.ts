@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { supabaseServiceKey, supabaseUrl, UPLOAD_MAX_BYTES } from "@/lib/env";
 import { defaultSettings } from "@/lib/demo/defaults";
+import { maskName } from "@/lib/format";
 import { toDynamicQris } from "@/lib/qris";
 import { NoUniqueCodeError } from "@/lib/unique-code";
 import type {
@@ -748,7 +749,7 @@ export const supabaseStore: Store = {
     let query = db()
       .from("invoices")
       .select(
-        "id, family_id, base_amount, unique_code, total_amount, proof_uploaded_at, invoice_items(amount, student_id, class_id)",
+        "id, family_id, base_amount, unique_code, total_amount, proof_uploaded_at, families(parent_name), invoice_items(amount, student_id, class_id)",
       )
       .in("status", ["verified", "waiting_verification"])
       .not("proof_uploaded_at", "is", null);
@@ -760,6 +761,7 @@ export const supabaseStore: Store = {
 
     const donorIds = new Set<string>();
     const studentIds = new Set<string>();
+    const contributorAmounts = new Map<string, { name: string; amount: number }>();
     const billedByFamily = new Map<string, Set<string>>();
     const perClassMap = new Map<
       string,
@@ -773,6 +775,15 @@ export const supabaseStore: Store = {
 
     for (const invoice of invoices) {
       donorIds.add(String(invoice.family_id));
+      const family = (invoice.families ?? {}) as Record<string, unknown>;
+      const familyName = String(family.parent_name ?? "Ayah");
+      const contributor =
+        contributorAmounts.get(String(invoice.family_id)) ?? {
+          name: familyName,
+          amount: 0,
+        };
+      contributor.amount += num(invoice.base_amount);
+      contributorAmounts.set(String(invoice.family_id), contributor);
       total += num(invoice.total_amount);
       uniqueCodeTotal += num(invoice.unique_code);
       if (
@@ -861,6 +872,14 @@ export const supabaseStore: Store = {
       umumCount,
       uniqueCodeTotal,
       lastUpdated,
+      topContributors: [...contributorAmounts.entries()]
+        .map(([id, value]) => ({
+          id,
+          name: maskName(value.name),
+          amount: value.amount,
+        }))
+        .sort((a, b) => b.amount - a.amount)
+        .slice(0, 10),
     };
   },
 

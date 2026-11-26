@@ -235,6 +235,7 @@ export interface PublicStats {
   umumCount: number;
   uniqueCodeTotal: number;
   lastUpdated: string | null;
+  topContributors: Array<{ id: string; name: string; amount: number }>;
 }
 
 export interface VerificationRow {
