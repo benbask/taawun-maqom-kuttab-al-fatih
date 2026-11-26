@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Amiri, Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
+import { NavigationLoading } from "@/components/site/navigation-loading";
 import { safeSettings } from "@/lib/safe";
 import "./globals.css";
 
@@ -76,6 +77,7 @@ export default function RootLayout({
     <html lang="id" className={`${jakarta.variable} ${amiri.variable}`}>
       <body className="min-h-screen bg-[#f8f5ee] text-stone-900">
         {children}
+        <NavigationLoading />
         <Toaster
           position="top-center"
           richColors

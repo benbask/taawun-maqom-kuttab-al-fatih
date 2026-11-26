@@ -19,6 +19,7 @@ export function ClassSelect({
         value={selectedId ?? ""}
         onChange={(event) => {
           const id = event.target.value;
+          window.dispatchEvent(new Event("taawun:navigate"));
           router.push(id ? `/verifikasi?kelas=${id}` : "/verifikasi");
         }}
         className="w-full appearance-none rounded-lg border border-white/20 bg-white/10 py-1.5 pl-2.5 pr-8 text-sm font-bold text-white outline-none transition hover:bg-white/15 focus:border-amber-300"
