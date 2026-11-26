@@ -246,16 +246,11 @@ export default async function HomePage() {
               className="mt-6"
             />
 
-            <div className="mt-6 grid grid-cols-3 gap-3 text-center">
+            <div className="mt-6 grid grid-cols-2 gap-3 text-center">
               <div className="rounded-xl bg-stone-50 p-3">
                 <Users className="mx-auto h-4 w-4 text-emerald-700" />
                 <p className="mt-1.5 text-lg font-bold text-stone-900">{stats.donorCount}</p>
                 <p className="text-[11px] text-stone-500">Donatur</p>
-              </div>
-              <div className="rounded-xl bg-stone-50 p-3">
-                <GraduationCap className="mx-auto h-4 w-4 text-emerald-700" />
-                <p className="mt-1.5 text-lg font-bold text-stone-900">{stats.studentCount}</p>
-                <p className="text-[11px] text-stone-500">Santri</p>
               </div>
               <div className="rounded-xl bg-stone-50 p-3">
                 <Target className="mx-auto h-4 w-4 text-emerald-700" />
