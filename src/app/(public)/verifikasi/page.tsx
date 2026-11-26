@@ -207,8 +207,50 @@ export default async function VerificationPage({
               </div>
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table aria-label="Rekap per kelas" className="w-full min-w-[520px] text-sm tabular-nums">
+          <>
+            <div className="no-print divide-y divide-stone-100 sm:hidden">
+              {stats.perClass.map((row) => (
+                <div key={row.classId} className="flex items-center justify-between gap-3 px-5 py-3">
+                  <Link
+                    href={`/verifikasi?kelas=${row.classId}`}
+                    className="min-w-0 font-semibold text-stone-800 hover:text-emerald-700 hover:underline"
+                  >
+                    {row.className} <ArrowUpRight className="h-3 w-3" />
+                    <span className="mt-0.5 block text-[11px] font-normal text-stone-400">
+                      {row.count} kontribusi
+                    </span>
+                  </Link>
+                  <span className="shrink-0 font-bold text-emerald-900">
+                    {formatRupiah(row.total)}
+                  </span>
+                </div>
+              ))}
+              <div className="flex items-center justify-between gap-3 bg-amber-50/50 px-5 py-3">
+                <span className="text-xs font-semibold text-amber-900">
+                  Umum / tidak terikat kelas
+                  <span className="mt-0.5 block text-[11px] font-normal text-amber-800/70">
+                    {stats.umumCount} kontribusi
+                  </span>
+                </span>
+                <span className="shrink-0 font-bold text-amber-900">
+                  {formatRupiah(stats.umumTotal)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-3 bg-emerald-50/70 px-5 py-3">
+                <span className="text-xs font-extrabold text-emerald-950">
+                  Total kuttab
+                  <span className="mt-0.5 block text-[11px] font-semibold text-emerald-900/70">
+                    {stats.donorCount} keluarga
+                  </span>
+                </span>
+                <span className="shrink-0 font-extrabold text-emerald-950">
+                  {formatRupiah(stats.total)}
+                </span>
+              </div>
+            </div>
+
+            <div className="hidden overflow-x-auto print:block sm:block">
+              <table aria-label="Rekap per kelas" className="w-full min-w-[520px] text-sm tabular-nums">
               <thead>
                 <tr className="border-b border-stone-200 bg-white text-left text-[11px] uppercase tracking-wide text-stone-500">
                   <th scope="col" className="px-5 py-3 font-semibold">Kelas</th>
@@ -257,7 +299,8 @@ export default async function VerificationPage({
                 </tr>
               </tbody>
             </table>
-          </div>
+            </div>
+          </>
         </Card>
       )}
 
