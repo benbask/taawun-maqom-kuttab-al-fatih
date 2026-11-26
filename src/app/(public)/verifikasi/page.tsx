@@ -1,12 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, BadgeCheck, Clock, Info, ShieldCheck, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  BadgeCheck,
+  Clock,
+  GraduationCap,
+  Info,
+  ShieldCheck,
+  Target,
+  Users,
+  Wallet,
+} from "lucide-react";
+import { ClassSelect } from "@/components/public/class-select";
 import { Badge } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PrintButton } from "@/components/site/print-button";
 import { formatDateTime, formatRupiah, maskName, maskPhone } from "@/lib/format";
-import { safeSettings } from "@/lib/safe";
+import { safePublicStats, safeSettings } from "@/lib/safe";
 import { getStore } from "@/lib/store";
 
 export const metadata: Metadata = {
@@ -44,7 +56,8 @@ export default async function VerificationPage({
     };
   }
 
-  const stats = await store.getPublicStats().catch(() => null);
+  const stats = await safePublicStats(settings.target_amount);
+  const percent = stats.target > 0 ? Math.round((stats.total / stats.target) * 100) : 0;
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
@@ -69,52 +82,81 @@ export default async function VerificationPage({
             </span>
           </div>
           <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-emerald-950 sm:text-3xl">
-            Verifikasi Ta&apos;awun
+            Rekap &amp; Verifikasi Ta&apos;awun
           </h1>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-stone-500">
-            Daftar pembayaran yang bukti transfernya sudah diunggah, disusun per
-            kelas. Status verifikasi admin ditampilkan pada setiap baris. Nama
-            santri dan nomor WhatsApp ditampilkan dalam bentuk tersamarkan untuk
-            menjaga privasi.
+            Ringkasan dana Ta&apos;awun, rekap per kelas, dan rincian pembayaran
+            yang bukti transfernya sudah diunggah. Nama dan nomor WhatsApp
+            ditampilkan tersamarkan untuk menjaga privasi.
           </p>
         </div>
-        <div className="rounded-2xl border border-emerald-900/10 bg-emerald-950 px-5 py-4 text-emerald-50 shadow-sm">
+        <div className="w-full rounded-2xl border border-emerald-900/10 bg-emerald-950 px-5 py-4 text-emerald-50 shadow-sm sm:w-64">
           <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-amber-300/80">
-            {data.selectedClassName ?? "Pilih kelas"}
+            Kelas terpilih
           </p>
-          <p className="mt-1 text-2xl font-extrabold">{formatRupiah(data.classTotal)}</p>
+          <ClassSelect classes={data.classes} selectedId={data.selectedClassId} />
+          <p className="mt-2 text-2xl font-extrabold">{formatRupiah(data.classTotal)}</p>
           <p className="text-xs text-emerald-100/60">
             {data.classCount} pembayaran tercatat
           </p>
         </div>
       </div>
 
-      {data.classes.length > 0 ? (
-        <div className="no-print mt-7 flex flex-wrap gap-2">
-          {data.classes.map((cls) => {
-            const active = cls.id === data.selectedClassId;
-            return (
-              <Link
-                key={cls.id}
-                href={`/verifikasi?kelas=${cls.id}`}
-                className={
-                  active
-                    ? "rounded-full bg-emerald-900 px-4 py-2 text-xs font-bold text-white shadow-sm"
-                    : "rounded-full border border-stone-200 bg-white px-4 py-2 text-xs font-bold text-stone-600 transition hover:border-emerald-300 hover:text-emerald-800"
-                }
-              >
-                {cls.name}
-              </Link>
-            );
-          })}
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-2xl border border-stone-200/80 bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-semibold text-stone-500">
+            <span className="rounded-lg bg-emerald-100 p-1.5 text-emerald-700">
+              <Wallet className="h-3.5 w-3.5" />
+            </span>
+            Total terkumpul
+          </div>
+          <p className="mt-2 text-xl font-extrabold text-emerald-950">
+            {formatRupiah(stats.total)}
+          </p>
+          <p className="text-[11px] text-stone-400">Termasuk menunggu verifikasi</p>
         </div>
-      ) : (
-        <Card className="mt-7 p-6 text-center text-sm text-stone-500">
-          Belum ada kelas yang aktif. Hubungi admin Ta&apos;awun.
-        </Card>
-      )}
+        <div className="rounded-2xl border border-stone-200/80 bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-semibold text-stone-500">
+            <span className="rounded-lg bg-amber-100 p-1.5 text-amber-700">
+              <Target className="h-3.5 w-3.5" />
+            </span>
+            Target Ta&apos;awun
+          </div>
+          <p className="mt-2 text-xl font-extrabold text-emerald-950">
+            {formatRupiah(stats.target)}
+          </p>
+          <p className="text-[11px] text-stone-400">{percent}% tercapai</p>
+        </div>
+        <div className="rounded-2xl border border-stone-200/80 bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-semibold text-stone-500">
+            <span className="rounded-lg bg-sky-100 p-1.5 text-sky-700">
+              <Users className="h-3.5 w-3.5" />
+            </span>
+            Kontribusi
+          </div>
+          <p className="mt-2 text-xl font-extrabold text-emerald-950">
+            {stats.donorCount} keluarga
+          </p>
+          <p className="text-[11px] text-stone-400">Ayah / donatur umum</p>
+        </div>
+        <div className="rounded-2xl border border-stone-200/80 bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-semibold text-stone-500">
+            <span className="rounded-lg bg-violet-100 p-1.5 text-violet-700">
+              <GraduationCap className="h-3.5 w-3.5" />
+            </span>
+            Data anak
+          </div>
+          <p className="mt-2 text-xl font-extrabold text-emerald-950">
+            {stats.studentCount} anak
+          </p>
+          <p className="text-[11px] text-stone-400">Untuk rekap per kelas</p>
+        </div>
+      </div>
+      <p className="mt-2 text-[11px] text-stone-400">
+        Total di atas termasuk kode unik audit: {formatRupiah(stats.uniqueCodeTotal)}.
+      </p>
 
-      {stats && stats.perClass.length > 0 && (
+      {stats.perClass.length > 0 && (
         <Card className="mt-5 overflow-hidden">
           <div className="border-b border-stone-100 bg-stone-50/60 px-5 py-4">
             <h2 className="text-sm font-bold text-stone-900">Rekap per kelas</h2>
@@ -157,6 +199,17 @@ export default async function VerificationPage({
                   </td>
                   <td className="px-5 py-3.5 text-right font-bold text-amber-900">
                     {formatRupiah(stats.umumTotal)}
+                  </td>
+                </tr>
+                <tr className="bg-emerald-50/70">
+                  <td className="px-5 py-3.5 font-extrabold text-emerald-950">
+                    Total kuttab
+                  </td>
+                  <td className="px-5 py-3.5 text-center font-bold text-emerald-900">
+                    {stats.donorCount}
+                  </td>
+                  <td className="px-5 py-3.5 text-right font-extrabold text-emerald-950">
+                    {formatRupiah(stats.total)}
                   </td>
                 </tr>
               </tbody>
