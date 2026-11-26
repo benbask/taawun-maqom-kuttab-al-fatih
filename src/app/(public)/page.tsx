@@ -33,11 +33,38 @@ import { getStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Ta'awun Maqom Kuttab Al Fatih Lampung",
-  description:
-    "Ikut berTa'awun untuk pendidikan Qur'an di Maqom Kuttab Al Fatih Lampung. Transparan, terverifikasi, dan mudah melalui QRIS.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await safeSettings();
+  const stats = await safePublicStats(settings.target_amount);
+  const siteName = settings.site_name?.trim() || "Ta'awun Maqom Kuttab Al Fatih Lampung";
+  const title = settings.share_title?.trim() || siteName;
+  const description =
+    settings.share_description?.trim() ||
+    settings.tagline?.trim() ||
+    "Ikut berTa'awun untuk pendidikan Qur'an di Maqom Kuttab Al Fatih Lampung. Transparan, terverifikasi, dan mudah melalui QRIS.";
+  const image = `/api/share-card?v=${stats.total}`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      siteName,
+      type: "website",
+      locale: "id_ID",
+      images: [
+        { url: image, width: 1200, height: 630, alt: "Kartu perolehan Ta'awun" },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
+}
 
 const steps = [
   {
