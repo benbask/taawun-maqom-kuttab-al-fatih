@@ -219,6 +219,11 @@ export default async function VerificationPage({
                     <span className="mt-0.5 block text-[11px] font-normal text-stone-400">
                       {row.count} kontribusi
                     </span>
+                    {row.zeroCount > 0 && (
+                      <span className="mt-0.5 block text-[10px] font-normal text-amber-700">
+                        +{row.zeroCount} tanpa nominal (kelas kakak)
+                      </span>
+                    )}
                   </Link>
                   <span className="shrink-0 font-bold text-emerald-900">
                     {formatRupiah(row.total)}
@@ -268,6 +273,11 @@ export default async function VerificationPage({
                       >
                         {row.className} <ArrowUpRight className="h-3 w-3" />
                       </Link>
+                      {row.zeroCount > 0 && (
+                        <span className="mt-1 block text-[10px] font-normal text-amber-700">
+                          +{row.zeroCount} tanpa nominal (kelas kakak)
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 py-3.5 text-center text-stone-500">{row.count}</td>
                     <td className="px-5 py-3.5 text-right font-bold text-emerald-900">
@@ -451,7 +461,9 @@ export default async function VerificationPage({
             Baris tampil otomatis setelah wali mengunggah bukti transfer. Admin
             tetap memeriksa secara manual; status “Terverifikasi” atau “Menunggu
             verifikasi” ditampilkan pada tiap baris. Nama disamarkan menjadi
-            inisial, nomor WhatsApp hanya empat digit terakhir.
+            inisial, nomor WhatsApp hanya empat digit terakhir. Kontribusi pada
+            kelas kakak ikut dihitung dengan nominal 0 karena Ta&apos;awun
+            dialokasikan ke kelas anak bungsu.
           </p>
         </div>
         <div className="rounded-2xl border border-stone-200 bg-white p-4 text-xs leading-relaxed text-stone-600">

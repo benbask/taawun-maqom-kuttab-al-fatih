@@ -109,6 +109,7 @@ export default async function HomePage() {
       name: cls.name,
       total: row?.total ?? 0,
       count: row?.count ?? 0,
+      zeroCount: row?.zeroCount ?? 0,
     };
   });
 
@@ -423,6 +424,11 @@ export default async function HomePage() {
                         >
                           {row.name} <ArrowUpRight className="h-3 w-3" />
                         </Link>
+                        {row.zeroCount > 0 && (
+                          <span className="mt-1 block text-[10px] font-normal text-stone-400">
+                            +{row.zeroCount} kontribusi tanpa nominal (kelas kakak)
+                          </span>
+                        )}
                       </td>
                       <td className="px-5 py-3.5 text-center text-stone-500">{row.count}</td>
                       <td className="px-5 py-3.5 text-right font-bold text-emerald-900">

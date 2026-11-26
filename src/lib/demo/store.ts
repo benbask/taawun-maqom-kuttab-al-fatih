@@ -706,7 +706,11 @@ export const demoStore: Store = {
       );
       const donorIds = new Set(included.map((invoice) => invoice.family_id));
       const studentIds = new Set<string>();
-      const perClassMap = new Map<string, { total: number; count: number }>();
+      const billedByFamily = new Map<string, Set<string>>();
+      const perClassMap = new Map<
+        string,
+        { total: number; count: number; zeroCount: number }
+      >();
       let umumTotal = 0;
       let umumCount = 0;
       let uniqueCodeTotal = 0;
@@ -729,7 +733,15 @@ export const demoStore: Store = {
         for (const item of items) {
           if (item.student_id) studentIds.add(item.student_id);
           if (item.class_id) {
-            const current = perClassMap.get(item.class_id) ?? { total: 0, count: 0 };
+            const billed =
+              billedByFamily.get(invoice.family_id) ?? new Set<string>();
+            billed.add(item.class_id);
+            billedByFamily.set(invoice.family_id, billed);
+            const current = perClassMap.get(item.class_id) ?? {
+              total: 0,
+              count: 0,
+              zeroCount: 0,
+            };
             current.total += item.amount;
             current.count += 1;
             perClassMap.set(item.class_id, current);
@@ -740,6 +752,27 @@ export const demoStore: Store = {
         }
       }
 
+      // Saudara kandung di kelas lain ikut dihitung dengan nominal 0.
+      const countedZero = new Set<string>();
+      for (const student of db.students.filter((item) => donorIds.has(item.family_id))) {
+        if (!student.class_id) continue;
+        studentIds.add(student.id);
+        if (billedByFamily.get(student.family_id)?.has(student.class_id)) continue;
+
+        const key = `${student.family_id}:${student.class_id}`;
+        if (countedZero.has(key)) continue;
+        countedZero.add(key);
+
+        const current = perClassMap.get(student.class_id) ?? {
+          total: 0,
+          count: 0,
+          zeroCount: 0,
+        };
+        current.count += 1;
+        current.zeroCount += 1;
+        perClassMap.set(student.class_id, current);
+      }
+
       const perClass = db.classes
         .filter((cls) => perClassMap.has(cls.id))
         .sort((a, b) => a.sort_order - b.sort_order)
@@ -748,6 +781,7 @@ export const demoStore: Store = {
           className: cls.name,
           total: perClassMap.get(cls.id)?.total ?? 0,
           count: perClassMap.get(cls.id)?.count ?? 0,
+          zeroCount: perClassMap.get(cls.id)?.zeroCount ?? 0,
         }));
 
       return {

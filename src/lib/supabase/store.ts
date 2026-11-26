@@ -760,7 +760,11 @@ export const supabaseStore: Store = {
 
     const donorIds = new Set<string>();
     const studentIds = new Set<string>();
-    const perClassMap = new Map<string, { total: number; count: number }>();
+    const billedByFamily = new Map<string, Set<string>>();
+    const perClassMap = new Map<
+      string,
+      { total: number; count: number; zeroCount: number }
+    >();
     let umumTotal = 0;
     let umumCount = 0;
     let uniqueCodeTotal = 0;
@@ -787,7 +791,15 @@ export const supabaseStore: Store = {
         if (item.student_id) studentIds.add(String(item.student_id));
         const classId = item.class_id ? String(item.class_id) : null;
         if (classId) {
-          const current = perClassMap.get(classId) ?? { total: 0, count: 0 };
+          const billed =
+            billedByFamily.get(String(invoice.family_id)) ?? new Set<string>();
+          billed.add(classId);
+          billedByFamily.set(String(invoice.family_id), billed);
+          const current = perClassMap.get(classId) ?? {
+            total: 0,
+            count: 0,
+            zeroCount: 0,
+          };
           current.total += num(item.amount);
           current.count += 1;
           perClassMap.set(classId, current);
@@ -795,6 +807,39 @@ export const supabaseStore: Store = {
           umumTotal += num(item.amount);
           umumCount += 1;
         }
+      }
+    }
+
+    // Saudara kandung pada kelas lain tetap dihitung sebagai kontribusi dengan
+    // nominal 0. Ta'awun keluarga memang dialokasikan ke kelas anak bungsu,
+    // tetapi kelas kakaknya ikut bertambah jumlah kontribusinya.
+    if (donorIds.size > 0) {
+      const { data: familyStudents, error: studentError } = await db()
+        .from("students")
+        .select("id, family_id, class_id")
+        .in("family_id", [...donorIds]);
+      if (studentError) throw new Error(studentError.message);
+
+      const countedZero = new Set<string>();
+      for (const student of (familyStudents ?? []) as Array<Record<string, unknown>>) {
+        const familyId = String(student.family_id ?? "");
+        const classId = student.class_id ? String(student.class_id) : null;
+        if (!classId) continue;
+        if (student.id) studentIds.add(String(student.id));
+        if (billedByFamily.get(familyId)?.has(classId)) continue;
+
+        const key = `${familyId}:${classId}`;
+        if (countedZero.has(key)) continue;
+        countedZero.add(key);
+
+        const current = perClassMap.get(classId) ?? {
+          total: 0,
+          count: 0,
+          zeroCount: 0,
+        };
+        current.count += 1;
+        current.zeroCount += 1;
+        perClassMap.set(classId, current);
       }
     }
 
@@ -810,6 +855,7 @@ export const supabaseStore: Store = {
           className: cls.name,
           total: perClassMap.get(cls.id)?.total ?? 0,
           count: perClassMap.get(cls.id)?.count ?? 0,
+          zeroCount: perClassMap.get(cls.id)?.zeroCount ?? 0,
         })),
       umumTotal,
       umumCount,

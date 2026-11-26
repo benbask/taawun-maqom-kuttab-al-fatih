@@ -229,6 +229,7 @@ export interface PublicStats {
     className: string;
     total: number;
     count: number;
+    zeroCount: number;
   }>;
   umumTotal: number;
   umumCount: number;
