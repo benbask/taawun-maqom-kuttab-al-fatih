@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { AdminNav } from "@/components/admin/nav";
 import { LogoutButton } from "@/components/admin/logout-button";
 import { Logo } from "@/components/site/logo";
+import { SLOT_LABELS } from "@/lib/admin-permissions";
 import { buttonClasses } from "@/components/ui/button";
 import { safeSettings } from "@/lib/safe";
 import { requireAdminPage } from "@/lib/session";
@@ -22,13 +23,16 @@ export default async function AdminProtectedLayout({
           <Logo siteName={settings.site_name} light />
         </Link>
         <div className="scrollbar-thin flex-1 overflow-y-auto">
-          <AdminNav />
+          <AdminNav permissions={session.permissions ?? null} />
         </div>
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-3">
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-200/40">
             Masuk sebagai
           </p>
           <p className="mt-1 truncate text-sm font-bold text-white">{session.username}</p>
+          <p className="mt-0.5 truncate text-[10px] font-semibold text-emerald-200/60">
+            {SLOT_LABELS[session.slot ?? ""] ?? "Admin"}
+          </p>
           <div className="mt-2 flex items-center justify-between gap-2">
             <Link
               href="/"
@@ -83,7 +87,7 @@ export default async function AdminProtectedLayout({
             </div>
           </div>
           <div className="border-t border-stone-200/70 px-4 py-2 lg:hidden">
-            <AdminNav variant="mobile" />
+            <AdminNav variant="mobile" permissions={session.permissions ?? null} />
           </div>
         </header>
 

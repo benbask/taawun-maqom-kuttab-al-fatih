@@ -1,6 +1,7 @@
 import "server-only";
 import type { NextRequest } from "next/server";
 import { getAdminSession, getUserSession } from "@/lib/session";
+import { getStore } from "@/lib/store";
 import { NoUniqueCodeError } from "@/lib/unique-code";
 
 export function apiError(message: string, status = 400, extra?: Record<string, unknown>) {
@@ -34,7 +35,15 @@ export async function requireAdminApi() {
   if (!session) {
     return { session: null, response: apiError("Sesi admin tidak valid.", 401) };
   }
-  return { session, response: null };
+  // Akun yang dinonaktifkan langsung kehilangan akses API.
+  const admin = await getStore().getAdminById(session.adminId).catch(() => null);
+  if (!admin || admin.is_active === false) {
+    return { session: null, response: apiError("Akun admin tidak aktif.", 401) };
+  }
+  return {
+    session: { ...session, permissions: admin.permissions },
+    response: null,
+  };
 }
 
 export async function requireUserApi() {

@@ -2,6 +2,7 @@ import "server-only";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { ADMIN_PERMISSIONS } from "@/lib/admin-permissions";
 import { seedDemoStore } from "@/lib/demo/defaults";
 import { maskName } from "@/lib/format";
 import { toDynamicQris } from "@/lib/qris";
@@ -164,6 +165,9 @@ export const demoStore: Store = {
         password_hash: passwordHash,
         created_at: now(),
         last_login_at: null,
+        slot: "super_admin",
+        is_active: true,
+        permissions: [...ADMIN_PERMISSIONS],
       };
       db.admins.push(admin);
       return admin;
@@ -181,6 +185,30 @@ export const demoStore: Store = {
     return withDb((db) => {
       const admin = db.admins.find((item) => item.id === id);
       if (admin) admin.password_hash = passwordHash;
+    });
+  },
+
+  async listAdmins() {
+    return withDb((db) => [...db.admins]);
+  },
+
+  async updateAdminSlot(input) {
+    return withDb((db) => {
+      const admin = db.admins.find((item) => item.id === input.id);
+      if (!admin) throw new Error("Akun admin tidak ditemukan.");
+      if (
+        db.admins.some(
+          (item) =>
+            item.id !== input.id &&
+            item.username.toLowerCase() === input.username.toLowerCase(),
+        )
+      ) {
+        throw new Error("Username sudah dipakai.");
+      }
+      admin.username = input.username;
+      admin.is_active = input.isActive;
+      admin.permissions = input.permissions;
+      if (input.passwordHash) admin.password_hash = input.passwordHash;
     });
   },
 

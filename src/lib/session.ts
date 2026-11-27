@@ -20,6 +20,8 @@ export interface AdminSession {
   role: "admin";
   adminId: string;
   username: string;
+  slot?: string | null;
+  permissions?: string[] | null;
 }
 
 type SessionPayload = UserSession | AdminSession;
@@ -76,8 +78,21 @@ export async function requireUserPage() {
   return session;
 }
 
-export async function setAdminSession(adminId: string, username: string) {
-  const token = await sign({ role: "admin", adminId, username }, 60 * 60 * 8);
+export async function setAdminSession(
+  adminId: string,
+  username: string,
+  access: { slot?: string | null; permissions?: string[] | null } = {},
+) {
+  const token = await sign(
+    {
+      role: "admin",
+      adminId,
+      username,
+      slot: access.slot ?? null,
+      permissions: access.permissions ?? null,
+    },
+    60 * 60 * 8,
+  );
   (await cookies()).set(adminCookie, token, cookieOptions(60 * 60 * 8));
 }
 

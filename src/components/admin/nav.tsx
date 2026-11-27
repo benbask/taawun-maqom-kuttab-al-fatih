@@ -17,6 +17,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
+import { hasPermission, requiredPermission } from "@/lib/admin-permissions";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -34,13 +35,23 @@ const items = [
   { href: "/admin/akun", label: "Akun Admin", icon: UserRound },
 ];
 
-export function AdminNav({ variant = "sidebar" }: { variant?: "sidebar" | "mobile" }) {
+export function AdminNav({
+  variant = "sidebar",
+  permissions,
+}: {
+  variant?: "sidebar" | "mobile";
+  permissions?: string[] | null;
+}) {
   const pathname = usePathname();
+  const visible = items.filter((item) => {
+    const needed = requiredPermission(item.href);
+    return !needed || hasPermission(permissions, needed);
+  });
 
   if (variant === "mobile") {
     return (
       <nav className="scrollbar-thin flex gap-1.5 overflow-x-auto pb-1">
-        {items.map((item) => {
+        {visible.map((item) => {
           const active =
             item.href === "/admin"
               ? pathname === "/admin"
@@ -70,7 +81,7 @@ export function AdminNav({ variant = "sidebar" }: { variant?: "sidebar" | "mobil
       <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200/40">
         Menu admin
       </p>
-      {items.map((item) => {
+      {visible.map((item) => {
         const active =
           item.href === "/admin"
             ? pathname === "/admin"

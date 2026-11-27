@@ -1,6 +1,7 @@
 import "server-only";
 import crypto from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { ADMIN_PERMISSIONS } from "@/lib/admin-permissions";
 import { supabaseServiceKey, supabaseUrl, UPLOAD_MAX_BYTES } from "@/lib/env";
 import { defaultSettings } from "@/lib/demo/defaults";
 import { maskName } from "@/lib/format";
@@ -192,7 +193,13 @@ export const supabaseStore: Store = {
     const data = must(
       await db()
         .from("admins")
-        .insert({ username, password_hash: passwordHash })
+        .insert({
+          username,
+          password_hash: passwordHash,
+          slot: "super_admin",
+          is_active: true,
+          permissions: ADMIN_PERMISSIONS,
+        })
         .select("*")
         .single(),
     );
@@ -212,6 +219,29 @@ export const supabaseStore: Store = {
       .from("admins")
       .update({ password_hash: passwordHash })
       .eq("id", id);
+    if (error) throw new Error(error.message);
+  },
+
+  async listAdmins() {
+    const { data, error } = await db()
+      .from("admins")
+      .select("*")
+      .order("created_at");
+    if (error) throw new Error(error.message);
+    return (data ?? []) as Admin[];
+  },
+
+  async updateAdminSlot(input) {
+    const patch: Record<string, unknown> = {
+      username: input.username,
+      is_active: input.isActive,
+      permissions: input.permissions,
+    };
+    if (input.passwordHash) patch.password_hash = input.passwordHash;
+    const { error } = await db()
+      .from("admins")
+      .update(patch)
+      .eq("id", input.id);
     if (error) throw new Error(error.message);
   },
 

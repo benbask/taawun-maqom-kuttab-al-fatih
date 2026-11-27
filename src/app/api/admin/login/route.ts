@@ -30,15 +30,19 @@ export async function POST(request: NextRequest) {
     }
 
     const valid = await verifyPassword(parsed.data.password, admin.password_hash);
-    if (!valid) return apiError(generic, 401);
+    if (!valid || admin.is_active === false) return apiError(generic, 401);
 
     await store.updateAdminLogin(admin.id);
     await store.addAuditLog({
       actorType: "admin",
       actorId: admin.id,
       action: "admin_login",
+      metadata: { slot: admin.slot ?? null },
     });
-    await setAdminSession(admin.id, admin.username);
+    await setAdminSession(admin.id, admin.username, {
+      slot: admin.slot,
+      permissions: admin.permissions,
+    });
 
     return apiOk({ username: admin.username });
   } catch (error) {

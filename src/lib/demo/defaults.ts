@@ -1,5 +1,6 @@
 import "server-only";
 import crypto from "node:crypto";
+import { ROLE_PRESETS } from "@/lib/admin-permissions";
 import { createDemoQrisPayload } from "@/lib/qris";
 import { hashPassword } from "@/lib/crypto";
 import { DEMO_ADMIN_PASSWORD, DEMO_ADMIN_USERNAME } from "@/lib/env";
@@ -133,13 +134,34 @@ function svgProof(label: string) {
 export async function seedDemoStore() {
   const classes = defaultClasses();
   const settings = defaultSettings();
-  const admin: Admin = {
-    id: crypto.randomUUID(),
-    username: DEMO_ADMIN_USERNAME,
-    password_hash: await hashPassword(DEMO_ADMIN_PASSWORD),
-    created_at: nowIso(),
-    last_login_at: null,
-  };
+  const passwordHash = await hashPassword(DEMO_ADMIN_PASSWORD);
+  const admins: Admin[] = [
+    {
+      id: crypto.randomUUID(),
+      username: DEMO_ADMIN_USERNAME,
+      password_hash: passwordHash,
+      created_at: nowIso(),
+      last_login_at: null,
+      slot: "super_admin",
+      is_active: true,
+      permissions: ROLE_PRESETS.super_admin,
+    },
+    ...[
+      { slot: "code_harnes", username: "code_harnes_admin" },
+      { slot: "bendahara_1", username: "bendahara_1" },
+      { slot: "bendahara_2", username: "bendahara_2" },
+      { slot: "asisten", username: "asisten_taawun" },
+    ].map(({ slot, username }) => ({
+      id: crypto.randomUUID(),
+      username,
+      password_hash: passwordHash,
+      created_at: nowIso(),
+      last_login_at: null,
+      slot,
+      is_active: slot === "asisten",
+      permissions: ROLE_PRESETS[slot],
+    })),
+  ];
 
   const families: Family[] = [];
   const students: Student[] = [];
@@ -219,7 +241,7 @@ export async function seedDemoStore() {
       notes: input.note ?? null,
       expires_at: date(input.day + 1, 23),
       verified_at: input.status === "verified" ? date(input.day, 11) : null,
-      verified_by: input.status === "verified" ? admin.id : null,
+      verified_by: input.status === "verified" ? admins[0].id : null,
       auto_verify_status: null,
       auto_verify_amount: null,
       auto_verify_at: null,
@@ -370,7 +392,7 @@ export async function seedDemoStore() {
 
   return {
     settings,
-    admins: [admin],
+    admins,
     classes,
     form_fields: defaultFormFields(),
     families,

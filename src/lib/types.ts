@@ -1,4 +1,5 @@
 import type { AccountRole, AlumniProfile } from "@/lib/account-roles";
+import type { AdminPermission } from "@/lib/admin-permissions";
 
 export type InvoiceStatus =
   | "pending"
@@ -66,6 +67,19 @@ export interface Admin {
   password_hash: string;
   created_at: string;
   last_login_at: string | null;
+  /** Slot tetap: super_admin, code_harnes, bendahara_1, bendahara_2, asisten. */
+  slot: string | null;
+  is_active: boolean;
+  /** Null berarti sesi/akun lama dengan akses penuh. */
+  permissions: AdminPermission[] | null;
+}
+
+export interface AdminSlotInput {
+  id: string;
+  username: string;
+  isActive: boolean;
+  permissions: AdminPermission[];
+  passwordHash?: string;
 }
 
 export interface ClassRecord {
@@ -295,6 +309,8 @@ export interface Store {
   createAdmin(username: string, passwordHash: string): Promise<Admin>;
   updateAdminLogin(id: string): Promise<void>;
   updateAdminPassword(id: string, passwordHash: string): Promise<void>;
+  listAdmins(): Promise<Admin[]>;
+  updateAdminSlot(input: AdminSlotInput): Promise<void>;
 
   listClasses(activeOnly?: boolean): Promise<ClassRecord[]>;
   upsertClass(input: Partial<ClassRecord> & { name: string }): Promise<ClassRecord>;
