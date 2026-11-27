@@ -283,6 +283,10 @@ export interface VerificationRow {
   invoiceNo: string;
   uniqueCode: number;
   status: InvoiceStatus;
+  /** Baris kakak: keluarga sudah berta'awun, tapi nominalnya di kelas adik. */
+  isSiblingClass?: boolean;
+  billedClassName?: string | null;
+  billedChildName?: string | null;
 }
 
 export interface VerificationData {

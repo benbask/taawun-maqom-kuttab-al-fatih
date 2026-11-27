@@ -375,6 +375,15 @@ export default async function VerificationPage({
                       <p className="mt-0.5 font-mono text-[11px] text-stone-400">
                         {maskPhone(row.phone)}
                       </p>
+                      {row.isSiblingClass && (
+                        <p className="mt-1.5 w-fit rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">
+                          Sudah berta&apos;awun di kelas{" "}
+                          {row.billedClassName ?? "adik"}
+                          {row.billedChildName
+                            ? ` (${maskName(row.billedChildName)})`
+                            : ""}
+                        </p>
+                      )}
                     </div>
                     <StatusBadge status={row.status} />
                   </div>
@@ -430,6 +439,15 @@ export default async function VerificationPage({
                       </td>
                       <td className="px-4 py-3 font-semibold text-stone-800">
                         {maskName(row.childName)}
+                        {row.isSiblingClass && (
+                          <p className="mt-1 w-fit rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">
+                            Sudah berta&apos;awun di kelas{" "}
+                            {row.billedClassName ?? "adik"}
+                            {row.billedChildName
+                              ? ` (${maskName(row.billedChildName)})`
+                              : ""}
+                          </p>
+                        )}
                       </td>
                       <td className="px-4 py-3 font-mono text-xs text-stone-500">
                         {maskPhone(row.phone)}

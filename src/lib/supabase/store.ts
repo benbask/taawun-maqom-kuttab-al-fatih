@@ -24,6 +24,7 @@ import type {
   Student,
   StudentDirectoryEntry,
   VerificationData,
+  VerificationRow,
   WaSession,
 } from "@/lib/types";
 
@@ -963,39 +964,113 @@ export const supabaseStore: Store = {
       await db()
         .from("invoices")
         .select(
-          "invoice_no, status, unique_code, proof_uploaded_at, families(parent_name, phone), invoice_items(amount, class_id, description, students(name))",
+          "id, family_id, invoice_no, status, unique_code, proof_uploaded_at, families(parent_name, phone), invoice_items(amount, class_id, description, students(name))",
         )
         .in("status", ["verified", "waiting_verification"])
         .not("proof_uploaded_at", "is", null)
-        .eq("is_demo", false)
-        .eq("invoice_items.class_id", selectedClassId),
+        .eq("is_demo", false),
     ) as Array<Record<string, unknown>>;
 
+    const familyIds = [
+      ...new Set(
+        invoices
+          .map((invoice) => String(invoice.family_id ?? ""))
+          .filter(Boolean),
+      ),
+    ];
+    const students = familyIds.length
+      ? (must(
+          await db()
+            .from("students")
+            .select("id, family_id, class_id, name")
+            .in("family_id", familyIds),
+        ) as Array<Record<string, unknown>>)
+      : [];
+    const studentsByFamily = new Map<string, Array<Record<string, unknown>>>();
+    for (const student of students) {
+      const key = String(student.family_id ?? "");
+      const list = studentsByFamily.get(key) ?? [];
+      list.push(student);
+      studentsByFamily.set(key, list);
+    }
+    const classNames = new Map(
+      classes.map((cls) => [cls.id, cls.name] as const),
+    );
+
+    const siblingSeen = new Set<string>();
     const rows = invoices
-      .flatMap((invoice) => {
+      .flatMap((invoice): VerificationRow[] => {
         const family = (invoice.families ?? {}) as Record<string, unknown>;
         const items = (invoice.invoice_items ?? []) as Array<Record<string, unknown>>;
-        return items
-          .filter((item) => String(item.class_id) === selectedClassId)
+        const common = {
+          className: selectedClassName ?? "-",
+          parentName: String(family.parent_name ?? "-"),
+          phone: String(family.phone ?? ""),
+          proofUploadedAt: invoice.proof_uploaded_at
+            ? String(invoice.proof_uploaded_at)
+            : null,
+          invoiceNo: String(invoice.invoice_no ?? ""),
+          uniqueCode: num(invoice.unique_code),
+          status: invoice.status as Invoice["status"],
+        };
+
+        // Pembayaran yang memang dialokasikan ke kelas yang sedang dibuka.
+        const direct = items
+          .filter((item) => String(item.class_id ?? "") === selectedClassId)
           .map((item) => {
             const student = (item.students ?? null) as Record<string, unknown> | null;
             return {
+              ...common,
               id: String(item.id ?? crypto.randomUUID()),
-              className: selectedClassName ?? "-",
               childName: String(student?.name ?? item.description ?? "Santri"),
-              parentName: String(family.parent_name ?? "-"),
-              phone: String(family.phone ?? ""),
-              proofUploadedAt: invoice.proof_uploaded_at
-                ? String(invoice.proof_uploaded_at)
-                : null,
               amount: num(item.amount),
-              invoiceNo: String(invoice.invoice_no ?? ""),
-              uniqueCode: num(invoice.unique_code),
-              status: invoice.status as Invoice["status"],
+              isSiblingClass: false,
+              billedClassName: null,
+              billedChildName: null,
             };
           });
+        if (direct.length > 0) return direct;
+
+        // Kakak/adek dari keluarga yang sama: ta'awun dialokasikan ke kelas
+        // anak bungsu, tapi kehadiran keluarganya tetap tampil di kelas kakak.
+        const primaryItem = items.find((item) => item.class_id) ?? items[0];
+        if (!primaryItem) return [];
+        const billedClassId = primaryItem.class_id
+          ? String(primaryItem.class_id)
+          : null;
+        if (!billedClassId || billedClassId === selectedClassId) return [];
+
+        const familyId = String(invoice.family_id ?? "");
+        const key = `${familyId}:${selectedClassId}`;
+        if (siblingSeen.has(key)) return [];
+        siblingSeen.add(key);
+
+        const sibling = (studentsByFamily.get(familyId) ?? []).find(
+          (item) => String(item.class_id ?? "") === selectedClassId,
+        );
+        if (!sibling) return [];
+
+        const billedStudent = (primaryItem.students ?? null) as Record<
+          string,
+          unknown
+        > | null;
+        return [
+          {
+            ...common,
+            id: `sibling-${invoice.id ?? invoice.invoice_no}-${selectedClassId}`,
+            childName: String(sibling.name ?? "Santri"),
+            amount: 0,
+            isSiblingClass: true,
+            billedClassName: classNames.get(billedClassId) ?? null,
+            billedChildName: String(
+              billedStudent?.name ?? primaryItem.description ?? "Santri",
+            ),
+          },
+        ];
       })
-      .sort((a, b) => (b.proofUploadedAt ?? "").localeCompare(a.proofUploadedAt ?? ""));
+      .sort((a, b) =>
+        (b.proofUploadedAt ?? "").localeCompare(a.proofUploadedAt ?? ""),
+      );
 
     return {
       classes,

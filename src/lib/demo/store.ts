@@ -25,6 +25,7 @@ import type {
   Student,
   StudentDirectoryEntry,
   VerificationData,
+  VerificationRow,
   WaSession,
 } from "@/lib/types";
 
@@ -872,32 +873,76 @@ export const demoStore: Store = {
       const selectedClassName =
         classes.find((cls) => cls.id === selectedClassId)?.name ?? null;
 
+      const siblingSeen = new Set<string>();
+      const classesById = new Map(db.classes.map((cls) => [cls.id, cls.name]));
       const rows = db.invoices
         .filter(
           (invoice) =>
             invoice.status === "verified" ||
             (invoice.status === "waiting_verification" && invoice.proof_uploaded_at),
         )
-        .flatMap((invoice) => {
+        .flatMap((invoice): VerificationRow[] => {
           const family = db.families.find((item) => item.id === invoice.family_id);
           const items = db.invoice_items.filter(
-            (item) => item.invoice_id === invoice.id && item.class_id === selectedClassId,
+            (item) => item.invoice_id === invoice.id,
           );
-          return items.map((item) => {
-            const student = db.students.find((entry) => entry.id === item.student_id);
-            return {
-              id: item.id,
-              className: selectedClassName ?? "-",
-              childName: student?.name ?? item.description ?? "Santri",
-              parentName: family?.parent_name ?? "-",
-              phone: family?.phone ?? "",
-              proofUploadedAt: invoice.proof_uploaded_at,
-              amount: item.amount,
-              invoiceNo: invoice.invoice_no,
-              uniqueCode: invoice.unique_code,
-              status: invoice.status,
-            };
-          });
+          const common = {
+            className: selectedClassName ?? "-",
+            parentName: family?.parent_name ?? "-",
+            phone: family?.phone ?? "",
+            proofUploadedAt: invoice.proof_uploaded_at,
+            invoiceNo: invoice.invoice_no,
+            uniqueCode: invoice.unique_code,
+            status: invoice.status,
+          };
+
+          const direct = items
+            .filter((item) => item.class_id === selectedClassId)
+            .map((item) => {
+              const student = db.students.find(
+                (entry) => entry.id === item.student_id,
+              );
+              return {
+                ...common,
+                id: item.id,
+                childName: student?.name ?? item.description ?? "Santri",
+                amount: item.amount,
+                isSiblingClass: false,
+                billedClassName: null,
+                billedChildName: null,
+              };
+            });
+          if (direct.length > 0) return direct;
+
+          const primaryItem = items.find((item) => item.class_id) ?? items[0];
+          if (!primaryItem?.class_id || primaryItem.class_id === selectedClassId) {
+            return [];
+          }
+          const key = `${invoice.family_id}:${selectedClassId}`;
+          if (siblingSeen.has(key)) return [];
+          siblingSeen.add(key);
+
+          const sibling = db.students.find(
+            (entry) =>
+              entry.family_id === invoice.family_id &&
+              entry.class_id === selectedClassId,
+          );
+          if (!sibling) return [];
+          const billedStudent = db.students.find(
+            (entry) => entry.id === primaryItem.student_id,
+          );
+          return [
+            {
+              ...common,
+              id: `sibling-${invoice.id}-${selectedClassId}`,
+              childName: sibling.name,
+              amount: 0,
+              isSiblingClass: true,
+              billedClassName: classesById.get(primaryItem.class_id) ?? null,
+              billedChildName:
+                billedStudent?.name ?? primaryItem.description ?? "Santri",
+            },
+          ];
         })
         .sort((a, b) =>
           (b.proofUploadedAt ?? "").localeCompare(a.proofUploadedAt ?? ""),
