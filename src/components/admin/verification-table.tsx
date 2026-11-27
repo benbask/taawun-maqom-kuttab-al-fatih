@@ -62,17 +62,29 @@ export function VerificationTable({
 
   async function checkAuto(invoice: InvoiceWithDetails) {
     setChecking(invoice.id);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 60_000);
     try {
       const response = await fetch(
         `/api/admin/invoices/${invoice.id}/auto-verify`,
-        { method: "POST" },
+        { method: "POST", signal: controller.signal },
       );
-      const data = (await response.json()) as {
+      let data: {
         ok?: boolean;
         error?: string;
         status?: string;
         verified?: boolean;
       };
+      try {
+        data = (await response.json()) as typeof data;
+      } catch {
+        toast.error(
+          response.status === 504
+            ? "Pemeriksaan OCR terlalu lama. Coba lagi."
+            : "Server tidak merespons dengan benar. Coba lagi.",
+        );
+        return;
+      }
       if (!response.ok || !data.ok) {
         toast.error(data.error ?? "Gagal memeriksa bukti.");
         return;
@@ -85,9 +97,14 @@ export function VerificationTable({
         toast.info("Pemeriksaan otomatis dilewati. Periksa manual.");
       }
       router.refresh();
-    } catch {
-      toast.error("Tidak dapat menghubungi server.");
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        toast.error("Pemeriksaan OCR melebihi batas waktu. Coba lagi.");
+      } else {
+        toast.error("Tidak dapat menghubungi server.");
+      }
     } finally {
+      clearTimeout(timer);
       setChecking(null);
     }
   }

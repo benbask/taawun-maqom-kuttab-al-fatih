@@ -99,7 +99,9 @@ export async function runAutoVerification(
     });
 
     if (result.status === "matched") {
-      await store.verifyInvoice(invoiceId, "verified", "auto-ocr");
+      // Tidak ada admin yang memverifikasi; jejaknya ada di audit log
+      // sebagai actor "system"/"auto-ocr".
+      await store.verifyInvoice(invoiceId, "verified", null);
     }
 
     return {

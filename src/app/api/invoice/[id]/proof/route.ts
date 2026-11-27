@@ -1,9 +1,12 @@
 import type { NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
 import { apiError, apiOk, sameOrigin } from "@/lib/api";
-import { runAutoVerification } from "@/lib/auto-verify-service";
+import { requestAutoVerification } from "@/lib/ocr-remote";
 import { getAdminSession, getUserSession } from "@/lib/session";
 import { getStore } from "@/lib/store";
+
+// Unggah + OCR memerlukan waktu lebih dari batas default fungsi serverless.
+export const maxDuration = 60;
 
 export async function POST(
   request: NextRequest,
@@ -36,7 +39,6 @@ export async function POST(
       return apiError("Pilih file bukti transfer terlebih dahulu.");
     }
 
-    const bytes = new Uint8Array(await file.arrayBuffer());
     const uploaded = await store.uploadProof({ invoiceId: id, file });
     const uploadedAt = new Date().toISOString();
     await store.setInvoiceProof(id, uploaded.url, uploadedAt);
@@ -51,7 +53,10 @@ export async function POST(
 
     const auto = invoice.is_demo
       ? null
-      : await runAutoVerification(id, { bytes, type: file.type });
+      : await requestAutoVerification(id).catch((error) => {
+          console.error("[invoice/proof:auto]", error);
+          return null;
+        });
 
     revalidatePath(`/invoice/${id}`);
     revalidatePath("/akun");

@@ -10,6 +10,43 @@ const MONEY_HINT =
   /(rp|total|jumlah|nominal|bayar|transfer|tagihan|grand total)/i;
 
 /**
+ * Mengubah potongan angka hasil OCR menjadi nominal Rupiah.
+ * Contoh: "100.059,00" -> 100059, "1.500.000" -> 1500000,
+ * "100,059.00" -> 100059.
+ */
+export function parseAmountToken(raw: string): number | null {
+  const cleaned = raw.replace(/[^\d.,]/g, "");
+  if (!/\d/.test(cleaned)) return null;
+
+  const lastComma = cleaned.lastIndexOf(",");
+  const lastDot = cleaned.lastIndexOf(".");
+  const lastSeparator = Math.max(lastComma, lastDot);
+
+  let decimalSeparator: "," | "." | null = null;
+  if (lastSeparator >= 0) {
+    const decimals = cleaned.length - lastSeparator - 1;
+    // Pemisah desimal diikuti tepat 2 digit (mis. ",00" atau ".00").
+    if (decimals === 2) {
+      decimalSeparator = cleaned[lastSeparator] as "," | ".";
+    }
+  }
+
+  let normalized: string;
+  if (decimalSeparator) {
+    const groupingSeparator = decimalSeparator === "," ? "." : ",";
+    normalized = cleaned
+      .split(groupingSeparator)
+      .join("")
+      .replace(decimalSeparator, ".");
+  } else {
+    normalized = cleaned.replace(/[.,]/g, "");
+  }
+
+  const value = Number(normalized);
+  return Number.isFinite(value) ? Math.round(value) : null;
+}
+
+/**
  * Mengambil kemungkinan nominal Rupiah dari teks OCR.
  * Contoh: "Rp 1.500.000" -> 1500000.
  */
@@ -22,11 +59,8 @@ export function extractAmounts(text: string): number[] {
     if (!match) continue;
 
     for (const raw of match) {
-      const digits = raw.replace(/[^\d]/g, "");
-      if (!digits) continue;
-
-      const value = Number(digits);
-      if (!Number.isFinite(value)) continue;
+      const value = parseAmountToken(raw);
+      if (value === null) continue;
 
       // Nomor invoice/tanggal biasanya pendek; nominal transfer Ta'awun
       // berada pada rentang ini.

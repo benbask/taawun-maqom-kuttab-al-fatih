@@ -1,7 +1,10 @@
 import type { NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
 import { apiError, apiOk, requireAdminApi, sameOrigin } from "@/lib/api";
-import { runAutoVerification } from "@/lib/auto-verify-service";
+import { requestAutoVerification } from "@/lib/ocr-remote";
+
+// OCR memerlukan waktu lebih dari batas default fungsi serverless.
+export const maxDuration = 60;
 
 export async function POST(
   request: NextRequest,
@@ -14,7 +17,7 @@ export async function POST(
   const { id } = await context.params;
 
   try {
-    const result = await runAutoVerification(id);
+    const result = await requestAutoVerification(id);
     revalidatePath("/admin/verifikasi");
     revalidatePath(`/invoice/${id}`);
     revalidatePath("/akun");

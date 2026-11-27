@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   evaluateAutoVerify,
   extractAmounts,
+  parseAmountToken,
 } from "@/lib/auto-verify-core";
 
 describe("verifikasi otomatis bukti transfer", () => {
@@ -10,7 +11,18 @@ describe("verifikasi otomatis bukti transfer", () => {
     expect(extractAmounts(text)).toContain(1_500_009);
   });
 
-  it("mencocokkan nominal transfer Persis", () => {
+  it("membaca nominal dengan desimal koma", () => {
+    const text = "Nominal Transaksi Rp 100.059,00\nBerhasil";
+    expect(extractAmounts(text)).toContain(100_059);
+  });
+
+  it("membaca nominal dengan desimal titik", () => {
+    expect(parseAmountToken("100,059.00")).toBe(100_059);
+    expect(parseAmountToken("Rp 250.000")).toBe(250_000);
+    expect(parseAmountToken("1.500.009")).toBe(1_500_009);
+  });
+
+  it("mencocokkan nominal transfer persis", () => {
     const result = evaluateAutoVerify({
       text: "Bukti transfer\nTotal Rp 1.500.009\nBerhasil",
       confidence: 88,
@@ -18,6 +30,15 @@ describe("verifikasi otomatis bukti transfer", () => {
     });
     expect(result.status).toBe("matched");
     expect(result.amount).toBe(1_500_009);
+  });
+
+  it("mencocokkan nominal berdesimal koma", () => {
+    const result = evaluateAutoVerify({
+      text: "Nominal Transaksi Rp 100.059,00",
+      confidence: 87,
+      expectedAmount: 100_059,
+    });
+    expect(result.status).toBe("matched");
   });
 
   it("menandai untuk admin bila nominal tidak cocok", () => {

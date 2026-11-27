@@ -355,7 +355,7 @@ export interface Store {
   verifyInvoice(
     id: string,
     status: "verified" | "rejected" | "cancelled" | "pending" | "waiting_verification",
-    adminId: string,
+    adminId: string | null,
     reason?: string | null,
   ): Promise<void>;
   setAutoVerifyResult(

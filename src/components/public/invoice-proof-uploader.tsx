@@ -68,12 +68,15 @@ export function InvoiceProofUploader({
     }
     setLoading(true);
     setError(null);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 90_000);
     try {
       const form = new FormData();
       form.append("file", file);
       const response = await fetch(`/api/invoice/${invoiceId}/proof`, {
         method: "POST",
         body: form,
+        signal: controller.signal,
       });
       let data: {
         ok?: boolean;
@@ -108,9 +111,16 @@ export function InvoiceProofUploader({
       if (preview) URL.revokeObjectURL(preview);
       setPreview(null);
       router.refresh();
-    } catch {
-      setError("Tidak dapat menghubungi server.");
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        setError(
+          "Unggahan melebihi batas waktu. Bukti mungkin sudah tersimpan; muat ulang halaman untuk memeriksa.",
+        );
+      } else {
+        setError("Tidak dapat menghubungi server.");
+      }
     } finally {
+      clearTimeout(timer);
       setLoading(false);
     }
   }

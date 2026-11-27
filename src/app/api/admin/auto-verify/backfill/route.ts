@@ -4,34 +4,37 @@ import { apiError, apiOk, requireAdminApi, sameOrigin } from "@/lib/api";
 import { runAutoVerification } from "@/lib/auto-verify-service";
 import { getStore } from "@/lib/store";
 
+// OCR butuh waktu lebih dari batas default fungsi serverless.
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   if (!sameOrigin(request)) return apiError("Permintaan tidak valid.", 403);
   const { response } = await requireAdminApi();
   if (response) return response;
 
   try {
-    const requested = Number(new URL(request.url).searchParams.get("limit") ?? 5);
-    const limit = Math.min(Math.max(Number.isFinite(requested) ? requested : 5, 1), 10);
-
     const store = getStore();
     const all = await store.listAllInvoices({ includeDemo: false });
     const isPending = (invoice: (typeof all)[number]) =>
       invoice.status === "waiting_verification" &&
       Boolean(invoice.proof_url) &&
-      invoice.auto_verify_status !== "matched";
+      !invoice.auto_verify_status;
 
-    const targets = all.filter(isPending).slice(0, limit);
-    let matched = 0;
-    let review = 0;
-    let skipped = 0;
+    // Satu invoice per permintaan supaya tidak melewati batas waktu fungsi.
+    // Halaman admin memanggil endpoint ini berulang sampai antrean habis.
+    const [target] = all.filter(isPending);
 
-    for (const invoice of targets) {
-      const result = await runAutoVerification(invoice.id);
-      if (result.status === "matched") matched += 1;
-      else if (result.status === "needs_review") review += 1;
-      else skipped += 1;
+    if (!target) {
+      return apiOk({
+        processed: 0,
+        matched: 0,
+        review: 0,
+        skipped: 0,
+        remaining: 0,
+      });
     }
 
+    const result = await runAutoVerification(target.id);
     const remaining = (await store.listAllInvoices({ includeDemo: false })).filter(
       isPending,
     ).length;
@@ -41,10 +44,11 @@ export async function POST(request: NextRequest) {
     revalidatePath("/");
 
     return apiOk({
-      processed: targets.length,
-      matched,
-      review,
-      skipped,
+      processed: 1,
+      invoiceNo: target.invoice_no,
+      matched: result.status === "matched" ? 1 : 0,
+      review: result.status === "needs_review" ? 1 : 0,
+      skipped: result.status === "skipped" ? 1 : 0,
       remaining,
     });
   } catch (error) {
