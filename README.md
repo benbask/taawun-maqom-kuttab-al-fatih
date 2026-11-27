@@ -41,6 +41,7 @@ Masyarakat mendaftar memakai nomor WhatsApp + **Kode Keamanan**, memilih peran, 
 - Login username/password (bcrypt + JWT cookie), penyiapan akun pertama, dan ganti password.
 - Kelola konten beranda, termasuk **upload gambar** untuk logo, hero, dan gambar pratinjau WhatsApp ke bucket publik.
 - Verifikasi invoice: lihat/upload bukti, ubah status ke mana saja, jalankan **Cek OCR** per invoice atau **Cek antrean OCR** untuk memproses bukti lama (sekali per bukti), serta kirim pengingat WA.
+- Akun admin bertingkat: empat slot tetap (Super Admin, Code Harnes Admin, Bendahara 1, Bendahara 2) plus satu akun asisten untuk uji; tiap slot bisa diaktifkan/dinonaktifkan dan diatur cakupan menunya di **Akun Admin**. Perubahan hak berlaku setelah admin masuk ulang.
 - Profil OTS dengan nomor WhatsApp berformat `+62` yang bisa diklik.
 - Kelola kelas, field formulir, QRIS statis, kode unik, template pesan, webhook Google Sheets, dan daftar hadir.
 - Ekspor XLSX/CSV/Sheets, audit log, dan panel status koneksi WhatsApp.
