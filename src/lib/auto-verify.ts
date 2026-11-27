@@ -53,12 +53,15 @@ async function resetWorker(): Promise<void> {
   const current = workerPromise;
   workerPromise = null;
   if (!current) return;
-  try {
-    const worker = await current;
-    await worker.terminate();
-  } catch {
-    // Worker yang gagal init tidak perlu dibersihkan.
-  }
+
+  // Jangan menunggu promise createWorker yang sedang macet: itu justru
+  // menggantung permintaan selamanya. Bersihkan worker begitu ia terselesaikan.
+  void current.then(
+    (worker) => {
+      void worker.terminate().catch(() => undefined);
+    },
+    () => undefined,
+  );
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {

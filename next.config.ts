@@ -8,6 +8,9 @@
  */
 const ocrFiles = [
   "./node_modules/tesseract.js/**",
+  "./node_modules/bmp-js/**",
+  "./node_modules/node-fetch/**",
+  "./node_modules/zlibjs/**",
   "./node_modules/tesseract.js-core/tesseract-core*.js",
   "./node_modules/tesseract.js-core/tesseract-core*.wasm",
   "./node_modules/wasm-feature-detect/**",
