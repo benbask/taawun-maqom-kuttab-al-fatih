@@ -64,6 +64,7 @@ Setiap kontribusi akan dicatat, diverifikasi, dan ditampilkan pada halaman rekap
     share_title: "",
     share_description: "",
     share_image_url: null,
+    share_wa_template: "",
     updated_at: nowIso(),
   };
 }

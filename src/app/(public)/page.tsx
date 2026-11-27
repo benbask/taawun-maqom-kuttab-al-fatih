@@ -319,6 +319,7 @@ export default async function HomePage() {
               total={stats.total}
               percent={percent}
               ots={stats.ots}
+              template={settings.share_wa_template}
             />
 
             <div className="mt-5 flex items-center justify-between gap-2 border-t border-stone-100 pt-4 text-xs text-stone-500">

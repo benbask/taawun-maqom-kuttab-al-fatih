@@ -10,10 +10,12 @@ export function ShareProgressButton({
   total,
   percent,
   ots,
+  template,
 }: {
   total: number;
   percent: number;
   ots: OtsSummary;
+  template?: string | null;
 }) {
   function share() {
     const url = `${window.location.origin}/?ref=share-taawun`;
@@ -22,6 +24,7 @@ export function ShareProgressButton({
       percent,
       ots,
       url,
+      template,
     });
 
     const popup = window.open(

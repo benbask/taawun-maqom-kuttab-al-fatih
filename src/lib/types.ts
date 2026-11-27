@@ -58,6 +58,7 @@ export interface Settings {
   share_title: string;
   share_description: string;
   share_image_url: string | null;
+  share_wa_template: string;
   updated_at: string;
 }
 

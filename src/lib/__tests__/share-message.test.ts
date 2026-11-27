@@ -36,4 +36,33 @@ describe("pesan bagikan WhatsApp", () => {
         `Mari daftar dan ikut bertaawun. Yang sudah bertaawun bisa menambah taawunnya loh. 😊`,
     );
   });
+
+  it("memakai template kustom dari panel admin", () => {
+    const message = buildWhatsAppShareMessage({
+      total: 4_035_508,
+      percent: 30,
+      ots,
+      url: "https://maqom2026.vercel.app/?ref=share-taawun",
+      template:
+        "Rekap: {total} ({percent}%). Ikut {hadir}, belum {belumDaftar}. {url} Kode {code}",
+    });
+
+    expect(message).toBe(
+      `Rekap: ${formatRupiah(4_035_508)} (30%). Ikut 19, belum 104. ` +
+        `https://maqom2026.vercel.app/?ref=share-taawun Kode Bismillah`,
+    );
+  });
+
+  it("memakai template bawaan bila kosong", () => {
+    const message = buildWhatsAppShareMessage({
+      total: 4_035_508,
+      percent: 30,
+      ots,
+      url: "https://maqom2026.vercel.app/?ref=share-taawun",
+      template: "   ",
+    });
+
+    expect(message).toContain("📢 *INFO TERKINI MAQOM 2026*");
+    expect(message).toContain(formatRupiah(4_035_508));
+  });
 });

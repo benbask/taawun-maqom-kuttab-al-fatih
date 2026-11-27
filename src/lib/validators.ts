@@ -108,6 +108,7 @@ export const settingsSchema = z
     share_title: z.string().trim().max(120).nullable(),
     share_description: z.string().trim().max(300).nullable(),
     share_image_url: z.string().nullable(),
+    share_wa_template: z.string().max(4000).nullable(),
   })
   .partial();
 

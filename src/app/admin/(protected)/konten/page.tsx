@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/admin/page-header";
 import { SettingsForm } from "@/components/admin/settings-form";
+import { WhatsappTemplateReset } from "@/components/admin/whatsapp-template-reset";
+import { Card } from "@/components/ui/card";
+import { DEFAULT_WHATSAPP_TEMPLATE } from "@/lib/share-message";
 import { getStore } from "@/lib/store";
 
 export const metadata: Metadata = {
@@ -9,7 +12,11 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminContentPage() {
-  const settings = await getStore().getSettings();
+  const current = await getStore().getSettings();
+  const settings = {
+    ...current,
+    share_wa_template: current.share_wa_template || DEFAULT_WHATSAPP_TEMPLATE,
+  };
 
   return (
     <div>
@@ -94,6 +101,21 @@ export default async function AdminContentPage() {
             ],
           },
           {
+            title: "Pesan WhatsApp",
+            description:
+              "Template tombol “Bagikan ke WhatsApp” di halaman utama. Nominal, persentase, dan data OTS diisi otomatis.",
+            fields: [
+              {
+                key: "share_wa_template",
+                label: "Template pesan",
+                textarea: true,
+                placeholder: DEFAULT_WHATSAPP_TEMPLATE,
+                hint:
+                  "Placeholder yang tersedia: {total}, {percent}, {otsTotal}, {hadir}, {tidak}, {belumDaftar}, {bertaawun}, {url}, {code}. Kosongkan untuk memakai template bawaan.",
+              },
+            ],
+          },
+          {
             title: "Kontak & kredit",
             fields: [
               { key: "contact_name", label: "Nama kontak" },
@@ -112,6 +134,17 @@ export default async function AdminContentPage() {
           },
         ]}
       />
+
+      <Card className="mt-5 flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-bold text-stone-900">Template bawaan</p>
+          <p className="mt-0.5 text-xs leading-relaxed text-stone-500">
+            Kembalikan format pesan WhatsApp ke template panitia. Perubahan
+            tersimpan setelah tombol ditekan.
+          </p>
+        </div>
+        <WhatsappTemplateReset />
+      </Card>
     </div>
   );
 }

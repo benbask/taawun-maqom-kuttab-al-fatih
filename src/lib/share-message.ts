@@ -1,30 +1,62 @@
 import { formatRupiah } from "@/lib/format";
 import type { OtsSummary } from "@/lib/types";
 
+export const DEFAULT_WHATSAPP_TEMPLATE = `📢 *INFO TERKINI MAQOM 2026*
+_Kuttab Al Fatih Lampung PA_
+
+Alhamdulillah, Ta'awun terkumpul:
+💰 *{total}* *({percent}% dari target)*
+
+📋 *Data Partisipasi OTS ({otsTotal} Keluarga):*
+- ✅ Ikut Maqom: *{hadir} keluarga*
+- ❌ Tidak ikut: *{tidak} keluarga*
+- ⏳ Belum daftar: *{belumDaftar} keluarga*
+- 🤝 Sudah berta'awun: *{bertaawun} dari {otsTotal} keluarga*
+
+👉 *Klik di sini:*
+{url}
+🔑 Masukkan kode keamanan: *{code}*
+
+Mari daftar dan ikut bertaawun. Yang sudah bertaawun bisa menambah taawunnya loh. 😊`;
+
+export const WHATSAPP_PLACEHOLDERS = [
+  "{total}",
+  "{percent}",
+  "{otsTotal}",
+  "{hadir}",
+  "{tidak}",
+  "{belumDaftar}",
+  "{bertaawun}",
+  "{url}",
+  "{code}",
+] as const;
+
 /** Teks siap pakai untuk tombol bagikan ke WhatsApp. */
 export function buildWhatsAppShareMessage({
   total,
   percent,
   ots,
   url,
+  template,
 }: {
   total: number;
   percent: number;
   ots: OtsSummary;
   url: string;
+  template?: string | null;
 }) {
-  return (
-    `📢 *INFO TERKINI MAQOM 2026*\n` +
-    `_Kuttab Al Fatih Lampung PA_\n\n` +
-    `Alhamdulillah, Ta'awun terkumpul:\n` +
-    `💰 *${formatRupiah(total)}* *(${percent}% dari target)*\n\n` +
-    `📋 *Data Partisipasi OTS (${ots.total} Keluarga):*\n` +
-    `- ✅ Ikut Maqom: *${ots.hadir} keluarga*\n` +
-    `- ❌ Tidak ikut: *${ots.tidak} keluarga*\n` +
-    `- ⏳ Belum daftar: *${ots.belumDaftar} keluarga*\n` +
-    `- 🤝 Sudah berta'awun: *${ots.bertaawun} dari ${ots.total} keluarga*\n\n` +
-    `👉 *Klik di sini:*\n${url}\n` +
-    `🔑 Masukkan kode keamanan: *Bismillah*\n\n` +
-    `Mari daftar dan ikut bertaawun. Yang sudah bertaawun bisa menambah taawunnya loh. 😊`
-  );
+  const source = template?.trim() ? template : DEFAULT_WHATSAPP_TEMPLATE;
+  const values: Record<string, string> = {
+    total: formatRupiah(total),
+    percent: String(percent),
+    otsTotal: String(ots.total),
+    hadir: String(ots.hadir),
+    tidak: String(ots.tidak),
+    belumDaftar: String(ots.belumDaftar),
+    bertaawun: String(ots.bertaawun),
+    url,
+    code: "Bismillah",
+  };
+
+  return source.replace(/\{(\w+)\}/g, (match, key: string) => values[key] ?? match);
 }
