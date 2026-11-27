@@ -15,6 +15,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { ClassSelect } from "@/components/public/class-select";
+import { ScrollToVerification } from "@/components/public/scroll-to-verification";
 import { Badge } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -326,7 +327,9 @@ export default async function VerificationPage({
 
       <TopContributorsCard contributors={stats.topContributors} className="mt-5" />
 
-      <Card className="mt-5 overflow-hidden">
+      <ScrollToVerification selectedClassId={selected} />
+
+      <Card id="rincian-pembayaran" className="mt-5 overflow-hidden scroll-mt-24">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 bg-stone-50/60 px-5 py-4">
           <div className="flex items-center gap-2">
             <span className="rounded-lg bg-emerald-100 p-1.5 text-emerald-700">
