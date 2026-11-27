@@ -950,4 +950,16 @@ export const demoStore: Store = {
       });
     });
   },
+
+  async downloadProof(invoiceId) {
+    return withDb((db) => {
+      const invoice = db.invoices.find((item) => item.id === invoiceId);
+      const match = invoice?.proof_url?.match(/^data:([^;]+);base64,(.+)$/);
+      if (!match) throw new Error("Bukti transfer tidak tersedia.");
+      return {
+        bytes: new Uint8Array(Buffer.from(match[2], "base64")),
+        type: match[1],
+      };
+    });
+  },
 };

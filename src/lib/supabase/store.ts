@@ -1050,4 +1050,26 @@ export const supabaseStore: Store = {
     if (error || !data?.signedUrl) return null;
     return Response.redirect(data.signedUrl, 302);
   },
+
+  async downloadProof(invoiceId) {
+    const invoice = await fetchInvoice(invoiceId);
+    const url = invoice?.proof_url;
+    if (!url) throw new Error("Bukti transfer tidak tersedia.");
+    if (url.startsWith("data:")) {
+      const match = url.match(/^data:([^;]+);base64,(.+)$/);
+      if (!match) throw new Error("Bukti transfer tidak valid.");
+      return {
+        bytes: new Uint8Array(Buffer.from(match[2], "base64")),
+        type: match[1],
+      };
+    }
+    const { data, error } = await db().storage.from("proofs").download(url);
+    if (error || !data) {
+      throw new Error(error?.message ?? "Gagal mengunduh bukti transfer.");
+    }
+    return {
+      bytes: new Uint8Array(await data.arrayBuffer()),
+      type: data.type || "image/jpeg",
+    };
+  },
 };

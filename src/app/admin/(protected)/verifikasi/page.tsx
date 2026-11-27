@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BadgeCheck, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/admin/page-header";
+import { AutoVerifyQueueButton } from "@/components/admin/auto-verify-queue-button";
 import { VerificationTable } from "@/components/admin/verification-table";
 import { getStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -46,9 +47,12 @@ export default async function AdminVerificationPage({
         title="Verifikasi bukti transfer"
         description="Periksa nominal dan kode unik pada bukti, lalu setujui atau tolak pembayaran."
         actions={
-          <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900">
-            {waitingCount} menunggu
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <AutoVerifyQueueButton />
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900">
+              {waitingCount} menunggu
+            </span>
+          </div>
         }
       />
 

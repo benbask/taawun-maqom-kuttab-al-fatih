@@ -403,6 +403,9 @@ export interface Store {
     file: File;
   }): Promise<{ path: string; url: string }>;
   getProofResponse(invoiceId: string): Promise<Response | null>;
+  downloadProof(
+    invoiceId: string,
+  ): Promise<{ bytes: Uint8Array; type: string }>;
   uploadPublicImage(input: {
     file: File;
     folder?: string;

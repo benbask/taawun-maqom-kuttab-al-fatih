@@ -1,8 +1,7 @@
 import type { NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
 import { apiError, apiOk, sameOrigin } from "@/lib/api";
-import { evaluateAutoVerify } from "@/lib/auto-verify-core";
-import { recognizeProof } from "@/lib/auto-verify";
+import { runAutoVerification } from "@/lib/auto-verify-service";
 import { getAdminSession, getUserSession } from "@/lib/session";
 import { getStore } from "@/lib/store";
 
@@ -37,6 +36,7 @@ export async function POST(
       return apiError("Pilih file bukti transfer terlebih dahulu.");
     }
 
+    const bytes = new Uint8Array(await file.arrayBuffer());
     const uploaded = await store.uploadProof({ invoiceId: id, file });
     const uploadedAt = new Date().toISOString();
     await store.setInvoiceProof(id, uploaded.url, uploadedAt);
@@ -49,79 +49,9 @@ export async function POST(
       metadata: { size: file.size, type: file.type },
     });
 
-    let autoVerify: "matched" | "needs_review" | "skipped" | null = null;
-    if (!invoice.is_demo) {
-      const checkedAt = new Date().toISOString();
-      if (!file.type.startsWith("image/")) {
-        autoVerify = "skipped";
-        await store.setAutoVerifyResult(id, {
-          status: "skipped",
-          amount: null,
-          at: checkedAt,
-        });
-        await store.addAuditLog({
-          actorType: "system",
-          actorId: "auto-ocr",
-          action: "auto_verify_skipped",
-          entityType: "invoice",
-          entityId: id,
-          metadata: { reason: "Format bukan gambar." },
-        });
-      } else {
-        try {
-          const bytes = new Uint8Array(await file.arrayBuffer());
-          const { text, confidence } = await recognizeProof(bytes);
-          const result = evaluateAutoVerify({
-            text,
-            confidence,
-            expectedAmount: invoice.total_amount,
-          });
-          autoVerify = result.status;
-          await store.setAutoVerifyResult(id, {
-            status: result.status,
-            amount: result.amount,
-            at: checkedAt,
-          });
-
-          await store.addAuditLog({
-            actorType: "system",
-            actorId: "auto-ocr",
-            action:
-              result.status === "matched" ? "auto_verified" : "auto_verify_review",
-            entityType: "invoice",
-            entityId: id,
-            metadata: {
-              detectedAmount: result.amount,
-              expectedAmount: invoice.total_amount,
-              confidence,
-              reason: result.reason ?? null,
-            },
-          });
-
-          if (result.status === "matched") {
-            await store.verifyInvoice(id, "verified", "auto-ocr");
-          }
-        } catch (error) {
-          console.error("[invoice/proof:auto]", error);
-          autoVerify = "skipped";
-          await store.setAutoVerifyResult(id, {
-            status: "skipped",
-            amount: null,
-            at: checkedAt,
-          });
-          await store.addAuditLog({
-            actorType: "system",
-            actorId: "auto-ocr",
-            action: "auto_verify_failed",
-            entityType: "invoice",
-            entityId: id,
-            metadata: {
-              error: error instanceof Error ? error.message : String(error),
-            },
-          });
-        }
-      }
-    }
+    const auto = invoice.is_demo
+      ? null
+      : await runAutoVerification(id, { bytes, type: file.type });
 
     revalidatePath(`/invoice/${id}`);
     revalidatePath("/akun");
@@ -129,8 +59,8 @@ export async function POST(
 
     return apiOk({
       uploadedAt,
-      status: autoVerify === "matched" ? "verified" : "waiting_verification",
-      autoVerify,
+      status: auto?.verified ? "verified" : "waiting_verification",
+      autoVerify: auto?.status ?? null,
     });
   } catch (error) {
     console.error("[invoice/proof]", error);

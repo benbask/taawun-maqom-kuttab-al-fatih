@@ -10,6 +10,7 @@ import {
   Loader2,
   MessageCircle,
   Receipt,
+  ScanLine,
   Upload,
   XCircle,
 } from "lucide-react";
@@ -36,6 +37,7 @@ export function VerificationTable({
   const [selected, setSelected] = useState<InvoiceWithDetails | null>(null);
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState<string | null>(null);
+  const [checking, setChecking] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -56,6 +58,38 @@ export function VerificationTable({
       "noopener,noreferrer",
     );
     toast.success("Pesan pengingat disiapkan di WhatsApp.");
+  }
+
+  async function checkAuto(invoice: InvoiceWithDetails) {
+    setChecking(invoice.id);
+    try {
+      const response = await fetch(
+        `/api/admin/invoices/${invoice.id}/auto-verify`,
+        { method: "POST" },
+      );
+      const data = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        status?: string;
+        verified?: boolean;
+      };
+      if (!response.ok || !data.ok) {
+        toast.error(data.error ?? "Gagal memeriksa bukti.");
+        return;
+      }
+      if (data.verified) {
+        toast.success("Nominal cocok. Invoice otomatis terverifikasi.");
+      } else if (data.status === "needs_review") {
+        toast.warning("Nominal belum cocok. Invoice ditandai untuk admin.");
+      } else {
+        toast.info("Pemeriksaan otomatis dilewati. Periksa manual.");
+      }
+      router.refresh();
+    } catch {
+      toast.error("Tidak dapat menghubungi server.");
+    } finally {
+      setChecking(null);
+    }
   }
 
   async function uploadProof() {
@@ -260,6 +294,22 @@ export function VerificationTable({
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
+                      {invoice.proof_url && invoice.status !== "verified" && (
+                        <button
+                          type="button"
+                          onClick={() => checkAuto(invoice)}
+                          disabled={checking === invoice.id}
+                          title="Jalankan OCR untuk mencocokkan nominal"
+                          className={buttonClasses("ghost", "sm")}
+                        >
+                          {checking === invoice.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <ScanLine className="h-3.5 w-3.5" />
+                          )}
+                          Cek OCR
+                        </button>
+                      )}
                       {!invoice.proof_url && invoice.status === "pending" && (
                         <button
                           type="button"
