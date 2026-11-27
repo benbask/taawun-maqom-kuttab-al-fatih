@@ -193,6 +193,15 @@ export default async function VerificationPage({
         Total di atas termasuk kode unik audit: {formatRupiah(stats.uniqueCodeTotal)}.
       </p>
 
+      <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-3 text-xs text-stone-600">
+        <span className="font-extrabold text-emerald-900">Partisipasi OTS </span>
+        <span>({stats.ots.terdaftar}/{stats.ots.total} keluarga terdaftar): </span>
+        <span className="font-semibold text-emerald-800">{stats.ots.hadir} ikut Maqom</span>
+        <span> · {stats.ots.tidak} tidak ikut</span>
+        <span> · {stats.ots.belumDaftar} belum mendaftar</span>
+        <span> · {stats.ots.bertaawun} bertaawun</span>
+      </div>
+
       {stats.perClass.length > 0 && (
         <Card className="mt-5 overflow-hidden">
           <div className="border-b border-stone-100 bg-stone-50/60 px-5 py-4">

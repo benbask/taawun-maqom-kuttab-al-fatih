@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { ADMIN_PERMISSIONS } from "@/lib/admin-permissions";
+import { buildOtsSummary } from "@/lib/attendance";
 import { seedDemoStore } from "@/lib/demo/defaults";
 import { maskName } from "@/lib/format";
 import { toDynamicQris } from "@/lib/qris";
@@ -841,6 +842,7 @@ export const demoStore: Store = {
         target: db.settings.target_amount,
         donorCount: donorIds.size,
         studentCount: studentIds.size,
+        ots: buildOtsSummary([], db.families, donorIds),
         perClass,
         umumTotal,
         umumCount,

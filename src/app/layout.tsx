@@ -3,6 +3,7 @@ import { Amiri, Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import { NavigationLoading } from "@/components/site/navigation-loading";
 import { safePublicStats, safeSettings } from "@/lib/safe";
+import { shareCardVersion } from "@/lib/share-card";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -34,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
     FALLBACK_DESCRIPTION;
   const shareImage =
     settings.share_image_url?.trim() ||
-    `/api/share-card?v=${stats?.total ?? 0}`;
+    `/api/share-card?v=${stats ? shareCardVersion(stats) : 0}`;
 
   return {
     metadataBase: new URL(

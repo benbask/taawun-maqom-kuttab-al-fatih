@@ -1,4 +1,4 @@
-import type { Family, StudentDirectoryEntry } from "@/lib/types";
+import type { Family, OtsSummary, StudentDirectoryEntry } from "@/lib/types";
 
 export type AttendanceStatus = "hadir" | "tidak" | "belum";
 
@@ -68,4 +68,28 @@ export function buildAttendance(
       };
     })
     .sort((a, b) => a.fatherName.localeCompare(b.fatherName));
+}
+
+/**
+ * Ringkasan keikutsertaan OTS untuk rekap publik. Satu ayah unik dalam
+ * daftar santri dihitung sebagai satu keluarga OTS.
+ */
+export function buildOtsSummary(
+  entries: StudentDirectoryEntry[],
+  families: Family[],
+  donorFamilyIds: Iterable<string>,
+): OtsSummary {
+  const rows = buildAttendance(entries, families);
+  const donors = new Set(donorFamilyIds);
+
+  return {
+    total: rows.length,
+    terdaftar: rows.filter((row) => Boolean(row.familyId)).length,
+    hadir: rows.filter((row) => row.status === "hadir").length,
+    tidak: rows.filter((row) => row.status === "tidak").length,
+    belumDaftar: rows.filter((row) => row.status === "belum").length,
+    bertaawun: rows.filter(
+      (row) => Boolean(row.familyId) && donors.has(row.familyId as string),
+    ).length,
+  };
 }

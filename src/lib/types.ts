@@ -236,11 +236,27 @@ export interface AuditLog {
   created_at: string;
 }
 
+export interface OtsSummary {
+  /** Total keluarga OTS unik dari daftar santri (satu ayah = satu keluarga). */
+  total: number;
+  /** Ayah yang sudah punya akun/family terdaftar. */
+  terdaftar: number;
+  /** Ikut Maqom (role ots / alumni_join). */
+  hadir: number;
+  /** Tidak ikut Maqom (role outsider / alumni). */
+  tidak: number;
+  /** Belum punya akun atau belum memilih status. */
+  belumDaftar: number;
+  /** Ayah dengan bukti transfer terunggah (termasuk menunggu verifikasi). */
+  bertaawun: number;
+}
+
 export interface PublicStats {
   total: number;
   target: number;
   donorCount: number;
   studentCount: number;
+  ots: OtsSummary;
   perClass: Array<{
     classId: string;
     className: string;

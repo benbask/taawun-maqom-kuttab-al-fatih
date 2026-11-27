@@ -22,7 +22,7 @@ export async function GET() {
           justifyContent: "space-between",
           backgroundColor: "#064e3b",
           color: "#ffffff",
-          padding: 44,
+          padding: 32,
           position: "relative",
         }}
       >
@@ -79,14 +79,14 @@ export async function GET() {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 44, fontWeight: 700, color: "#d1fae5" }}>
+          <div style={{ fontSize: 36, fontWeight: 700, color: "#d1fae5" }}>
             Alhamdulillah, terkumpul
           </div>
           <div
             style={{
               display: "flex",
-              marginTop: 10,
-              fontSize: 116,
+              marginTop: 6,
+              fontSize: 92,
               fontWeight: 900,
               color: "#ffffff",
             }}
@@ -100,7 +100,7 @@ export async function GET() {
           <div
             style={{
               display: "flex",
-              marginTop: 34,
+              marginTop: 20,
               width: "100%",
               height: 30,
               borderRadius: 15,
@@ -117,8 +117,30 @@ export async function GET() {
               }}
             />
           </div>
-          <div style={{ display: "flex", marginTop: 14, fontSize: 44, fontWeight: 800, color: "#fde68a" }}>
+          <div style={{ display: "flex", marginTop: 10, fontSize: 36, fontWeight: 800, color: "#fde68a" }}>
             {percent}% tercapai
+          </div>
+
+          <div style={{ display: "flex", marginTop: 12, fontSize: 18, color: "#d1fae5" }}>
+            {`Partisipasi OTS · ${stats.ots.terdaftar}/${stats.ots.total} keluarga terdaftar`}
+          </div>
+          <div style={{ display: "flex", gap: 12, marginTop: 6 }}>
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 165, padding: "6px 12px", borderRadius: 12, backgroundColor: "rgba(255,255,255,0.10)" }}>
+              <div style={{ display: "flex", fontSize: 22, fontWeight: 800, color: "#ffffff" }}>{stats.ots.hadir}</div>
+              <div style={{ display: "flex", fontSize: 14, color: "#a7f3d0" }}>{"Ikut"}</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 165, padding: "6px 12px", borderRadius: 12, backgroundColor: "rgba(255,255,255,0.10)" }}>
+              <div style={{ display: "flex", fontSize: 22, fontWeight: 800, color: "#ffffff" }}>{stats.ots.tidak}</div>
+              <div style={{ display: "flex", fontSize: 14, color: "#a7f3d0" }}>{"Tidak ikut"}</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 165, padding: "6px 12px", borderRadius: 12, backgroundColor: "rgba(255,255,255,0.10)" }}>
+              <div style={{ display: "flex", fontSize: 22, fontWeight: 800, color: "#ffffff" }}>{stats.ots.belumDaftar}</div>
+              <div style={{ display: "flex", fontSize: 14, color: "#a7f3d0" }}>{"Belum daftar"}</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 165, padding: "6px 12px", borderRadius: 12, backgroundColor: "rgba(255,255,255,0.10)" }}>
+              <div style={{ display: "flex", fontSize: 22, fontWeight: 800, color: "#ffffff" }}>{stats.ots.bertaawun}</div>
+              <div style={{ display: "flex", fontSize: 14, color: "#a7f3d0" }}>{"Bertaawun"}</div>
+            </div>
           </div>
         </div>
 
@@ -126,11 +148,11 @@ export async function GET() {
           <div
             style={{
               display: "flex",
-              padding: "22px 42px",
-              borderRadius: 18,
+              padding: "14px 28px",
+              borderRadius: 16,
               backgroundColor: "#ffffff",
               color: "#065f46",
-              fontSize: 34,
+              fontSize: 28,
               fontWeight: 800,
             }}
           >

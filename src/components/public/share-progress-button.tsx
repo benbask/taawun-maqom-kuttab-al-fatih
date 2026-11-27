@@ -4,19 +4,25 @@ import { Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { buttonClasses } from "@/components/ui/button";
 import { formatRupiah } from "@/lib/format";
+import type { OtsSummary } from "@/lib/types";
 
 export function ShareProgressButton({
   total,
   percent,
+  ots,
 }: {
   total: number;
   percent: number;
+  ots: OtsSummary;
 }) {
   function share() {
     const url = `${window.location.origin}/?ref=share-taawun`;
     const text =
       `Alhamdulillah, Ta'awun Maqom Kuttab Al Fatih Lampung sudah terkumpul ` +
-      `${formatRupiah(total)} (${percent}% dari target). ` +
+      `${formatRupiah(total)} (${percent}% dari target).\n\n` +
+      `Partisipasi OTS: ${ots.hadir} ikut Maqom, ${ots.tidak} tidak ikut, ` +
+      `${ots.belumDaftar} belum mendaftar, ${ots.bertaawun} bertaawun ` +
+      `dari ${ots.total} keluarga OTS.\n\n` +
       `Yuk ikut berTa'awun: ${url}`;
 
     const popup = window.open(

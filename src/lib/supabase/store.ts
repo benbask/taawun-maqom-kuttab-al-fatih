@@ -2,6 +2,7 @@ import "server-only";
 import crypto from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { ADMIN_PERMISSIONS } from "@/lib/admin-permissions";
+import { buildOtsSummary } from "@/lib/attendance";
 import { supabaseServiceKey, supabaseUrl, UPLOAD_MAX_BYTES } from "@/lib/env";
 import { defaultSettings } from "@/lib/demo/defaults";
 import { maskName } from "@/lib/format";
@@ -801,6 +802,10 @@ export const supabaseStore: Store = {
     const classes = must(
       await db().from("classes").select("*").order("sort_order"),
     ) as ClassRecord[];
+    const [directoryRows, familyRows] = await Promise.all([
+      must(await db().from("student_directory").select("*")),
+      must(await db().from("families").select("*")),
+    ]);
 
     const donorIds = new Set<string>();
     const studentIds = new Set<string>();
@@ -902,6 +907,11 @@ export const supabaseStore: Store = {
       target: settings.target_amount,
       donorCount: donorIds.size,
       studentCount: studentIds.size,
+      ots: buildOtsSummary(
+        directoryRows as StudentDirectoryEntry[],
+        familyRows as Family[],
+        donorIds,
+      ),
       perClass: classes
         .filter((cls) => perClassMap.has(cls.id))
         .map((cls) => ({

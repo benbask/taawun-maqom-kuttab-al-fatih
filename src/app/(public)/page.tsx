@@ -17,7 +17,10 @@ import {
   ShieldCheck,
   Sparkles,
   Target,
+  UserCheck,
+  UserRoundPlus,
   Users,
+  UserX,
   Wallet,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +32,7 @@ import { ShareProgressButton } from "@/components/public/share-progress-button";
 import { formatDate, formatDateTime, formatRupiah } from "@/lib/format";
 import { isDemoMode } from "@/lib/env";
 import { safePublicStats, safeSettings } from "@/lib/safe";
+import { shareCardVersion } from "@/lib/share-card";
 import { getUserSession } from "@/lib/session";
 import { getStore } from "@/lib/store";
 
@@ -43,7 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
     settings.share_description?.trim() ||
     settings.tagline?.trim() ||
     "Ikut berTa'awun untuk pendidikan Qur'an di Maqom Kuttab Al Fatih Lampung. Transparan, terverifikasi, dan mudah melalui QRIS.";
-  const image = `/api/share-card?v=${stats.total}`;
+  const image = `/api/share-card?v=${shareCardVersion(stats)}`;
 
   return {
     title,
@@ -263,7 +267,59 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <ShareProgressButton total={stats.total} percent={percent} />
+            <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50/70 p-3">
+              <div className="flex flex-wrap items-baseline justify-between gap-1">
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-emerald-900">
+                  Partisipasi OTS
+                </p>
+                <p className="text-[11px] text-emerald-800">
+                  {stats.ots.terdaftar} dari {stats.ots.total} keluarga OTS terdaftar
+                </p>
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {[
+                  {
+                    label: "Ikut Maqom",
+                    value: stats.ots.hadir,
+                    icon: UserCheck,
+                  },
+                  {
+                    label: "Tidak ikut",
+                    value: stats.ots.tidak,
+                    icon: UserX,
+                  },
+                  {
+                    label: "Belum mendaftar",
+                    value: stats.ots.belumDaftar,
+                    icon: UserRoundPlus,
+                  },
+                  {
+                    label: "Bertaawun",
+                    value: stats.ots.bertaawun,
+                    icon: HandHeart,
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="rounded-lg bg-white/80 p-2 text-center ring-1 ring-emerald-100"
+                  >
+                    <item.icon className="mx-auto h-3.5 w-3.5 text-emerald-700" />
+                    <p className="mt-1 text-base font-extrabold text-emerald-950">
+                      {item.value}
+                    </p>
+                    <p className="text-[10px] leading-tight text-stone-500">
+                      {item.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <ShareProgressButton
+              total={stats.total}
+              percent={percent}
+              ots={stats.ots}
+            />
 
             <div className="mt-5 flex items-center justify-between gap-2 border-t border-stone-100 pt-4 text-xs text-stone-500">
               <span className="flex items-center gap-1.5">
