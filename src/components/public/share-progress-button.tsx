@@ -3,7 +3,7 @@
 import { Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { buttonClasses } from "@/components/ui/button";
-import { formatRupiah } from "@/lib/format";
+import { buildWhatsAppShareMessage } from "@/lib/share-message";
 import type { OtsSummary } from "@/lib/types";
 
 export function ShareProgressButton({
@@ -17,13 +17,12 @@ export function ShareProgressButton({
 }) {
   function share() {
     const url = `${window.location.origin}/?ref=share-taawun`;
-    const text =
-      `Alhamdulillah, Ta'awun Maqom Kuttab Al Fatih Lampung sudah terkumpul ` +
-      `${formatRupiah(total)} (${percent}% dari target).\n\n` +
-      `Partisipasi OTS: ${ots.hadir} ikut Maqom, ${ots.tidak} tidak ikut, ` +
-      `${ots.belumDaftar} belum mendaftar, ${ots.bertaawun} bertaawun ` +
-      `dari ${ots.total} keluarga OTS.\n\n` +
-      `Yuk ikut berTa'awun: ${url}`;
+    const text = buildWhatsAppShareMessage({
+      total,
+      percent,
+      ots,
+      url,
+    });
 
     const popup = window.open(
       `https://wa.me/?text=${encodeURIComponent(text)}`,
