@@ -18,8 +18,10 @@ export default async function AdminAccountPage() {
   const session = await getAdminSession();
   const store = getStore();
   const admin = session ? await store.getAdminById(session.adminId) : null;
-  const admins = session?.slot === "super_admin" ? await store.listAdmins() : [];
-  const ownPermissions = session?.permissions ?? null;
+  const canManage = admin?.slot === "super_admin";
+  const admins = canManage ? await store.listAdmins() : [];
+  const ownPermissions = admin?.permissions ?? session?.permissions ?? null;
+  const ownSlot = admin?.slot ?? session?.slot ?? null;
 
   return (
     <div>
@@ -51,7 +53,7 @@ export default async function AdminAccountPage() {
           <div>
             <p className="text-xs text-stone-500">Level akses Anda</p>
             <p className="text-sm font-bold text-stone-900">
-              {SLOT_LABELS[session?.slot ?? ""] ?? "Admin"}
+              {SLOT_LABELS[ownSlot ?? ""] ?? "Admin"}
             </p>
             <p className="mt-1 text-[11px] leading-relaxed text-stone-500">
               {ownPermissions === null
@@ -70,7 +72,7 @@ export default async function AdminAccountPage() {
 
       <PasswordForm />
 
-      {session?.slot === "super_admin" && (
+      {canManage && (
         <section className="mt-8">
           <h2 className="mb-3 text-base font-extrabold text-stone-900">
             Kredensial & hak akses admin

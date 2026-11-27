@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/field";
+import { cn } from "@/lib/utils";
 import {
   ADMIN_PERMISSIONS,
   PERMISSION_LABELS,
@@ -60,8 +61,8 @@ export function AdminAccountsPanel({ admins }: { admins: Admin[] }) {
     });
   }
 
-  async function save(slot: string) {
-    const draft = drafts[slot];
+  async function persist(slot: string, overrides: Partial<Draft> = {}) {
+    const draft = { ...drafts[slot], ...overrides };
     if (!draft.username.trim()) {
       toast.error("Username wajib diisi.");
       return;
@@ -83,7 +84,11 @@ export function AdminAccountsPanel({ admins }: { admins: Admin[] }) {
         toast.error(data.error ?? "Gagal menyimpan akun.");
         return;
       }
-      update(slot, { password: "" });
+      update(slot, {
+        isActive: draft.isActive,
+        permissions: draft.permissions,
+        password: "",
+      });
       toast.success("Akun admin diperbarui. Admin terkait harus masuk ulang.");
       router.refresh();
     } catch {
@@ -93,14 +98,23 @@ export function AdminAccountsPanel({ admins }: { admins: Admin[] }) {
     }
   }
 
+  function save(slot: string) {
+    return persist(slot);
+  }
+
+  function toggleActive(slot: string) {
+    return persist(slot, { isActive: !drafts[slot].isActive });
+  }
+
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
         <p className="font-bold">Hak akses bertingkat</p>
         <p className="mt-1 text-xs leading-relaxed text-emerald-800">
           Setiap kredensial bisa diaktifkan/dinonaktifkan dan diatur cakupan
-          menunya. Perubahan hak akses berlaku setelah admin tersebut masuk
-          ulang. Akun yang diaktifkan wajib diisi password barunya.
+          menunya di sini. Klik label status untuk mengubahnya langsung; akun
+          yang baru diaktifkan wajib diisi password baru. Perubahan hak akses
+          berlaku setelah admin tersebut masuk ulang.
         </p>
       </div>
 
@@ -123,15 +137,34 @@ export function AdminAccountsPanel({ admins }: { admins: Admin[] }) {
                   </p>
                 </div>
               </div>
-              <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-stone-200 px-3 py-2 text-xs font-bold text-stone-700">
-                <input
-                  type="checkbox"
-                  checked={draft.isActive}
-                  onChange={(event) => update(slot, { isActive: event.target.checked })}
-                  className="h-4 w-4 accent-emerald-800"
+              <button
+                type="button"
+                onClick={() => toggleActive(slot)}
+                disabled={saving === slot}
+                title={
+                  draft.isActive
+                    ? "Klik untuk menonaktifkan akun ini"
+                    : "Klik untuk mengaktifkan akun ini (password baru wajib diisi jika pertama kali)"
+                }
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-bold disabled:opacity-60",
+                  draft.isActive
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                    : "border-stone-200 bg-white text-stone-500",
+                )}
+              >
+                <span
+                  className={cn(
+                    "h-2 w-2 rounded-full",
+                    draft.isActive ? "bg-emerald-500" : "bg-stone-400",
+                  )}
                 />
-                {draft.isActive ? "Aktif" : "Nonaktif"}
-              </label>
+                {saving === slot
+                  ? "Menyimpan..."
+                  : draft.isActive
+                    ? "Aktif — klik untuk nonaktifkan"
+                    : "Nonaktif — klik untuk aktifkan"}
+              </button>
             </div>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2">

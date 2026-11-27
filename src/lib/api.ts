@@ -41,7 +41,11 @@ export async function requireAdminApi() {
     return { session: null, response: apiError("Akun admin tidak aktif.", 401) };
   }
   return {
-    session: { ...session, permissions: admin.permissions },
+    session: {
+      ...session,
+      slot: admin.slot ?? session.slot ?? null,
+      permissions: admin.permissions,
+    },
     response: null,
   };
 }

@@ -7,6 +7,7 @@ import { SLOT_LABELS } from "@/lib/admin-permissions";
 import { buttonClasses } from "@/components/ui/button";
 import { safeSettings } from "@/lib/safe";
 import { requireAdminPage } from "@/lib/session";
+import { getStore } from "@/lib/store";
 
 export default async function AdminProtectedLayout({
   children,
@@ -15,6 +16,9 @@ export default async function AdminProtectedLayout({
 }) {
   const session = await requireAdminPage();
   const settings = await safeSettings();
+  const dbAdmin = await getStore().getAdminById(session.adminId).catch(() => null);
+  const slot = dbAdmin?.slot ?? session.slot ?? null;
+  const permissions = dbAdmin?.permissions ?? session.permissions ?? null;
 
   return (
     <div className="min-h-screen bg-[#f3f0e9]">
@@ -23,7 +27,7 @@ export default async function AdminProtectedLayout({
           <Logo siteName={settings.site_name} light />
         </Link>
         <div className="scrollbar-thin flex-1 overflow-y-auto">
-          <AdminNav permissions={session.permissions ?? null} />
+          <AdminNav permissions={permissions} />
         </div>
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-3">
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-200/40">
@@ -31,7 +35,7 @@ export default async function AdminProtectedLayout({
           </p>
           <p className="mt-1 truncate text-sm font-bold text-white">{session.username}</p>
           <p className="mt-0.5 truncate text-[10px] font-semibold text-emerald-200/60">
-            {SLOT_LABELS[session.slot ?? ""] ?? "Admin"}
+            {SLOT_LABELS[slot ?? ""] ?? "Admin"}
           </p>
           <div className="mt-2 flex items-center justify-between gap-2">
             <Link
@@ -87,7 +91,7 @@ export default async function AdminProtectedLayout({
             </div>
           </div>
           <div className="border-t border-stone-200/70 px-4 py-2 lg:hidden">
-            <AdminNav variant="mobile" permissions={session.permissions ?? null} />
+            <AdminNav variant="mobile" permissions={permissions} />
           </div>
         </header>
 
