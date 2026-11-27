@@ -325,8 +325,6 @@ export default async function VerificationPage({
         </Card>
       )}
 
-      <TopContributorsCard contributors={stats.topContributors} className="mt-5" />
-
       <ScrollToVerification selectedClassId={selected} />
 
       <Card id="rincian-pembayaran" className="mt-5 overflow-hidden scroll-mt-24">
@@ -466,6 +464,8 @@ export default async function VerificationPage({
           </>
         )}
       </Card>
+
+      <TopContributorsCard contributors={stats.topContributors} className="mt-5" />
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 text-xs leading-relaxed text-emerald-900">
