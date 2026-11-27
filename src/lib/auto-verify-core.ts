@@ -66,8 +66,14 @@ export function extractAmounts(text: string): number[] {
       // berada pada rentang ini.
       if (value < 1000 || value > 100_000_000) continue;
 
-      const hasSeparator = /[.,]/.test(raw);
-      if (!hasHint && !hasSeparator) continue;
+      // Kode pos / ID merchant juga pakai koma atau titik, jangan dianggap
+      // nominal transfer tanpa petunjuk "Rp"/"total"/"bayar" dan tanpa
+      // pengelompokan ribuan Rupiah.
+      const hasRupiahPrefix = /rp\.?\s*/i.test(raw);
+      const hasThousandGrouping = /^\d{1,3}(?:\.\d{3})+(?:[.,]\d{1,2})?$|^\d+,\d{2}$/.test(
+        raw.trim(),
+      );
+      if (!hasHint && !hasRupiahPrefix && !hasThousandGrouping) continue;
 
       values.add(value);
     }
@@ -110,6 +116,14 @@ export function evaluateAutoVerify({
   }
 
   const amounts = extractAmounts(text);
+  if (amounts.length === 0) {
+    return {
+      status: "needs_review",
+      amount: null,
+      reason: "Nominal transfer tidak terbaca pada bukti.",
+      confidence: safeConfidence,
+    };
+  }
   if (amounts.includes(expectedAmount)) {
     return {
       status: "matched",

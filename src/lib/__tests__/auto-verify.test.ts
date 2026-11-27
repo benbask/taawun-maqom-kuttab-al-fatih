@@ -22,6 +22,23 @@ describe("verifikasi otomatis bukti transfer", () => {
     expect(parseAmountToken("1.500.009")).toBe(1_500_009);
   });
 
+  it("tidak mengira kode pos sebagai nominal", () => {
+    expect(
+      extractAmounts("Lokasi Merchant Lampung Selat, 35362, ID"),
+    ).toEqual([]);
+  });
+
+  it("menandai nomor yang tidak terbaca dengan jelas", () => {
+    const result = evaluateAutoVerify({
+      text: "Pembayaran QRIS Berhasil\nMerchant PAN 9360091530371054599",
+      confidence: 76,
+      expectedAmount: 150_029,
+    });
+    expect(result.status).toBe("needs_review");
+    expect(result.amount).toBeNull();
+    expect(result.reason).toBe("Nominal transfer tidak terbaca pada bukti.");
+  });
+
   it("mencocokkan nominal transfer persis", () => {
     const result = evaluateAutoVerify({
       text: "Bukti transfer\nTotal Rp 1.500.009\nBerhasil",
