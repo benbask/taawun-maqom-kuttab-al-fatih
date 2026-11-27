@@ -75,9 +75,14 @@ export function InvoiceProofUploader({
         method: "POST",
         body: form,
       });
-      let data: { ok?: boolean; error?: string };
+      let data: {
+        ok?: boolean;
+        error?: string;
+        status?: string;
+        autoVerify?: string;
+      };
       try {
-        data = (await response.json()) as { ok?: boolean; error?: string };
+        data = (await response.json()) as typeof data;
       } catch {
         setError(
           response.status === 413
@@ -90,7 +95,15 @@ export function InvoiceProofUploader({
         setError(data.error ?? "Gagal mengunggah bukti. Silakan coba lagi.");
         return;
       }
-      toast.success("Bukti transfer terkirim. Menunggu verifikasi admin.");
+      if (data.status === "verified") {
+        toast.success("Nominal cocok. Pembayaran otomatis terverifikasi.");
+      } else if (data.autoVerify === "needs_review") {
+        toast.success("Bukti terkirim. Nominal perlu diperiksa admin.");
+      } else if (data.autoVerify === "skipped") {
+        toast.success("Bukti terkirim. Pemeriksaan otomatis dilewati; admin akan memeriksa.");
+      } else {
+        toast.success("Bukti transfer terkirim. Menunggu verifikasi admin.");
+      }
       setFile(null);
       if (preview) URL.revokeObjectURL(preview);
       setPreview(null);
@@ -194,6 +207,7 @@ export function InvoiceProofUploader({
               <Upload className="h-3.5 w-3.5" />
             )}
             Kirim bukti
+            {loading ? " / memeriksa" : ""}
           </Button>
         </div>
       )}

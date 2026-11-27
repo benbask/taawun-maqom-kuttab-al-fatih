@@ -153,6 +153,9 @@ export interface Invoice {
   expires_at: string | null;
   verified_at: string | null;
   verified_by: string | null;
+  auto_verify_status: "matched" | "needs_review" | "skipped" | null;
+  auto_verify_amount: number | null;
+  auto_verify_at: string | null;
   is_demo: boolean;
   created_at: string;
   updated_at: string;
@@ -354,6 +357,14 @@ export interface Store {
     status: "verified" | "rejected" | "cancelled" | "pending" | "waiting_verification",
     adminId: string,
     reason?: string | null,
+  ): Promise<void>;
+  setAutoVerifyResult(
+    id: string,
+    result: {
+      status: "matched" | "needs_review" | "skipped";
+      amount: number | null;
+      at: string;
+    },
   ): Promise<void>;
 
   createOtp(input: {

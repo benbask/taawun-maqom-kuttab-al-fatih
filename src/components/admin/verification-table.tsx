@@ -212,6 +212,24 @@ export function VerificationTable({
                     >
                       {invoiceStatusLabel(invoice.status)}
                     </span>
+                    {invoice.auto_verify_status && (
+                      <span
+                        className={cn(
+                          "mt-1 block w-fit rounded-full border px-2 py-0.5 text-[9px] font-bold",
+                          invoice.auto_verify_status === "matched"
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            : invoice.auto_verify_status === "needs_review"
+                              ? "border-amber-200 bg-amber-50 text-amber-800"
+                              : "border-stone-200 bg-stone-50 text-stone-500",
+                        )}
+                      >
+                        {invoice.auto_verify_status === "matched"
+                          ? "OCR cocok"
+                          : invoice.auto_verify_status === "needs_review"
+                            ? "Perlu cek nominal"
+                            : "OCR dilewati"}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     {invoice.proof_url ? (

@@ -508,6 +508,9 @@ export const demoStore: Store = {
         expires_at: expiresAt,
         verified_at: null,
         verified_by: null,
+        auto_verify_status: null,
+        auto_verify_amount: null,
+        auto_verify_at: null,
         is_demo:
           db.families.find((family) => family.id === input.familyId)?.is_demo ?? false,
         created_at: now(),
@@ -589,6 +592,17 @@ export const demoStore: Store = {
       invoice.verified_at = status === "verified" ? now() : null;
       invoice.verified_by = status === "verified" ? adminId : null;
       invoice.updated_at = now();
+    });
+  },
+
+  async setAutoVerifyResult(id, result) {
+    return withDb((db) => {
+      const invoice = db.invoices.find((item) => item.id === id);
+      if (!invoice) throw new Error("Invoice tidak ditemukan.");
+      invoice.auto_verify_status = result.status;
+      invoice.auto_verify_amount = result.amount;
+      invoice.auto_verify_at = result.at;
+      invoice.updated_at = result.at;
     });
   },
 

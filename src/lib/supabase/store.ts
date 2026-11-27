@@ -615,6 +615,19 @@ export const supabaseStore: Store = {
     if (error) throw new Error(error.message);
   },
 
+  async setAutoVerifyResult(id, result) {
+    const { error } = await db()
+      .from("invoices")
+      .update({
+        auto_verify_status: result.status,
+        auto_verify_amount: result.amount,
+        auto_verify_at: result.at,
+        updated_at: result.at,
+      })
+      .eq("id", id);
+    if (error) throw new Error(error.message);
+  },
+
   async createOtp(input) {
     await db()
       .from("otp_requests")
