@@ -39,11 +39,13 @@ export function AdminNav({
   variant = "sidebar",
   permissions,
   rail = false,
+  onNavigate,
 }: {
   variant?: "sidebar" | "mobile";
   permissions?: string[] | null;
   /** Sembunyikan label di layar kecil, tampilkan ikon saja di sisi kiri. */
   rail?: boolean;
+  onNavigate?: () => void;
 }) {
   const pathname = usePathname();
   const visible = items.filter((item) => {
@@ -63,6 +65,7 @@ export function AdminNav({
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
                 "inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold",
                 active
@@ -98,6 +101,7 @@ export function AdminNav({
           <Link
             key={item.href}
             href={item.href}
+            onClick={onNavigate}
             title={item.label}
             className={cn(
               "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
@@ -115,6 +119,8 @@ export function AdminNav({
       <div className={cn("mt-4 border-t border-white/10 pt-4", rail && "mt-auto")}>
         <Link
           href="/"
+          target="_blank"
+          onClick={onNavigate}
           title="Lihat situs publik"
           className={cn(
             "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-emerald-100/60 hover:bg-white/5 hover:text-white",
