@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { AdminNav } from "@/components/admin/nav";
 import { LogoutButton } from "@/components/admin/logout-button";
-import { Logo } from "@/components/site/logo";
+import { Logo, LogoMark } from "@/components/site/logo";
 import { SLOT_LABELS } from "@/lib/admin-permissions";
 import { buttonClasses } from "@/components/ui/button";
 import { safeSettings } from "@/lib/safe";
@@ -22,14 +22,19 @@ export default async function AdminProtectedLayout({
 
   return (
     <div className="min-h-screen bg-[#f3f0e9]">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col bg-emerald-950 px-4 py-5 lg:flex">
-        <Link href="/admin" className="mb-6 block px-1">
-          <Logo siteName={settings.site_name} light />
+      <aside className="fixed inset-y-0 left-0 z-40 flex w-16 flex-col bg-emerald-950 px-2 py-4 lg:w-64 lg:px-4 lg:py-5">
+        <Link href="/admin" className="mb-4 flex justify-center lg:mb-6 lg:block lg:px-1">
+          <span className="hidden lg:block">
+            <Logo siteName={settings.site_name} light />
+          </span>
+          <span className="lg:hidden">
+            <LogoMark className="h-10 w-10" />
+          </span>
         </Link>
         <div className="scrollbar-thin flex-1 overflow-y-auto">
-          <AdminNav permissions={permissions} />
+          <AdminNav permissions={permissions} rail />
         </div>
-        <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-3">
+        <div className="mt-4 hidden rounded-2xl border border-white/10 bg-white/5 p-3 lg:block">
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-200/40">
             Masuk sebagai
           </p>
@@ -50,13 +55,16 @@ export default async function AdminProtectedLayout({
         </div>
       </aside>
 
-      <div className="lg:pl-64">
+      <div className="pl-16 lg:pl-64">
         <header className="sticky top-0 z-30 border-b border-stone-200/80 bg-[#f3f0e9]/90 backdrop-blur-xl">
           <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-3 lg:hidden">
-              <Link href="/admin">
-                <Logo siteName={settings.site_name} compact />
-              </Link>
+            <div className="min-w-0 lg:hidden">
+              <p className="truncate text-xs font-extrabold text-emerald-950">
+                Panel admin
+              </p>
+              <p className="truncate text-[10px] font-semibold text-stone-500">
+                {settings.site_name}
+              </p>
             </div>
             <div className="hidden lg:block">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
@@ -89,9 +97,6 @@ export default async function AdminProtectedLayout({
                 <LogoutButton />
               </span>
             </div>
-          </div>
-          <div className="border-t border-stone-200/70 px-4 py-2 lg:hidden">
-            <AdminNav variant="mobile" permissions={permissions} />
           </div>
         </header>
 

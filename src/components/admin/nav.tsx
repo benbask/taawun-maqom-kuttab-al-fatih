@@ -38,9 +38,12 @@ const items = [
 export function AdminNav({
   variant = "sidebar",
   permissions,
+  rail = false,
 }: {
   variant?: "sidebar" | "mobile";
   permissions?: string[] | null;
+  /** Sembunyikan label di layar kecil, tampilkan ikon saja di sisi kiri. */
+  rail?: boolean;
 }) {
   const pathname = usePathname();
   const visible = items.filter((item) => {
@@ -77,8 +80,13 @@ export function AdminNav({
   }
 
   return (
-    <nav className="space-y-1">
-      <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200/40">
+    <nav className={cn("space-y-1", rail && "flex flex-col items-center gap-1 space-y-0")}>
+      <p
+        className={cn(
+          "mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200/40",
+          rail && "hidden lg:block",
+        )}
+      >
         Menu admin
       </p>
       {visible.map((item) => {
@@ -90,24 +98,31 @@ export function AdminNav({
           <Link
             key={item.href}
             href={item.href}
+            title={item.label}
             className={cn(
               "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
+              rail && "h-11 w-11 justify-center px-0 lg:h-auto lg:w-full lg:justify-start lg:px-3",
               active
                 ? "bg-white/10 text-white ring-1 ring-white/10"
                 : "text-emerald-100/60 hover:bg-white/5 hover:text-white",
             )}
           >
             <item.icon className="h-4 w-4 shrink-0" />
-            <span className="truncate">{item.label}</span>
+            <span className={cn("truncate", rail && "hidden lg:inline")}>{item.label}</span>
           </Link>
         );
       })}
-      <div className="mt-4 border-t border-white/10 pt-4">
+      <div className={cn("mt-4 border-t border-white/10 pt-4", rail && "mt-auto")}>
         <Link
           href="/"
-          className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-emerald-100/60 hover:bg-white/5 hover:text-white"
+          title="Lihat situs publik"
+          className={cn(
+            "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-emerald-100/60 hover:bg-white/5 hover:text-white",
+            rail && "h-11 w-11 justify-center px-0 lg:h-auto lg:w-full lg:justify-start lg:px-3",
+          )}
         >
-          <Settings className="h-4 w-4" /> Lihat situs publik
+          <Settings className="h-4 w-4 shrink-0" />
+          <span className={cn(rail && "hidden lg:inline")}>Lihat situs publik</span>
         </Link>
       </div>
     </nav>
